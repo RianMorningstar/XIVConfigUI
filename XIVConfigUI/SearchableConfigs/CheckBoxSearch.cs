@@ -1,10 +1,8 @@
 ﻿using Dalamud.Interface.Internal;
 using Dalamud.Interface.Utility;
-using System.Numerics;
-using System.Reflection;
 
 namespace XIVConfigUI.SearchableConfigs;
-internal class CheckBoxSearch : Searchable
+public class CheckBoxSearch : Searchable
 {
     public List<Searchable> Children { get; } = [];
 
@@ -16,7 +14,7 @@ internal class CheckBoxSearch : Searchable
 
     public override string Description => Action == 0 ? base.Description : Action.ToString();
 
-    internal CheckBoxSearch(PropertyInfo property, object obj,  params Searchable[] children)
+    public CheckBoxSearch(PropertyInfo property, object obj,  params Searchable[] children)
         : base(property, obj)
     {
         Action = property.GetCustomAttribute<UIAttribute>()?.Action ?? 0;
@@ -32,7 +30,7 @@ internal class CheckBoxSearch : Searchable
         Children.Add(child);
     }
 
-    protected bool Value
+    protected virtual bool Value
     {
         get => (bool)_property.GetValue(_obj)!;
         set => _property.SetValue(_obj, value);

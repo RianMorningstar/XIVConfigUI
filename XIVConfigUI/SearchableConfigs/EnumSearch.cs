@@ -2,7 +2,7 @@
 
 namespace XIVConfigUI.SearchableConfigs;
 
-internal class EnumSearch(PropertyInfo property, object obj) : Searchable(property, obj)
+public class EnumSearch(PropertyInfo property, object obj) : Searchable(property, obj)
 {
     protected int Value
     {

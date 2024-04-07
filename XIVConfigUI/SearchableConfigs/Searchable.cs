@@ -1,13 +1,9 @@
 ﻿using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using FFXIVClientStructs.Havok;
-using System.Numerics;
-using System.Reflection;
-using XIVConfigUI;
 
 namespace XIVConfigUI.SearchableConfigs;
 
-internal abstract class Searchable(PropertyInfo property, object obj)
+public abstract class Searchable(PropertyInfo property, object obj)
 {
     protected readonly object _obj = obj,
         _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
@@ -126,7 +122,7 @@ internal abstract class Searchable(PropertyInfo property, object obj)
 
     protected virtual void TooltipAdditional() { }
 
-    public void ResetToDefault()
+    public virtual void ResetToDefault()
     {
         _property.SetValue(_obj, _default);
     }

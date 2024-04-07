@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace XIVConfigUI.SearchableConfigs;
 
-internal class DragFloatRangeSearch : Searchable
+public class DragFloatRangeSearch : Searchable
 {
     public float Min { get; }
     public float Max { get; }

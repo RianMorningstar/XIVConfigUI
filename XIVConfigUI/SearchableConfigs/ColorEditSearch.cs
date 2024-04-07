@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace XIVConfigUI.SearchableConfigs;
 
-internal class ColorEditSearch(PropertyInfo property, object obj) : Searchable(property, obj)
+public class ColorEditSearch(PropertyInfo property, object obj) : Searchable(property, obj)
 {
     protected Vector4 Value 
     {

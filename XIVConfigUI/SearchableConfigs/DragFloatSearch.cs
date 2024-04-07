@@ -2,7 +2,7 @@
 
 namespace XIVConfigUI.SearchableConfigs;
 
-internal class DragFloatSearch : Searchable
+public class DragFloatSearch : Searchable
 {
     public float Min { get; }
     public float Max { get; }

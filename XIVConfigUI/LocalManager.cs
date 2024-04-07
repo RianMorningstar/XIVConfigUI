@@ -36,7 +36,7 @@ public static class LocalManager
         return key.Local(value);
     }
 
-    private static string Local(this string key, string @default)
+    public static string Local(this string key, string @default)
     {
 #if DEBUG
         _rightLang[key] = @default;
@@ -68,7 +68,7 @@ public static class LocalManager
             Service.Log.Error("Load translations failed");
         }
 #else
-        SetLanguage(Svc.PluginInterface.UiLanguage);
+        SetLanguage(Service.PluginInterface.UiLanguage);
 #endif
         Service.PluginInterface.LanguageChanged += OnLanguageChange;
     }
@@ -131,17 +131,14 @@ public static class LocalManager
 
     private static void OnLanguageChange(string languageCode)
     {
-#if DEBUG
-#else
         try
         {
-            Svc.Log.Information($"Loading Localization for {languageCode}");
+            Service.Log.Information($"Loading Localization for {languageCode}");
             SetLanguage(languageCode);
         }
         catch (Exception ex)
         {
-            Svc.Log.Error(ex, "Unable to Load Localization");
+            Service.Log.Error(ex, "Unable to Load Localization");
         }
-#endif
     }
 }

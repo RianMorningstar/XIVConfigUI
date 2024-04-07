@@ -5,7 +5,6 @@ using Dalamud.Interface.Internal;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
-using System.Numerics;
 
 namespace XIVConfigUI;
 
@@ -196,7 +195,7 @@ public static class ImGuiHelper
         return result;
     }
 
-    internal static void DrawActionOverlay(Vector2 cursor, float width, float percent)
+    public static void DrawActionOverlay(Vector2 cursor, float width, float percent)
     {
         var pixPerUnit = width / 82;
 

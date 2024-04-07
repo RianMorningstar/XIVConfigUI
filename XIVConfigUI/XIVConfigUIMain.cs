@@ -2,7 +2,7 @@
 using Dalamud.Plugin;
 
 namespace XIVConfigUI;
-internal static class XIVConfigUIMain
+public static class XIVConfigUIMain
 {
     private static bool _inited = false;
 

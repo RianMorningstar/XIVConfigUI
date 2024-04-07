@@ -5,7 +5,7 @@ using XIVConfigUI.SearchableConfigs;
 namespace XIVConfigUI;
 internal readonly record struct SearchPair(UIAttribute Attribute, Searchable Searchable);
 
-internal class SearchableCollection
+public class SearchableCollection
 {
     private readonly List<SearchPair> _items;
 
