@@ -9,7 +9,8 @@ public class SearchableCollection
 {
     private readonly List<SearchPair> _items;
 
-    public SearchableCollection(object config, Dictionary<string, Func<PropertyInfo, Searchable>> customCreaters)
+    public SearchableCollection(object config, Dictionary<string, Func<PropertyInfo, Searchable>>? propertyNameCreaters = null,
+        Dictionary<Type, Func<PropertyInfo, Searchable>>? propertyTypeCreaters = null)
     {
         var properties = config.GetType().GetRuntimeProperties();
         var count = properties.Count();
@@ -48,7 +49,11 @@ public class SearchableCollection
         {
             var type = property.PropertyType;
 
-            if (customCreaters.TryGetValue(property.Name, out var func))
+            if (propertyNameCreaters?.TryGetValue(property.Name, out var func) ?? false)
+            {
+                return func(property);
+            }
+            if (propertyTypeCreaters?.TryGetValue(type, out func) ?? false)
             {
                 return func(property);
             }
