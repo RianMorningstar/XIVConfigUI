@@ -101,6 +101,22 @@ public class SearchableCollection
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="filters"></param>
+    /// <returns></returns>
+    public CollapsingHeaderGroup GetGroups<T>(params T[] filters) where T : Enum
+    {
+        Dictionary<Func<string>, Action> dict = [];
+        foreach (var filter in filters)
+        {
+            dict[() => filter.Local()] = () => DrawItems(Convert.ToInt32(filter));
+        }
+        return new (dict);
+    }
+
+    /// <summary>
     /// Draw the items based on the text filter.
     /// </summary>
     /// <param name="filter"></param>
