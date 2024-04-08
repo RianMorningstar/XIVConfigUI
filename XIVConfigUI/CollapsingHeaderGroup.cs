@@ -3,6 +3,37 @@
 namespace XIVConfigUI;
 
 /// <summary>
+/// 
+/// </summary>
+public enum HeaderSizeType : byte
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    First,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Second,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Third,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Forth,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Fifth,
+}
+
+/// <summary>
 /// The collapsing header group for simplify the drawing.
 /// </summary>
 public class CollapsingHeaderGroup()
@@ -13,7 +44,7 @@ public class CollapsingHeaderGroup()
     /// <summary>
     /// The size of the header.
     /// </summary>
-    public float HeaderSize { get; set; } = 24;
+    public HeaderSizeType HeaderSize { get; set; } = HeaderSizeType.Third;
 
     /// <summary>
     /// 
@@ -73,7 +104,14 @@ public class CollapsingHeaderGroup()
                 ImGui.Separator();
                 var selected = index == _openedIndex;
                 var changed = false;
-                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(HeaderSize)))
+                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(HeaderSize switch 
+                { 
+                    HeaderSizeType.First => 72,
+                    HeaderSizeType.Second => 48,
+                    HeaderSizeType.Third => 32,
+                    HeaderSizeType.Forth => 24,
+                    _ => 18,
+                })))
                 {
                     changed = ImGui.Selectable(name, selected, ImGuiSelectableFlags.DontClosePopups);
                 }

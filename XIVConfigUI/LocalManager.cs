@@ -97,7 +97,7 @@ public static class LocalManager
         var path = Path.Combine(directory, "Localization.json");
         _rightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
 
-        if (_rightLang == null)
+        if (_rightLang.Count == 0)
         {
             Service.Log.Error("Load translations failed");
         }
