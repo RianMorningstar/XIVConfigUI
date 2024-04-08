@@ -13,7 +13,20 @@
 	  <LangVersion>preview</LangVersion>
 	  <Nullable>enable</Nullable>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Description>A basic library for simplify the ui, localization and config in dalamud.</Description>
+	  <PackageProjectUrl></PackageProjectUrl>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageTags>FFXIV, FF14, Dalamud, Config, Imgui, Localization</PackageTags>
+	  <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+	  <RepositoryUrl>https://github.com/ArchiDog1998/XIVConfigUI</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 	<ItemGroup>
 

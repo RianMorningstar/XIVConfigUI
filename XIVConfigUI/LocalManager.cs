@@ -1,17 +1,31 @@
 ﻿using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace XIVConfigUI;
+
+/// <summary>
+/// 
+/// </summary>
 public static class LocalManager
 {
     private static string _userName = "", _repoName = "";
     private static Dictionary<string, string> _rightLang = [];
 
+    /// <summary>
+    /// 
+    /// </summary>
     public static event Action? LanguageChanged;
 
     private static readonly Dictionary<string, Dictionary<string, string>> _translations = [];
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="enum"></param>
+    /// <param name="suffix"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static string Local(this Enum @enum, string suffix = "", string value = "")
     {
         var key = (@enum.GetType().FullName ?? string.Empty) + suffix + "." + @enum.ToString();
@@ -19,7 +33,14 @@ public static class LocalManager
             : value;
         return key.Local(value);
     }
-
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="member"></param>
+    /// <param name="suffix"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static string Local(this MemberInfo member, string suffix = "", string value = "")
     {
         var key = (member.DeclaringType?.FullName ?? string.Empty) + suffix + "." + member.ToString();
@@ -28,6 +49,13 @@ public static class LocalManager
         return key.Local(value);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="suffix"></param>
+    /// <param name="value"></param>
+    /// <returns></returns>
     public static string Local(this Type type, string suffix = "", string value = "")
     {
         var key = (type.FullName ?? type.Name) + suffix;
@@ -36,6 +64,12 @@ public static class LocalManager
         return key.Local(value);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="default"></param>
+    /// <returns></returns>
     public static string Local(this string key, string @default)
     {
 #if DEBUG

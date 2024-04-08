@@ -3,18 +3,45 @@ using Dalamud.Interface.Utility.Raii;
 
 namespace XIVConfigUI.SearchableConfigs;
 
+/// <summary>
+/// The searchable item
+/// </summary>
+/// <param name="property">The property to link with.</param>
+/// <param name="obj">the config</param>
 public abstract class Searchable(PropertyInfo property, object obj)
 {
+    /// <summary/>
     protected readonly object _obj = obj,
         _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
 
+    /// <summary>
+    /// The property.
+    /// </summary>
     protected readonly PropertyInfo _property = property;
 
+    /// <summary>
+    /// The width of the drag.
+    /// </summary>
     public const float DRAG_WIDTH = 150;
+
+    /// <summary>
+    /// The scale of it.
+    /// </summary>
     protected static float Scale => ImGuiHelpers.GlobalScale;
+
+    /// <summary>
+    /// The parent item.
+    /// </summary>
     public CheckBoxSearch? Parent { get; set; } = null;
 
+    /// <summary>
+    /// The way to search it.
+    /// </summary>
     public virtual string SearchingKeys => Name + " " + Description;
+
+    /// <summary>
+    /// The name of it.
+    /// </summary>
     public virtual string Name
     {
         get
@@ -25,6 +52,10 @@ public abstract class Searchable(PropertyInfo property, object obj)
             return _property.Local("Name", ui.Name);
         }
     }
+
+    /// <summary>
+    /// The description about this item.
+    /// </summary>
     public virtual string Description
     {
         get
@@ -35,6 +66,10 @@ public abstract class Searchable(PropertyInfo property, object obj)
             return _property.Local("Description", ui.Description);
         }
     }
+
+    /// <summary>
+    /// The command of this item.
+    /// </summary>
     public virtual string Command
     {
         get
@@ -45,13 +80,31 @@ public abstract class Searchable(PropertyInfo property, object obj)
             return result;
         }
     }
-    public virtual LinkDescription[]? Tooltips => [.. _property.GetCustomAttributes<LinkDescriptionAttribute>().Select(l => l.LinkDescription)];
+
+    /// <summary>
+    /// The tooltips of it.
+    /// </summary>
+    public LinkDescription[]? Tooltips => [.. _property.GetCustomAttributes<LinkDescriptionAttribute>().Select(l => l.LinkDescription)];
+
+    /// <summary>
+    /// The string id of this item.
+    /// </summary>
     public virtual string ID => _property.Name;
     private string Popup_Key => "ConfigUI RightClicking: " + ID;
+
+    /// <summary>
+    /// The color of this item.
+    /// </summary>
     public uint Color { get; set; } = 0;
 
+    /// <summary>
+    /// Should this be shown in the child.
+    /// </summary>
     public virtual bool ShowInChild => true;
 
+    /// <summary>
+    /// To draw it.
+    /// </summary>
     public unsafe void Draw()
     {
         if (XIVConfigUIMain.Config.IsPropertyValid(_property))
@@ -86,8 +139,15 @@ public abstract class Searchable(PropertyInfo property, object obj)
         }
     }
 
+    /// <summary>
+    /// The way to draw it.
+    /// </summary>
     protected abstract void DrawMain();
 
+    /// <summary>
+    /// To show the tool tips.
+    /// </summary>
+    /// <param name="showHand"></param>
     protected void ShowTooltip(bool showHand = true)
     {
         var showDesc = !string.IsNullOrEmpty(Description);
@@ -120,13 +180,22 @@ public abstract class Searchable(PropertyInfo property, object obj)
         ImGuiHelper.ReactPopup(Popup_Key, Command, ResetToDefault, showHand);
     }
 
+    /// <summary>
+    /// The extra tooltips.
+    /// </summary>
     protected virtual void TooltipAdditional() { }
 
+    /// <summary>
+    /// The way to reset to the default.
+    /// </summary>
     public virtual void ResetToDefault()
     {
         _property.SetValue(_obj, _default);
     }
 
+    /// <summary>
+    /// Draw the name of it.
+    /// </summary>
     protected void DrawName()
     {
         using (var group = ImRaii.Group())

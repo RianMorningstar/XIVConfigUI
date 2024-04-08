@@ -2,6 +2,10 @@
 using Dalamud.Plugin;
 
 namespace XIVConfigUI;
+
+/// <summary>
+/// The major class.
+/// </summary>
 public static class XIVConfigUIMain
 {
     private static bool _inited = false;
@@ -11,18 +15,20 @@ public static class XIVConfigUIMain
     internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
 
     #region GetIcon
-    public delegate bool GetTextureFromPath(string path, out IDalamudTextureWrap texture, bool loadingIcon = false);
-    public delegate bool GetTextureFromID(uint id, out IDalamudTextureWrap texture, uint @default = 0);
-
-    public static GetTextureFromPath GetTexturePath { get; set; } = GetTextureDefault;
-    public static GetTextureFromID GetTextureID { get; set; } = GetTextureDefault;
     internal static bool GetTexture(string path, out IDalamudTextureWrap texture, bool loadingIcon = false)
-        => GetTexturePath(path, out texture, loadingIcon);
+        => Config.GetTexture(path, out texture, loadingIcon);
     internal static bool GetTexture(uint id, out IDalamudTextureWrap texture, uint @default = 0)
-        => GetTextureID(id, out texture, @default);
+        => Config.GetTexture(id, out texture, @default);
 
     private static readonly Dictionary<uint, uint> _actionIcons = [];
-    internal static bool GetTextureAction(uint id, out IDalamudTextureWrap texture)
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="texture"></param>
+    /// <returns></returns>
+    public static bool GetTextureAction(uint id, out IDalamudTextureWrap texture)
     {
         if (id == 0)
         {
@@ -41,18 +47,16 @@ public static class XIVConfigUIMain
         }
         return GetTexture(iconId, out texture);
     }
-    private static bool GetTextureDefault(string path, out IDalamudTextureWrap texture, bool loadingIcon = false)
-    {
-        texture = null!;
-        return false;
-    }
-
-    private static bool GetTextureDefault(uint id, out IDalamudTextureWrap texture, uint @default = 0)
-    {
-        texture = null!;
-        return false;
-    }
     #endregion
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pluginInterface"></param>
+    /// <param name="userName"></param>
+    /// <param name="repoName"></param>
+    /// <param name="commandForChangingSetting"></param>
+    /// <param name="searchConfig"></param>
     public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName,
         string commandForChangingSetting, SearchableConfig searchConfig)
     {

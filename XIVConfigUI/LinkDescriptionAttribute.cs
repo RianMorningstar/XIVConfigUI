@@ -8,7 +8,7 @@ public class LinkDescriptionAttribute : Attribute
     /// <summary>
     /// The description.
     /// </summary>
-    public LinkDescription LinkDescription { get; set; }
+    public LinkDescription LinkDescription { get; }
 
     /// <summary>
     /// Constructer.

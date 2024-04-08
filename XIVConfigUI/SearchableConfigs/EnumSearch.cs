@@ -1,15 +1,22 @@
-﻿using System.Reflection;
+﻿namespace XIVConfigUI.SearchableConfigs;
 
-namespace XIVConfigUI.SearchableConfigs;
-
+/// <summary>
+/// The config for the enum.
+/// </summary>
+/// <param name="property"></param>
+/// <param name="obj"></param>
 public class EnumSearch(PropertyInfo property, object obj) : Searchable(property, obj)
 {
+    /// <summary>
+    /// The value.
+    /// </summary>
     protected int Value
     {
         get => Convert.ToInt32(_property.GetValue(_obj));
         set => _property.SetValue(_obj, Enum.ToObject(_property.PropertyType, value));
     }
 
+    /// <inheritdoc/>
     protected override void DrawMain()
     {
         var names = new List<string>();

@@ -1,14 +1,21 @@
-﻿using System.Numerics;
-using System.Reflection;
-using XIVConfigUI.SearchableConfigs;
+﻿using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
 internal readonly record struct SearchPair(UIAttribute Attribute, Searchable Searchable);
 
+/// <summary>
+/// The collections that can be serached.
+/// </summary>
 public class SearchableCollection
 {
     private readonly List<SearchPair> _items;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="config"></param>
+    /// <param name="propertyNameCreaters"></param>
+    /// <param name="propertyTypeCreaters"></param>
     public SearchableCollection(object config, Dictionary<string, Func<PropertyInfo, Searchable>>? propertyNameCreaters = null,
         Dictionary<Type, Func<PropertyInfo, Searchable>>? propertyTypeCreaters = null)
     {
@@ -53,7 +60,7 @@ public class SearchableCollection
             {
                 return func(property);
             }
-            if (propertyTypeCreaters?.TryGetValue(type, out func) ?? false)
+            else if (propertyTypeCreaters?.TryGetValue(type, out func) ?? false)
             {
                 return func(property);
             }
@@ -93,7 +100,11 @@ public class SearchableCollection
         }
     }
 
-    public void DrawItems(string filter)
+    /// <summary>
+    /// Draw the items based on the text filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    public void DrawItems(int filter)
     {
         bool isFirst = true;
         foreach (var grp in _items.Where(i => i.Attribute.Filter == filter)
@@ -113,6 +124,12 @@ public class SearchableCollection
     }
 
     private static readonly char[] _splitChar = [' ', ',', '、', '.', '。'];
+
+    /// <summary>
+    /// Search the items based on the <paramref name="searchingText"/>.
+    /// </summary>
+    /// <param name="searchingText"></param>
+    /// <returns></returns>
     public Searchable[] SearchItems(string searchingText)
     {
         if (string.IsNullOrEmpty(searchingText)) return [];
@@ -151,6 +168,12 @@ public class SearchableCollection
         }
     }
 
+    /// <summary>
+    /// The similarity of the two texts.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
     public static float Similarity(string text, string key)
     {
         if (string.IsNullOrEmpty(text)) return 0;

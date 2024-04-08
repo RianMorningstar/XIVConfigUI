@@ -8,6 +8,9 @@ using Dalamud.Utility;
 
 namespace XIVConfigUI;
 
+/// <summary>
+/// The class for help.
+/// </summary>
 public static class ImGuiHelper
 {
     /// <summary>
@@ -39,11 +42,24 @@ public static class ImGuiHelper
     }
 
     #region PopUp
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="command"></param>
+    /// <param name="reset"></param>
     public static void PrepareGroup(string key, string command, Action reset)
     {
         DrawHotKeysPopup(key, command, ("Reset to Default Value.", reset, ["Backspace"]));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="command"></param>
+    /// <param name="pairs"></param>
     public static void DrawHotKeysPopup(string key, string command, params (string name, Action action, string[] keys)[] pairs)
     {
         using var popup = ImRaii.Popup(key);
@@ -66,6 +82,7 @@ public static class ImGuiHelper
             }
         }
     }
+
 
     private static void ExecuteCommand(string command)
     {
@@ -93,11 +110,26 @@ public static class ImGuiHelper
         ImGui.TextDisabled(string.Join(' ', keys));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="command"></param>
+    /// <param name="reset"></param>
+    /// <param name="showHand"></param>
     public static void ReactPopup(string key, string command, Action reset, bool showHand = true)
     {
         ExecuteHotKeysPopup(key, command, string.Empty, showHand, (reset, new VirtualKey[] { VirtualKey.BACK }));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="command"></param>
+    /// <param name="tooltip"></param>
+    /// <param name="showHand"></param>
+    /// <param name="pairs"></param>
     public static void ExecuteHotKeysPopup(string key, string command, string tooltip, bool showHand, params (Action action, VirtualKey[] keys)[] pairs)
     {
         if (!ImGui.IsItemHovered()) return;
@@ -140,6 +172,14 @@ public static class ImGuiHelper
     #endregion
 
     #region Image
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="texture"></param>
+    /// <param name="wholeWidth"></param>
+    /// <param name="maxWidth"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public static bool TextureButton(IDalamudTextureWrap texture, float wholeWidth, float maxWidth, string id = "")
     {
         if (texture == null) return false;
@@ -154,6 +194,13 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="drawAction"></param>
+    /// <param name="wholeWidth"></param>
+    /// <param name="width"></param>
+    /// <param name="leftAlign"></param>
     public static void DrawItemMiddle(Action drawAction, float wholeWidth, float width, bool leftAlign = true)
     {
         if (drawAction == null) return;
@@ -163,9 +210,25 @@ public static class ImGuiHelper
         drawAction();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public unsafe static bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, string id = "")
     => NoPaddingNoColorImageButton(handle, size, Vector2.Zero, Vector2.One, id);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="uv0"></param>
+    /// <param name="uv1"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public unsafe static bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, string id = "")
     {
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0);
@@ -177,6 +240,15 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="uv0"></param>
+    /// <param name="uv1"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public static bool NoPaddingImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, string id = "")
     {
         //TODO maybe push style can make it simple.
@@ -195,6 +267,12 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cursor"></param>
+    /// <param name="width"></param>
+    /// <param name="percent"></param>
     public static void DrawActionOverlay(Vector2 cursor, float width, float percent)
     {
         var pixPerUnit = width / 82;
@@ -278,24 +356,41 @@ public static class ImGuiHelper
       ImGuiWindowFlags.AlwaysAutoResize;
 
     const string TOOLTIP_ID = "Config UI Tooltips";
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="text"></param>
     public static void HoveredTooltip(string? text)
     {
         if (!ImGui.IsItemHovered()) return;
         ShowTooltip(text);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="act"></param>
     public static void HoveredTooltip(Action act)
     {
         if (!ImGui.IsItemHovered()) return;
         ShowTooltip(act);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="text"></param>
     public static void ShowTooltip(string? text)
     {
         if (string.IsNullOrEmpty(text)) return;
         ShowTooltip(() => ImGui.Text(text));
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="act"></param>
     public static void ShowTooltip(Action act)
     {
         if (act == null) return;
@@ -316,6 +411,12 @@ public static class ImGuiHelper
     }
     #endregion
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="link"></param>
+    /// <param name="wholeWidth"></param>
+    /// <param name="drawQuestion"></param>
     public static void DrawLinkDescription(LinkDescription link, float wholeWidth, bool drawQuestion)
     {
         var hasTexture = XIVConfigUIMain.GetTexture(link.Url, out var texture);
@@ -337,6 +438,11 @@ public static class ImGuiHelper
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="unit"></param>
+    /// <returns></returns>
     public static string ToSymbol(this ConfigUnitType unit) => unit switch
     {
         ConfigUnitType.Seconds => " s",

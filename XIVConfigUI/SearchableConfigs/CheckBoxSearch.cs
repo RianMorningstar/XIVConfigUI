@@ -2,40 +2,73 @@
 using Dalamud.Interface.Utility;
 
 namespace XIVConfigUI.SearchableConfigs;
+
+/// <summary>
+/// The checkbox item.
+/// </summary>
 public class CheckBoxSearch : Searchable
 {
+    /// <summary>
+    /// The children of it.
+    /// </summary>
     public List<Searchable> Children { get; } = [];
 
-    public uint Action { get; init; } = 0;
+    /// <summary>
+    /// The action id to show.
+    /// </summary>
+    public uint ActionId { get; init; } = 0;
 
+    /// <summary>
+    /// The additional draw of it.
+    /// </summary>
     public Action? AdditionalDraw { get; set; } = null;
 
+    /// <summary>
+    /// Should it show the child.
+    /// </summary>
     public virtual bool AlwaysShowChildren => false;
 
-    public override string Description => Action == 0 ? base.Description : Action.ToString();
+    /// <inheritdoc/>
+    public override string Description => ActionId == 0 ? base.Description : ActionId.ToString();
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="obj"></param>
+    /// <param name="children"></param>
     public CheckBoxSearch(PropertyInfo property, object obj,  params Searchable[] children)
         : base(property, obj)
     {
-        Action = property.GetCustomAttribute<UIAttribute>()?.Action ?? 0;
+        ActionId = property.GetCustomAttribute<UIAttribute>()?.Action ?? 0;
         foreach (var child in children)
         {
             AddChild(child);
         }
     }
 
+    /// <summary>
+    /// Add child
+    /// </summary>
+    /// <param name="child"></param>
     public void AddChild(Searchable child)
     {
         child.Parent = this;
         Children.Add(child);
     }
 
+    /// <summary>
+    /// The value.
+    /// </summary>
     protected virtual bool Value
     {
         get => (bool)_property.GetValue(_obj)!;
         set => _property.SetValue(_obj, value);
     }
 
+    /// <summary>
+    /// To draw the children.
+    /// </summary>
     protected virtual void DrawChildren()
     {
         var lastIs = false;
@@ -43,8 +76,8 @@ public class CheckBoxSearch : Searchable
         {
             if (!child.ShowInChild) continue;
 
-            var thisIs = child is CheckBoxSearch c && c.Action != 0 
-                && XIVConfigUIMain.GetTextureAction(c.Action, out var texture);
+            var thisIs = child is CheckBoxSearch c && c.ActionId != 0 
+                && XIVConfigUIMain.GetTextureAction(c.ActionId, out var texture);
             if (lastIs && thisIs)
             {
                 ImGui.SameLine();
@@ -55,18 +88,22 @@ public class CheckBoxSearch : Searchable
         }
     }
 
+    /// <summary>
+    /// Draw the things in middle.
+    /// </summary>
     protected virtual void DrawMiddle()
     {
 
     }
 
-    protected override void DrawMain()
+    /// <inheritdoc/>
+    protected sealed override void DrawMain()
     {
         var hasChild = Children != null && Children.Any(c => c.ShowInChild);
         var hasAdditional = AdditionalDraw != null;
         var hasSub = hasChild || hasAdditional;
         IDalamudTextureWrap? texture = null;
-        var hasIcon = Action != 0 && XIVConfigUIMain.GetTextureAction(Action, out texture);
+        var hasIcon = ActionId != 0 && XIVConfigUIMain.GetTextureAction(ActionId, out texture);
 
         var enable = Value;
         if (ImGui.Checkbox($"##{ID}", ref enable))

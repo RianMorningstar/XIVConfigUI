@@ -1,20 +1,42 @@
-﻿using System.Reflection;
+﻿namespace XIVConfigUI.SearchableConfigs;
 
-namespace XIVConfigUI.SearchableConfigs;
-
+/// <summary>
+/// The drag int.
+/// </summary>
 public class DragIntRangeSearch : Searchable
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public int Min { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public int Max { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public float Speed { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public ConfigUnitType Unit { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
     protected Vector2Int Value
     {
         get => (Vector2Int)_property.GetValue(_obj)!;
         set => _property.SetValue(_obj, value);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     protected int MinValue
     {
         get => Value.X;
@@ -25,6 +47,10 @@ public class DragIntRangeSearch : Searchable
             Value = v;
         }
     }
+
+    /// <summary>
+    /// 
+    /// </summary>
     protected int MaxValue
     {
         get => Value.Y;
@@ -36,6 +62,11 @@ public class DragIntRangeSearch : Searchable
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="obj"></param>
     public DragIntRangeSearch(PropertyInfo property, object obj) : base(property, obj)
     {
         var range = _property.GetCustomAttribute<RangeAttribute>();
@@ -45,6 +76,7 @@ public class DragIntRangeSearch : Searchable
         Unit = range?.UnitType ?? ConfigUnitType.None;
     }
 
+    /// <inheritdoc/>
     protected override void DrawMain()
     {
         var minValue = MinValue;
@@ -59,6 +91,7 @@ public class DragIntRangeSearch : Searchable
         DrawName();
     }
 
+    /// <inheritdoc/>
     protected override void TooltipAdditional()
     {
         ImGui.Separator();
