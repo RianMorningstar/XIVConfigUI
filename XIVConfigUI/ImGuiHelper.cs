@@ -9,10 +9,58 @@ using Dalamud.Utility;
 namespace XIVConfigUI;
 
 /// <summary>
+/// 
+/// </summary>
+public enum FontSize : byte
+{
+    /// <summary>
+    /// 72
+    /// </summary>
+    First,
+
+    /// <summary>
+    /// 48
+    /// </summary>
+    Second,
+
+    /// <summary>
+    /// 32
+    /// </summary>
+    Third,
+
+    /// <summary>
+    /// 24
+    /// </summary>
+    Forth,
+
+    /// <summary>
+    /// 18
+    /// </summary>
+    Fifth,
+}
+
+/// <summary>
 /// The class for help.
 /// </summary>
 public static class ImGuiHelper
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    public static ImFontPtr GetFont(FontSize size)
+    {
+        return GetFont(size switch
+        {
+            FontSize.First => 72,
+            FontSize.Second => 48,
+            FontSize.Third => 32,
+            FontSize.Forth => 24,
+            _ => 18,
+        });
+    }
+
     /// <summary>
     /// Get the font based on size.
     /// </summary>
@@ -42,7 +90,6 @@ public static class ImGuiHelper
     }
 
     #region PopUp
-
     /// <summary>
     /// 
     /// </summary>
@@ -172,6 +219,54 @@ public static class ImGuiHelper
     #endregion
 
     #region Image
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="selected"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, bool selected, string id = "")
+    => SilenceImageButton(handle, size, Vector2.Zero, Vector2.One, selected, id);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="uv0"></param>
+    /// <param name="uv1"></param>
+    /// <param name="selected"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, bool selected, string id = "")
+    {
+        return SilenceImageButton(handle, size, uv0, uv1, selected ? ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.Header)) : 0, id);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <param name="size"></param>
+    /// <param name="uv0"></param>
+    /// <param name="uv1"></param>
+    /// <param name="buttonColor"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, uint buttonColor, string id = "")
+    {
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderActive)));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
+        ImGui.PushStyleColor(ImGuiCol.Button, buttonColor);
+
+        var result = NoPaddingImageButton(handle, size, uv0, uv1, id);
+        ImGui.PopStyleColor(3);
+
+        return result;
+    }
+
     /// <summary>
     /// 
     /// </summary>

@@ -13,7 +13,7 @@ public class CollapsingHeaderGroup()
     /// <summary>
     /// The size of the header.
     /// </summary>
-    public float HeaderSize { get; set; } = 24;
+    public FontSize HeaderSize { get; set; } = FontSize.Third;
 
     /// <summary>
     /// 
