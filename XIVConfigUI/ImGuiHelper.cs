@@ -5,6 +5,7 @@ using Dalamud.Interface.Internal;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
+using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI;
 
@@ -129,7 +130,6 @@ public static class ImGuiHelper
             }
         }
     }
-
 
     private static void ExecuteCommand(string command)
     {

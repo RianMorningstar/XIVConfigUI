@@ -1,6 +1,8 @@
-﻿using XIVConfigUI.SearchableConfigs;
+﻿using System.Collections;
+using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
+
 internal readonly record struct SearchPair(UIAttribute Attribute, Searchable Searchable);
 
 public readonly record struct FilterKey<T> where T : Enum
@@ -15,7 +17,7 @@ public readonly record struct FilterKey<T> where T : Enum
 /// <summary>
 /// The collections that can be serached.
 /// </summary>
-public class SearchableCollection
+public class SearchableCollection : IDisposable, IEnumerable<Searchable>
 {
     private readonly List<SearchPair> _items;
 
@@ -25,8 +27,10 @@ public class SearchableCollection
     /// <param name="config"></param>
     /// <param name="propertyNameCreaters"></param>
     /// <param name="propertyTypeCreaters"></param>
-    public SearchableCollection(object config, Dictionary<string, Func<PropertyInfo, Searchable>>? propertyNameCreaters = null,
-        Dictionary<Type, Func<PropertyInfo, Searchable>>? propertyTypeCreaters = null)
+    public SearchableCollection(object config, 
+        Dictionary<string, Func<PropertyInfo, Searchable>>? propertyNameCreaters = null,
+        Dictionary<Type, Func<PropertyInfo, Searchable>>? propertyTypeCreaters = null
+        )
     {
         var properties = config.GetType().GetRuntimeProperties();
         var count = properties.Count();
@@ -60,6 +64,8 @@ public class SearchableCollection
             }
             parent.AddChild(pair.Searchable);
         }
+
+        XIVConfigUIMain._searchableCollections.Add(this);
 
         Searchable? CreateSearchable(PropertyInfo property)
         {
@@ -168,7 +174,7 @@ public class SearchableCollection
 
         var results = new Searchable[MAX_RESULT_LENGTH];
 
-        var enumerator = _items.Select(i => i.Searchable).SelectMany(GetChildren)
+        var enumerator = this
             .OrderByDescending(i => Similarity(i.SearchingKeys, searchingText))
             .Select(GetParent).GetEnumerator();
 
@@ -179,17 +185,6 @@ public class SearchableCollection
             results[index++] = enumerator.Current;
         }
         return results;
-
-
-        static IEnumerable<Searchable> GetChildren(Searchable searchable)
-        {
-            var myself = new Searchable[] { searchable };
-            if (searchable is CheckBoxSearch c && c.Children != null)
-            {
-                return c.Children.SelectMany(GetChildren).Union(myself);
-            }
-            else return myself;
-        }
 
         static Searchable GetParent(Searchable searchable)
         {
@@ -217,4 +212,28 @@ public class SearchableCollection
 
         return startWithCount * 3 + containCount;
     }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        XIVConfigUIMain._searchableCollections.Remove(this);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <inheritdoc/>
+    public IEnumerator<Searchable> GetEnumerator()
+    {
+        return _items.Select(i => i.Searchable).SelectMany(GetChildren).GetEnumerator();
+        static IEnumerable<Searchable> GetChildren(Searchable searchable)
+        {
+            var myself = new Searchable[] { searchable };
+            if (searchable is CheckBoxSearch c && c.Children != null)
+            {
+                return c.Children.SelectMany(GetChildren).Union(myself);
+            }
+            else return myself;
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -1,5 +1,6 @@
 ﻿using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.SearchableConfigs;
 
@@ -11,13 +12,13 @@ namespace XIVConfigUI.SearchableConfigs;
 public abstract class Searchable(PropertyInfo property, object obj)
 {
     /// <summary/>
-    protected readonly object _obj = obj,
+    public readonly object _obj = obj,
         _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
 
     /// <summary>
     /// The property.
     /// </summary>
-    protected readonly PropertyInfo _property = property;
+    public readonly PropertyInfo _property = property;
 
     /// <summary>
     /// The width of the drag.
@@ -68,13 +69,28 @@ public abstract class Searchable(PropertyInfo property, object obj)
     }
 
     /// <summary>
+    /// The command of leading this.
+    /// </summary>
+    public string LeadingCommand
+    {
+        get
+        {
+            var command = XIVConfigUIMain.CommandForChangingSetting + " ";
+            var subCommand = _obj.GetType().GetCustomAttribute<CommandAttribute>()?.SubCommand;
+
+            if (!string.IsNullOrEmpty(subCommand)) command += subCommand + " ";
+            return command + _property.Name;
+        }
+    }
+
+    /// <summary>
     /// The command of this item.
     /// </summary>
     public virtual string Command
     {
         get
         {
-            var result = XIVConfigUIMain.CommandForChangingSetting + " " + _property.Name;
+            var result = LeadingCommand;
             var extra = _default?.ToString();
             if (!string.IsNullOrEmpty(extra)) result += " " + extra;
             return result;
@@ -208,5 +224,36 @@ public abstract class Searchable(PropertyInfo property, object obj)
         }
 
         if (ImGui.IsItemHovered()) ShowTooltip(false);
+    }
+
+    public virtual void OnCommand(string value)
+    {
+        var type = _property.PropertyType;
+        object? v = null;
+
+        if (!string.IsNullOrEmpty(value))
+        {
+            try
+            {
+                v = Convert.ChangeType(value, type);
+            }
+            catch (Exception e)
+            {
+                v = null;
+                Service.Log.Debug(e, $"Faild to convert the \"{value}\" to the type {type.FullName}");
+            }
+        }
+
+        if (v != null)
+        {
+            _property.SetValue(_obj, v);
+            return;
+        }
+
+        if (type == typeof(bool)) //Toggle.
+        {
+            _property.SetValue(_obj,!(bool)_property.GetValue(_obj)!);
+            return;
+        }
     }
 }

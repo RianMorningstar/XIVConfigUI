@@ -1,4 +1,5 @@
-﻿using Dalamud.Interface.Internal;
+﻿using Dalamud.Game.Command;
+using Dalamud.Interface.Internal;
 using Dalamud.Plugin;
 
 namespace XIVConfigUI;
@@ -9,6 +10,7 @@ namespace XIVConfigUI;
 public static class XIVConfigUIMain
 {
     private static bool _inited = false;
+    internal readonly static List<SearchableCollection> _searchableCollections = [];
 
     internal static SearchableConfig Config { get; private set; } = null!;
 
@@ -63,10 +65,16 @@ public static class XIVConfigUIMain
         if (_inited) return;
         _inited = true;
 
+        _searchableCollections.Clear();
         pluginInterface.Create<Service>();
         LocalManager.InIt(userName, repoName);
         CommandForChangingSetting = commandForChangingSetting;
         Config = searchConfig;
+
+        Service.Commands.AddHandler(CommandForChangingSetting, new CommandInfo(OnCommand)
+        {
+            ShowInHelp = false,
+        });
     }
 
     /// <summary>
@@ -77,6 +85,28 @@ public static class XIVConfigUIMain
         if (!_inited) return;
         _inited = false;
 
+        Service.Commands.RemoveHandler(CommandForChangingSetting);
         LocalManager.Dispose();
+    }
+
+    private static void OnCommand(string command, string arguments)
+    {
+        foreach (var collection in _searchableCollections)
+        {
+            foreach (var item in collection)
+            {
+                if (!arguments.StartsWith(item.LeadingCommand)) continue;
+
+                arguments = arguments[item.LeadingCommand.Length..].Trim();
+
+                item.OnCommand(arguments);
+
+                Service.Log.Debug($"Set the property \"{item._property.Name}\" to \"{item._property.GetValue(item._obj)?.ToString() ?? string.Empty}\"");
+
+                return;
+            }
+        }
+
+        Service.Log.Info($"Failed to find the config from {arguments}!");
     }
 }
