@@ -60,7 +60,7 @@ public class DragFloatSearch : Searchable
         {
             if (ImGui.SliderFloat($"##Config_{ID}{GetHashCode()}", ref value, Min, Max, $"{value * 100f:F1}{Unit.ToSymbol()}"))
             {
-                Value = value;
+                Value = float.Round(value, 3);
             }
         }
         else
