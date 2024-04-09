@@ -3,6 +3,15 @@
 namespace XIVConfigUI;
 internal readonly record struct SearchPair(UIAttribute Attribute, Searchable Searchable);
 
+public readonly record struct FilterKey<T> where T : Enum
+{
+    public T Filter { get; init; }
+    public Action? Before { get; init; }
+    public Action? After { get; init; }
+
+    public static implicit operator FilterKey<T>(T filter) => new() { Filter = filter };
+}
+
 /// <summary>
 /// The collections that can be serached.
 /// </summary>
@@ -106,12 +115,17 @@ public class SearchableCollection
     /// <typeparam name="T"></typeparam>
     /// <param name="filters"></param>
     /// <returns></returns>
-    public CollapsingHeaderGroup GetGroups<T>(params T[] filters) where T : Enum
+    public CollapsingHeaderGroup GetGroups<T>(params FilterKey<T>[] filters) where T : Enum
     {
         Dictionary<Func<string>, Action> dict = [];
         foreach (var filter in filters)
         {
-            dict[() => filter.Local()] = () => DrawItems(Convert.ToInt32(filter));
+            dict[() => filter.Filter.Local()] = () =>
+            {
+                filter.Before?.Invoke();
+                DrawItems(Convert.ToInt32(filter.Filter));
+                filter.After?.Invoke();
+            };
         }
         return new (dict);
     }
