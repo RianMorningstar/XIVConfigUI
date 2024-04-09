@@ -65,7 +65,6 @@ public static class XIVConfigUIMain
         if (_inited) return;
         _inited = true;
 
-        _searchableCollections.Clear();
         pluginInterface.Create<Service>();
         LocalManager.InIt(userName, repoName);
         CommandForChangingSetting = commandForChangingSetting;
@@ -85,6 +84,7 @@ public static class XIVConfigUIMain
         if (!_inited) return;
         _inited = false;
 
+        _searchableCollections.Clear();
         Service.Commands.RemoveHandler(CommandForChangingSetting);
         LocalManager.Dispose();
     }
@@ -95,6 +95,7 @@ public static class XIVConfigUIMain
         {
             foreach (var item in collection)
             {
+                if (string.IsNullOrEmpty(item.Command)) continue;
                 if (!arguments.StartsWith(item.LeadingCommand)) continue;
 
                 arguments = arguments[item.LeadingCommand.Length..].Trim();
@@ -107,6 +108,6 @@ public static class XIVConfigUIMain
             }
         }
 
-        Service.Log.Info($"Failed to find the config from {arguments}!");
+        Service.Log.Info($"Failed to find the config from \"{arguments}\"!");
     }
 }

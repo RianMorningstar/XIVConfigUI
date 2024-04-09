@@ -68,14 +68,11 @@ public abstract class Searchable(PropertyInfo property, object obj)
         }
     }
 
-    /// <summary>
-    /// The command of leading this.
-    /// </summary>
-    public string LeadingCommand
+    internal string LeadingCommand
     {
         get
         {
-            var command = XIVConfigUIMain.CommandForChangingSetting + " ";
+            var command = string.Empty;
             var subCommand = _obj.GetType().GetCustomAttribute<CommandAttribute>()?.SubCommand;
 
             if (!string.IsNullOrEmpty(subCommand)) command += subCommand + " ";
@@ -90,7 +87,7 @@ public abstract class Searchable(PropertyInfo property, object obj)
     {
         get
         {
-            var result = LeadingCommand;
+            var result = XIVConfigUIMain.CommandForChangingSetting + " " + LeadingCommand;
             var extra = _default?.ToString();
             if (!string.IsNullOrEmpty(extra)) result += " " + extra;
             return result;
@@ -240,7 +237,7 @@ public abstract class Searchable(PropertyInfo property, object obj)
             catch (Exception e)
             {
                 v = null;
-                Service.Log.Debug(e, $"Faild to convert the \"{value}\" to the type {type.FullName}");
+                Service.Log.Debug(e, $"Faild to convert the \"{value}\" to the type {type.FullName} in {this.GetType().FullName}");
             }
         }
 
