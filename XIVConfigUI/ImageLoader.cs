@@ -1,7 +1,9 @@
 ﻿using Dalamud.Interface.Internal;
+using FFXIVClientStructs.Havok;
 using Svg;
 using System.Collections.Concurrent;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using static Dalamud.Plugin.Services.ITextureProvider;
 
 namespace XIVConfigUI;
@@ -44,11 +46,11 @@ public static class ImageLoader
     {
         if (id == 0)
         {
-            return ImageLoader.GetTexture(0, out texture, 0);
+            return GetTexture(0, out texture, 0);
         }
         if (id == 3)
         {
-            return ImageLoader.GetTexture(104, out texture, 0);
+            return GetTexture(104, out texture, 0);
         }
 
         if (!_actionIcons.TryGetValue(id, out var iconId))
@@ -57,7 +59,7 @@ public static class ImageLoader
                 .GetRow(id)?.Icon ?? 0;
             _actionIcons[id] = iconId;
         }
-        return ImageLoader.GetTexture(iconId, out texture);
+        return GetTexture(iconId, out texture);
     }
 
     public static bool GetTexture(uint icon, out IDalamudTextureWrap texture, uint @default = 0)
@@ -119,8 +121,6 @@ public static class ImageLoader
             result.EnsureSuccessStatusCode();
             var content = result.Content.ReadAsByteArrayAsync().Result;
 
-            Service.Log.Verbose($"Downloaded data from {url} successfully!");
-
             return LoadTexture(content);
         }
         else if (File.Exists(url))
@@ -135,15 +135,16 @@ public static class ImageLoader
 
     private static IDalamudTextureWrap? LoadTexture(byte[] array)
     {
+        int i = 0;
         foreach (var convert in _conversionsToBitmap)
         {
             try
             {
                 return Service.PluginInterface.UiBuilder.LoadImage(convert(array));
             }
-            catch
+            catch(Exception ex) 
             {
-
+                Service.Log.Error(ex, "Failed to load the image");
             }
         }
         Service.Log.Verbose($"Failed to convert the data to an image!");

@@ -7,19 +7,21 @@ namespace XIVConfigUI.SearchableConfigs;
 /// <summary>
 /// The searchable item
 /// </summary>
-/// <param name="property">The property to link with.</param>
-/// <param name="obj">the config</param>
-public abstract class Searchable(PropertyInfo property, object obj)
+public abstract class Searchable
 {
-    internal readonly SearchableConfig? _config = SearchableCollection._searchableConfig;
+    internal readonly SearchableConfig? _config;
     /// <summary/>
-    public readonly object _obj = obj,
-        _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
+    public readonly object _obj;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public object _default;
 
     /// <summary>
     /// The property.
     /// </summary>
-    public readonly PropertyInfo _property = property;
+    public readonly PropertyInfo _property;
 
     /// <summary>
     /// The width of the drag.
@@ -115,6 +117,22 @@ public abstract class Searchable(PropertyInfo property, object obj)
     /// Should this be shown in the child.
     /// </summary>
     public virtual bool ShowInChild => true;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="property"></param>
+    /// <param name="obj"></param>
+    protected Searchable(PropertyInfo property, object obj)
+    {
+        _config = SearchableCollection._searchableConfig;
+        _property = property;
+        _obj = obj;
+        if (_config?.GeneratDefault ?? false)
+        {
+            _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
+        }
+    }
 
     /// <summary>
     /// To draw it.

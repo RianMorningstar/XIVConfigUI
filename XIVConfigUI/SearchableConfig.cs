@@ -11,6 +11,11 @@ public abstract class SearchableConfig
     /// <summary>
     /// 
     /// </summary>
+    public virtual bool GeneratDefault { get; } = true;
+
+    /// <summary>
+    /// 
+    /// </summary>
     public virtual Dictionary<string, Func<PropertyInfo, Searchable>>  PropertyNameCreaters { get; } = [];
 
     /// <summary>

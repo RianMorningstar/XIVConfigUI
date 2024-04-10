@@ -135,6 +135,8 @@ public class CheckBoxSearch : Searchable
         }
         else if (hasSub)
         {
+            _config?.PreNameDrawing(_property);
+            ImGui.SameLine();
             if (enable || AlwaysShowChildren)
             {
                 var x = ImGui.GetCursorPosX();

@@ -28,7 +28,6 @@ public static class XIVConfigUIMain
     /// <param name="userName"></param>
     /// <param name="repoName"></param>
     /// <param name="commandForChangingSetting"></param>
-    /// <param name="searchConfig"></param>
     public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting)
     {
         if (_inited) return;
@@ -48,7 +47,7 @@ public static class XIVConfigUIMain
         var items = pluginInterface.AssemblyLocation.FullName.Split('.');
         items[^1] = "json";
         var path = string.Join('.', items);
-        var obj = JObject.Parse(path);
+        var obj = JObject.Parse(File.ReadAllText(path));
         _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
         _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
         _iconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
