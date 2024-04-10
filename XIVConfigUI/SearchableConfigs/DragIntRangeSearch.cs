@@ -33,7 +33,11 @@ public class DragIntRangeSearch : Searchable
     protected Vector2Int Value
     {
         get => (Vector2Int)_property.GetValue(_obj)!;
-        set => _property.SetValue(_obj, value);
+        set
+        {
+            _property.SetValue(_obj, value);
+            _config?.AfterConfigChange(this);
+        }
     }
 
     /// <summary>

@@ -1,5 +1,4 @@
 ﻿using Dalamud.Game.Command;
-using Dalamud.Interface.Internal;
 using Dalamud.Plugin;
 using Newtonsoft.Json.Linq;
 
@@ -14,7 +13,7 @@ public static class XIVConfigUIMain
     internal readonly static List<SearchableCollection> _searchableCollections = [];
     private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
 
-    internal static SearchableConfig Config { get; private set; } = null!;
+    public static Func<bool> ShowTooltip { get; set; } = () => true;
 
     internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
 
@@ -30,8 +29,7 @@ public static class XIVConfigUIMain
     /// <param name="repoName"></param>
     /// <param name="commandForChangingSetting"></param>
     /// <param name="searchConfig"></param>
-    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName,
-        string commandForChangingSetting, SearchableConfig searchConfig)
+    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting)
     {
         if (_inited) return;
         _inited = true;
@@ -41,7 +39,6 @@ public static class XIVConfigUIMain
         ImageLoader.Init();
 
         CommandForChangingSetting = commandForChangingSetting;
-        Config = searchConfig;
 
         Service.Commands.AddHandler(CommandForChangingSetting, new CommandInfo(OnCommand)
         {
@@ -82,6 +79,7 @@ public static class XIVConfigUIMain
                 arguments = arguments[item.LeadingCommand.Length..].Trim();
 
                 item.OnCommand(arguments);
+                item._config?.AfterConfigChange(item);
 
                 Service.Log.Debug($"Set the property \"{item._property.Name}\" to \"{item._property.GetValue(item._obj)?.ToString() ?? string.Empty}\"");
 

@@ -63,7 +63,11 @@ public class CheckBoxSearch : Searchable
     protected virtual bool Value
     {
         get => (bool)_property.GetValue(_obj)!;
-        set => _property.SetValue(_obj, value);
+        set
+        {
+            _property.SetValue(_obj, value);
+            _config?.AfterConfigChange(this);
+        }
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Dalamud.Interface.Internal;
+using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
 
@@ -10,7 +11,12 @@ public abstract class SearchableConfig
     /// <summary>
     /// 
     /// </summary>
-    public abstract bool ShowTooltip { get; }
+    public virtual Dictionary<string, Func<PropertyInfo, Searchable>>  PropertyNameCreaters { get; } = [];
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public virtual  Dictionary<Type, Func<PropertyInfo, Searchable>> PropertyTypeCreaters { get; } = [];
 
     /// <summary>
     /// 
@@ -30,4 +36,12 @@ public abstract class SearchableConfig
     /// </summary>
     /// <param name="property"></param>
     public abstract void PreNameDrawing(PropertyInfo property);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public virtual void AfterConfigChange(Searchable item)
+    {
+
+    }
 }

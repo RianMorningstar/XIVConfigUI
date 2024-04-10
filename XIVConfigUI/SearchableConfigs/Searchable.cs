@@ -11,6 +11,7 @@ namespace XIVConfigUI.SearchableConfigs;
 /// <param name="obj">the config</param>
 public abstract class Searchable(PropertyInfo property, object obj)
 {
+    internal readonly SearchableConfig? _config = SearchableCollection._searchableConfig;
     /// <summary/>
     public readonly object _obj = obj,
         _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
@@ -120,7 +121,7 @@ public abstract class Searchable(PropertyInfo property, object obj)
     /// </summary>
     public unsafe void Draw()
     {
-        if (XIVConfigUIMain.Config.IsPropertyValid(_property))
+        if (_config?.IsPropertyValid(_property) ?? false)
         {
             DrawMain();
             ImGuiHelper.PrepareGroup(Popup_Key, Command, () => ResetToDefault());
@@ -147,7 +148,7 @@ public abstract class Searchable(PropertyInfo property, object obj)
                 wholeWidth -= size.X;
             }
 
-            ImGuiHelper.HoveredTooltip(() => XIVConfigUIMain.Config.PropertyInvalidTooltip(_property));
+            ImGuiHelper.HoveredTooltip(() => _config?.PropertyInvalidTooltip(_property));
             return;
         }
     }
@@ -213,7 +214,7 @@ public abstract class Searchable(PropertyInfo property, object obj)
     {
         using (var group = ImRaii.Group())
         {
-            XIVConfigUIMain.Config.PreNameDrawing(_property);
+            _config?.PreNameDrawing(_property);
             ImGui.SameLine();
             if (Color != 0) ImGui.PushStyleColor(ImGuiCol.Text, Color);
             ImGui.TextWrapped(Name);
@@ -252,5 +253,55 @@ public abstract class Searchable(PropertyInfo property, object obj)
             _property.SetValue(_obj,!(bool)_property.GetValue(_obj)!);
             return;
         }
+    }
+
+    public static Searchable[] SimilarItems(IEnumerable<Searchable> items, string searchingText)
+    {
+        if (string.IsNullOrEmpty(searchingText)) return [];
+
+        const int MAX_RESULT_LENGTH = 20;
+
+        var results = new Searchable[MAX_RESULT_LENGTH];
+
+        var enumerator = items
+            .OrderByDescending(i => Similarity(i.SearchingKeys, searchingText))
+            .Select(GetParent).GetEnumerator();
+
+        int index = 0;
+        while (enumerator.MoveNext() && index < MAX_RESULT_LENGTH)
+        {
+            if (results.Contains(enumerator.Current)) continue;
+            results[index++] = enumerator.Current;
+        }
+        return results;
+
+        static Searchable GetParent(Searchable searchable)
+        {
+            if (searchable.Parent == null) return searchable;
+            return GetParent(searchable.Parent);
+        }
+    }
+
+    private static readonly char[] _splitChar = [' ', ',', '、', '.', '。'];
+
+
+    /// <summary>
+    /// The similarity of the two texts.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static float Similarity(string text, string key)
+    {
+        if (string.IsNullOrEmpty(text)) return 0;
+
+        var chars = text.Split(_splitChar, StringSplitOptions.RemoveEmptyEntries);
+        var keys = key.Split(_splitChar, StringSplitOptions.RemoveEmptyEntries);
+
+        var startWithCount = chars.Count(i => keys.Any(k => i.StartsWith(k, StringComparison.OrdinalIgnoreCase)));
+
+        var containCount = chars.Count(i => keys.Any(k => i.Contains(k, StringComparison.OrdinalIgnoreCase)));
+
+        return startWithCount * 3 + containCount;
     }
 }

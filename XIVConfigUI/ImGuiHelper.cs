@@ -489,7 +489,7 @@ public static class ImGuiHelper
     public static void ShowTooltip(Action act)
     {
         if (act == null) return;
-        if (!XIVConfigUIMain.Config.ShowTooltip) return;
+        if (!XIVConfigUIMain.ShowTooltip()) return;
 
         ImGui.SetNextWindowBgAlpha(1);
 

@@ -21,17 +21,16 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
 {
     private readonly List<SearchPair> _items;
 
+    internal static SearchableConfig? _searchableConfig;
     /// <summary>
     /// 
     /// </summary>
     /// <param name="config"></param>
-    /// <param name="propertyNameCreaters"></param>
-    /// <param name="propertyTypeCreaters"></param>
-    public SearchableCollection(object config, 
-        Dictionary<string, Func<PropertyInfo, Searchable>>? propertyNameCreaters = null,
-        Dictionary<Type, Func<PropertyInfo, Searchable>>? propertyTypeCreaters = null
-        )
+    /// <param name="searchableConfig"></param>
+    public SearchableCollection(object config,
+        SearchableConfig searchableConfig)
     {
+        _searchableConfig = searchableConfig;
         var properties = config.GetType().GetRuntimeProperties();
         var count = properties.Count();
         var pairs = new List<SearchPair>(count);
@@ -66,16 +65,17 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
         }
 
         XIVConfigUIMain._searchableCollections.Add(this);
+        _searchableConfig = null;
 
         Searchable? CreateSearchable(PropertyInfo property)
         {
             var type = property.PropertyType;
 
-            if (propertyNameCreaters?.TryGetValue(property.Name, out var func) ?? false)
+            if (searchableConfig.PropertyNameCreaters?.TryGetValue(property.Name, out var func) ?? false)
             {
                 return func(property);
             }
-            else if (propertyTypeCreaters?.TryGetValue(type, out func) ?? false)
+            else if (searchableConfig.PropertyTypeCreaters?.TryGetValue(type, out func) ?? false)
             {
                 return func(property);
             }
@@ -157,60 +157,6 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
 
             isFirst = false;
         }
-    }
-
-    private static readonly char[] _splitChar = [' ', ',', '、', '.', '。'];
-
-    /// <summary>
-    /// Search the items based on the <paramref name="searchingText"/>.
-    /// </summary>
-    /// <param name="searchingText"></param>
-    /// <returns></returns>
-    public Searchable[] SearchItems(string searchingText)
-    {
-        if (string.IsNullOrEmpty(searchingText)) return [];
-
-        const int MAX_RESULT_LENGTH = 20;
-
-        var results = new Searchable[MAX_RESULT_LENGTH];
-
-        var enumerator = this
-            .OrderByDescending(i => Similarity(i.SearchingKeys, searchingText))
-            .Select(GetParent).GetEnumerator();
-
-        int index = 0;
-        while (enumerator.MoveNext() && index < MAX_RESULT_LENGTH)
-        {
-            if (results.Contains(enumerator.Current)) continue;
-            results[index++] = enumerator.Current;
-        }
-        return results;
-
-        static Searchable GetParent(Searchable searchable)
-        {
-            if (searchable.Parent == null) return searchable;
-            return GetParent(searchable.Parent);
-        }
-    }
-
-    /// <summary>
-    /// The similarity of the two texts.
-    /// </summary>
-    /// <param name="text"></param>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    public static float Similarity(string text, string key)
-    {
-        if (string.IsNullOrEmpty(text)) return 0;
-
-        var chars = text.Split(_splitChar, StringSplitOptions.RemoveEmptyEntries);
-        var keys = key.Split(_splitChar, StringSplitOptions.RemoveEmptyEntries);
-
-        var startWithCount = chars.Count(i => keys.Any(k => i.StartsWith(k, StringComparison.OrdinalIgnoreCase)));
-
-        var containCount = chars.Count(i => keys.Any(k => i.Contains(k, StringComparison.OrdinalIgnoreCase)));
-
-        return startWithCount * 3 + containCount;
     }
 
     /// <inheritdoc/>

@@ -13,7 +13,11 @@ public class ColorEditSearch(PropertyInfo property, object obj) : Searchable(pro
     protected Vector4 Value 
     {
         get => (Vector4)_property.GetValue(_obj)!;
-        set => _property.SetValue(_obj, value);
+        set
+        {
+            _property.SetValue(_obj, value);
+            _config?.AfterConfigChange(this);
+        }
     }
 
     /// <inheritdoc/>

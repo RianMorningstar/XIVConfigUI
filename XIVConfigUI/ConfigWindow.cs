@@ -32,6 +32,8 @@ public abstract class ConfigWindow : Window
     protected ConfigWindowItem[] Items => _items ??= GetItems();
     public abstract SearchableCollection AllSearchable { get; }
 
+    public virtual IEnumerable<Searchable> Searchables => AllSearchable;
+
     public ConfigWindow(string name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
         : base(name, flags | ImGuiWindowFlags.NoScrollbar, false)
     {
@@ -285,7 +287,7 @@ public abstract class ConfigWindow : Window
         {
             if (ImGui.InputTextWithHint("##Config UI Search Box", LocalString.Searching.Local(), ref _searchText, 128, ImGuiInputTextFlags.AutoSelectAll))
             {
-                _searchResults = AllSearchable.SearchItems(_searchText);
+                _searchResults = Searchable.SimilarItems(Searchables, _searchText);
             }
         }
     }

@@ -13,7 +13,11 @@ public class EnumSearch(PropertyInfo property, object obj) : Searchable(property
     protected int Value
     {
         get => Convert.ToInt32(_property.GetValue(_obj));
-        set => _property.SetValue(_obj, Enum.ToObject(_property.PropertyType, value));
+        set
+        {
+            _property.SetValue(_obj, Enum.ToObject(_property.PropertyType, value));
+            _config?.AfterConfigChange(this);
+        }
     }
 
     /// <inheritdoc/>
