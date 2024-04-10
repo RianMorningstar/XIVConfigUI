@@ -43,7 +43,7 @@ public static class LocalManager
     /// <returns></returns>
     public static string Local(this MemberInfo member, string suffix = "", string value = "")
     {
-        var key = (member.DeclaringType?.FullName ?? string.Empty) + suffix + "." + member.ToString();
+        var key = (member.DeclaringType?.FullName ?? string.Empty) + suffix + "." + member.Name;
         value = string.IsNullOrEmpty(value) ? member.GetCustomAttribute<DescriptionAttribute>()?.Description ?? member.ToString()!
             : value;
         return key.Local(value);
@@ -95,7 +95,11 @@ public static class LocalManager
 
         //Default values.
         var path = Path.Combine(directory, "Localization.json");
-        _rightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
+
+        if (File.Exists(path))
+        {
+            _rightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
+        }
 
         if (_rightLang.Count == 0)
         {
