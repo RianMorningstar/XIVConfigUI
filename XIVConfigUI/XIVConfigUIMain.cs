@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Interface.Internal;
 using Dalamud.Plugin;
+using Newtonsoft.Json.Linq;
 
 namespace XIVConfigUI;
 
@@ -11,10 +12,15 @@ public static class XIVConfigUIMain
 {
     private static bool _inited = false;
     internal readonly static List<SearchableCollection> _searchableCollections = [];
+    private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
 
     internal static SearchableConfig Config { get; private set; } = null!;
 
     internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
+
+    public static string Punchline => (Service.PluginInterface.InternalName + "." + nameof(Punchline)).Local(_punchline);
+    public static string Description => (Service.PluginInterface.InternalName + "." + nameof(Description)).Local(_descirption);
+    public static string IconUrl => (Service.PluginInterface.InternalName + "." + nameof(IconUrl)).Local(_iconUrl);
 
     /// <summary>
     /// 
@@ -41,6 +47,14 @@ public static class XIVConfigUIMain
         {
             ShowInHelp = false,
         });
+
+        var items = pluginInterface.AssemblyLocation.FullName.Split('.');
+        items[^1] = "json";
+        var path = string.Join('.', items);
+        var obj = JObject.Parse(path);
+        _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
+        _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
+        _iconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
     }
 
     /// <summary>

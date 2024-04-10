@@ -27,8 +27,6 @@ public abstract class ConfigWindow : Window
     /// Your kofi-icon.
     /// </summary>
     protected virtual string Kofi => string.Empty;
-    protected abstract string Punchline { get; }
-    protected abstract string Description { get; }
 
     private ConfigWindowItem[]? _items = null;
     protected ConfigWindowItem[] Items => _items ??= GetItems();
@@ -307,7 +305,7 @@ public abstract class ConfigWindow : Window
                     _activeTabIndex = -1;
                     _searchResults = [];
                 }
-                ImGuiHelper.HoveredTooltip(Punchline);
+                ImGuiHelper.HoveredTooltip(XIVConfigUIMain.Punchline);
 
                 if (GetLogo(out var logo))
                 {
@@ -320,7 +318,8 @@ public abstract class ConfigWindow : Window
         }
     }
 
-    protected abstract bool GetLogo(out IDalamudTextureWrap texture);
+    protected virtual bool GetLogo(out IDalamudTextureWrap texture) 
+        => ImageLoader.GetTexture(XIVConfigUIMain.IconUrl, out texture);
 
     protected abstract bool DrawSubHeader(float wholeWidth);
 
@@ -329,11 +328,11 @@ public abstract class ConfigWindow : Window
         using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))
         {
             using var color = ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(ImGuiColors.DalamudYellow));
-            ImGui.TextWrapped(Punchline);
+            ImGui.TextWrapped(XIVConfigUIMain.Punchline);
         }
 
         ImGui.Spacing();
 
-        ImGui.TextWrapped(Description);
+        ImGui.TextWrapped(XIVConfigUIMain.Description);
     }
 }

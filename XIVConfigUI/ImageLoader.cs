@@ -61,7 +61,7 @@ public static class ImageLoader
     }
 
     public static bool GetTexture(uint icon, out IDalamudTextureWrap texture, uint @default = 0)
-                => GetTexture(icon, IconFlags.HiRes, out texture)
+        => GetTexture(icon, IconFlags.HiRes, out texture)
         || GetTexture(icon, IconFlags.None, out texture)
         || GetTexture(@default, IconFlags.HiRes, out texture)
         || GetTexture(@default, IconFlags.None, out texture)
@@ -105,7 +105,11 @@ public static class ImageLoader
 
     private static IDalamudTextureWrap? LoadTexture(string url)
     {
-        if (IsUrl(url)) //On the web.
+        if (string.IsNullOrEmpty(url))
+        {
+            return null;
+        }
+        else if (IsUrl(url)) //On the web.
         {
             using var httpClient = new HttpClient()
             {
