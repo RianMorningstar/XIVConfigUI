@@ -374,7 +374,7 @@ public static class ImGuiHelper
 
         if (percent < 0)
         {
-            if (XIVConfigUIMain.GetTexture("ui/uld/icona_frame_hr1.tex", out var cover))
+            if (ImageLoader.GetTexture("ui/uld/icona_frame_hr1.tex", out var cover))
             {
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 4));
 
@@ -389,7 +389,7 @@ public static class ImGuiHelper
         }
         else if (percent < 1)
         {
-            if (XIVConfigUIMain.GetTexture("ui/uld/icona_recast_hr1.tex", out var cover))
+            if (ImageLoader.GetTexture("ui/uld/icona_recast_hr1.tex", out var cover))
             {
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 0));
 
@@ -407,7 +407,7 @@ public static class ImGuiHelper
         }
         else
         {
-            if (XIVConfigUIMain.GetTexture("ui/uld/icona_frame_hr1.tex", out var cover))
+            if (ImageLoader.GetTexture("ui/uld/icona_frame_hr1.tex", out var cover))
             {
 
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 4));
@@ -422,7 +422,7 @@ public static class ImGuiHelper
 
         if (percent > 1)
         {
-            if (XIVConfigUIMain.GetTexture("ui/uld/icona_recast2_hr1.tex", out var cover))
+            if (ImageLoader.GetTexture("ui/uld/icona_recast2_hr1.tex", out var cover))
             {
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 0));
 
@@ -514,7 +514,7 @@ public static class ImGuiHelper
     /// <param name="drawQuestion"></param>
     public static void DrawLinkDescription(LinkDescription link, float wholeWidth, bool drawQuestion)
     {
-        var hasTexture = XIVConfigUIMain.GetTexture(link.Url, out var texture);
+        var hasTexture = ImageLoader.GetTexture(link.Url, out var texture);
 
         if (hasTexture && TextureButton(texture, wholeWidth, wholeWidth))
         {

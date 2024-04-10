@@ -11,4 +11,5 @@ internal class Service
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
     [PluginService] public static ICommandManager Commands { get; private set; } = null!;
     [PluginService] public static IKeyState KeyState { get; private set; } = null!;
+    [PluginService] public static ITextureProvider Texture { get; private set; } = null!;
 }

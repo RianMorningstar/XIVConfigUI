@@ -30,22 +30,4 @@ public abstract class SearchableConfig
     /// </summary>
     /// <param name="property"></param>
     public abstract void PreNameDrawing(PropertyInfo property);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="path"></param>
-    /// <param name="texture"></param>
-    /// <param name="loadingIcon"></param>
-    /// <returns></returns>
-    public abstract bool GetTexture(string path, out IDalamudTextureWrap texture, bool loadingIcon = false);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="texture"></param>
-    /// <param name="default"></param>
-    /// <returns></returns>
-    public abstract bool GetTexture(uint id, out IDalamudTextureWrap texture, uint @default = 0);
 }

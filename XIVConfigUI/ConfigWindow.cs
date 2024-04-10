@@ -187,7 +187,7 @@ public abstract class ConfigWindow : Window
             }
             else
             {
-                if (XIVConfigUIMain.GetTexture(46, out var icon))
+                if (ImageLoader.GetTexture(46, out var icon))
                 {
                     ImGuiHelper.DrawItemMiddle(() =>
                     {
@@ -263,8 +263,8 @@ public abstract class ConfigWindow : Window
             if (string.IsNullOrEmpty(Kofi)) return;
 
             if (wholeWidth <= 60 * Scale
-                ? XIVConfigUIMain.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_s_logo_nolabel.png", out var texture)
-                : XIVConfigUIMain.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_bg_tag_dark.png", out texture))
+                ? ImageLoader.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_s_logo_nolabel.png", out var texture)
+                : ImageLoader.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_bg_tag_dark.png", out texture))
             {
                 var width = Math.Min(150 * Scale, Math.Max(MinColumnWidth, Math.Min(wholeWidth, texture.Width)));
                 var size = new Vector2(width, width * texture.Height / texture.Width);
@@ -296,7 +296,7 @@ public abstract class ConfigWindow : Window
     {
         var size = MathF.Max(MathF.Min(wholeWidth, Scale * 128), MinColumnWidth);
 
-        if (XIVConfigUIMain.GetTexture((uint)0, out var overlay))
+        if (ImageLoader.GetTexture((uint)0, out var overlay))
         {
             ImGuiHelper.DrawItemMiddle(() =>
             {

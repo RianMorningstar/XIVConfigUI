@@ -77,7 +77,7 @@ public class CheckBoxSearch : Searchable
             if (!child.ShowInChild) continue;
 
             var thisIs = child is CheckBoxSearch c && c.ActionId != 0 
-                && XIVConfigUIMain.GetTextureAction(c.ActionId, out var texture);
+                && ImageLoader.GetTextureAction(c.ActionId, out var texture);
             if (lastIs && thisIs)
             {
                 ImGui.SameLine();
@@ -103,7 +103,7 @@ public class CheckBoxSearch : Searchable
         var hasAdditional = AdditionalDraw != null;
         var hasSub = hasChild || hasAdditional;
         IDalamudTextureWrap? texture = null;
-        var hasIcon = ActionId != 0 && XIVConfigUIMain.GetTextureAction(ActionId, out texture);
+        var hasIcon = ActionId != 0 && ImageLoader.GetTextureAction(ActionId, out texture);
 
         var enable = Value;
         if (ImGui.Checkbox($"##{ID}", ref enable))
