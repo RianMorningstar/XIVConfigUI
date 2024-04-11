@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.Command;
+using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Newtonsoft.Json.Linq;
 
@@ -21,7 +21,7 @@ public static class XIVConfigUIMain
     /// </summary>
     public static Func<bool> ShowTooltip { get; set; } = () => true;
 
-    internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
+    internal static string Command { get; private set; } = "/ConfigUI";
     internal static string DescriptionAboutCommand { get; private set; } = string.Empty;
     /// <summary>
     /// The punchline of this plugin.
@@ -44,10 +44,10 @@ public static class XIVConfigUIMain
     /// <param name="pluginInterface"></param>
     /// <param name="userName">the user name in github</param>
     /// <param name="repoName">the repo name in github</param>
-    /// <param name="commandForChangingSetting">the command for changing config</param>
+    /// <param name="command">the command for changing config</param>
     /// <param name="descriptionAboutCommand"></param>
     /// <param name="onCommand"></param>
-    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting,
+    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string command,
         string? descriptionAboutCommand = null, Action<string>? onCommand = null)
     {
         if (_inited) return;
@@ -60,7 +60,7 @@ public static class XIVConfigUIMain
         LocalManager.InIt();
         ImageLoader.Init();
 
-        CommandForChangingSetting = commandForChangingSetting;
+        Command = command;
         DescriptionAboutCommand = descriptionAboutCommand ?? string.Empty;
         EnableCommand();
 
@@ -75,7 +75,7 @@ public static class XIVConfigUIMain
 
     internal static void EnableCommand()
     {
-        Service.Commands.AddHandler(CommandForChangingSetting, new CommandInfo(OnCommand)
+        Service.Commands.AddHandler(Command, new CommandInfo(OnCommand)
         {
             ShowInHelp = !string.IsNullOrEmpty(DescriptionAboutCommand),
             HelpMessage = (Service.PluginInterface.InternalName + "." + nameof(DescriptionAboutCommand)).Local(DescriptionAboutCommand ?? string.Empty),
@@ -84,7 +84,7 @@ public static class XIVConfigUIMain
 
     internal static void DisableCommand()
     {
-        Service.Commands.RemoveHandler(CommandForChangingSetting);
+        Service.Commands.RemoveHandler(Command);
     }
 
     /// <summary>

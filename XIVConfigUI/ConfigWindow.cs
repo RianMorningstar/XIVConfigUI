@@ -1,4 +1,4 @@
-﻿using Dalamud.Interface.Colors;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
@@ -120,7 +120,7 @@ public abstract class ConfigWindow : Window
                 && !ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
             {
                 var str = string.Empty;
-                for (int i = 0; i < 150; i++)
+                for (var i = 0; i < 150; i++)
                 {
                     str += "Move away! Don't crash! ";
                 }
@@ -167,7 +167,7 @@ public abstract class ConfigWindow : Window
 
     private void DrawBody()
     {
-        ImGui.SetCursorPos(ImGui.GetCursorPos() + Vector2.One * 8 * Scale);
+        ImGui.SetCursorPos(ImGui.GetCursorPos() + (Vector2.One * 8 * Scale));
         using var child = ImRaii.Child("Config Window Body", -Vector2.One);
         if (child)
         {
@@ -270,7 +270,7 @@ public abstract class ConfigWindow : Window
 
         void DrawList()
         {
-            for (int i = 0; i < Items.Length; i++)
+            for (var i = 0; i < Items.Length; i++)
             {
                 var item = Items[i];
 
@@ -391,7 +391,7 @@ public abstract class ConfigWindow : Window
     /// </summary>
     /// <param name="wholeWidth"></param>
     /// <returns></returns>
-    protected abstract bool DrawSubHeader(float wholeWidth);
+    protected virtual bool DrawSubHeader(float wholeWidth) => false;
 
     /// <summary>
     /// The way to draw the about.

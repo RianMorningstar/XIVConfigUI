@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
@@ -124,6 +124,10 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
             else if (type == typeof(Vector4))
             {
                 return new ColorEditSearch(property, config);
+            }
+            else if (type == typeof(string))
+            {
+                return new InputTextSearch(property, config);
             }
 
 #if DEBUG

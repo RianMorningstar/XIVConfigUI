@@ -1,4 +1,4 @@
-﻿using XIVConfigUI.SearchableConfigs;
+using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
 
@@ -27,25 +27,22 @@ public abstract class SearchableConfig
     /// </summary>
     /// <param name="property"></param>
     /// <returns></returns>
-    public abstract bool IsPropertyValid(PropertyInfo property);
+    public virtual bool IsPropertyValid(PropertyInfo property) => true;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="property"></param>
-    public abstract void PropertyInvalidTooltip(PropertyInfo property);
+    public virtual void PropertyInvalidTooltip(PropertyInfo property) { }
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="property"></param>
-    public abstract void PreNameDrawing(PropertyInfo property);
+    public virtual void PreNameDrawing(PropertyInfo property) { }
 
     /// <summary>
     /// 
     /// </summary>
-    public virtual void AfterConfigChange(Searchable item)
-    {
-
-    }
+    public virtual void AfterConfigChange(Searchable item) { }
 }

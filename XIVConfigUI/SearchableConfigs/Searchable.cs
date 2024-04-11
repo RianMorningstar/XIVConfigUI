@@ -88,7 +88,7 @@ public abstract class Searchable
     {
         get
         {
-            var result = XIVConfigUIMain.CommandForChangingSetting + " " + LeadingCommand;
+            var result = XIVConfigUIMain.Command + " " + LeadingCommand;
             var extra = _default?.ToString();
             if (!string.IsNullOrEmpty(extra)) result += " " + extra;
             return result;
