@@ -50,9 +50,25 @@ public abstract class ConfigWindow : Window
     private ConfigWindowItem[] Items => _items ??= GetItems();
 
     /// <summary>
+    /// The searchable collection.
+    /// </summary>
+    public virtual SearchableCollection Collection { get; } = new SearchableCollection(new object());
+
+    /// <summary>
     /// The all searchables for searching.
     /// </summary>
-    public virtual IEnumerable<Searchable> Searchables => [];
+    public virtual IEnumerable<Searchable> Searchables => [.. Collection];
+
+    /// <summary>
+    /// Creator with assembly name.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="flags"></param>
+    public ConfigWindow(AssemblyName name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        : this((name.Name ?? name.FullName) + " v" + (name.Version?.ToString() ?? "?.?.?"), flags)
+    {
+        
+    }
 
     /// <summary>
     /// Create a config window.
@@ -391,5 +407,12 @@ public abstract class ConfigWindow : Window
         ImGui.Spacing();
 
         ImGui.TextWrapped(XIVConfigUIMain.Description);
+
+        var width = ImGui.GetWindowWidth();
+
+        if (ImageLoader.GetTexture($"https://GitHub-readme-stats.vercel.app/api/pin/?username={XIVConfigUIMain._userName}&repo={XIVConfigUIMain._repoName}&theme=dark", out var icon) && ImGuiHelper.TextureButton(icon, width, width))
+        {
+            Util.OpenLink($"https://GitHub.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}");
+        }
     }
 }

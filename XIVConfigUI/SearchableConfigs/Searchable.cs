@@ -75,11 +75,9 @@ public abstract class Searchable
     {
         get
         {
-            var command = string.Empty;
-            var subCommand = _obj.GetType().GetCustomAttribute<CommandAttribute>()?.SubCommand;
-
-            if (!string.IsNullOrEmpty(subCommand)) command += subCommand + " ";
-            return command + _property.Name;
+            var type = _obj.GetType();
+            var command = type.GetCustomAttribute<CommandAttribute>()?.SubCommand ?? type.Name;
+            return command + " " + _property.Name;
         }
     }
 
@@ -143,7 +141,7 @@ public abstract class Searchable
     /// </summary>
     public unsafe void Draw()
     {
-        if (_config?.IsPropertyValid(_property) ?? false)
+        if (_config?.IsPropertyValid(_property) ?? true)
         {
             DrawMain();
             ImGuiHelper.PrepareGroup(Popup_Key, Command, () => ResetToDefault());

@@ -9,9 +9,12 @@ namespace XIVConfigUI;
 /// </summary>
 public static class XIVConfigUIMain
 {
+    private static Action<string>? _onCommand;
     private static bool _inited = false;
-    internal readonly static List<SearchableCollection> _searchableCollections = [];
     private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
+
+    internal static string _userName = "", _repoName = "";
+    internal readonly static List<SearchableCollection> _searchableCollections = [];
 
     /// <summary>
     /// Control if show tooltips.
@@ -19,7 +22,7 @@ public static class XIVConfigUIMain
     public static Func<bool> ShowTooltip { get; set; } = () => true;
 
     internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
-
+    internal static string DescriptionAboutCommand { get; private set; } = string.Empty;
     /// <summary>
     /// The punchline of this plugin.
     /// </summary>
@@ -42,21 +45,24 @@ public static class XIVConfigUIMain
     /// <param name="userName">the user name in github</param>
     /// <param name="repoName">the repo name in github</param>
     /// <param name="commandForChangingSetting">the command for changing config</param>
-    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting)
+    /// <param name="descriptionAboutCommand"></param>
+    /// <param name="onCommand"></param>
+    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting,
+        string? descriptionAboutCommand = null, Action<string>? onCommand = null)
     {
         if (_inited) return;
         _inited = true;
 
         pluginInterface.Create<Service>();
-        LocalManager.InIt(userName, repoName);
+        _userName = userName;
+        _repoName = repoName;
+        _onCommand = onCommand;
+        LocalManager.InIt();
         ImageLoader.Init();
 
         CommandForChangingSetting = commandForChangingSetting;
-
-        Service.Commands.AddHandler(CommandForChangingSetting, new CommandInfo(OnCommand)
-        {
-            ShowInHelp = false,
-        });
+        DescriptionAboutCommand = descriptionAboutCommand ?? string.Empty;
+        EnableCommand();
 
         var items = pluginInterface.AssemblyLocation.FullName.Split('.');
         items[^1] = "json";
@@ -65,6 +71,20 @@ public static class XIVConfigUIMain
         _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
         _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
         _iconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
+    }
+
+    internal static void EnableCommand()
+    {
+        Service.Commands.AddHandler(CommandForChangingSetting, new CommandInfo(OnCommand)
+        {
+            ShowInHelp = !string.IsNullOrEmpty(DescriptionAboutCommand),
+            HelpMessage = (Service.PluginInterface.InternalName + "." + nameof(DescriptionAboutCommand)).Local(DescriptionAboutCommand ?? string.Empty),
+        });
+    }
+
+    internal static void DisableCommand()
+    {
+        Service.Commands.RemoveHandler(CommandForChangingSetting);
     }
 
     /// <summary>
@@ -76,7 +96,7 @@ public static class XIVConfigUIMain
         _inited = false;
 
         _searchableCollections.Clear();
-        Service.Commands.RemoveHandler(CommandForChangingSetting);
+        DisableCommand();
         LocalManager.Dispose();
     }
 
@@ -100,6 +120,6 @@ public static class XIVConfigUIMain
             }
         }
 
-        Service.Log.Info($"Failed to find the config from \"{arguments}\"!");
+        _onCommand?.Invoke(arguments);
     }
 }

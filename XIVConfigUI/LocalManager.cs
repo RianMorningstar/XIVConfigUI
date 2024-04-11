@@ -9,7 +9,6 @@ namespace XIVConfigUI;
 /// </summary>
 public static class LocalManager
 {
-    private static string _userName = "", _repoName = "";
     private static Dictionary<string, string> _rightLang = [];
 
     /// <summary>
@@ -80,10 +79,8 @@ public static class LocalManager
         return @default;
     }
 
-    internal static void InIt(string userName, string repoName)
+    internal static void InIt()
     {
-        _userName = userName;
-        _repoName = repoName;
 #if DEBUG
         var dirInfo = Service.PluginInterface.AssemblyLocation.Directory;
         dirInfo = dirInfo?.Parent!.Parent!.Parent!;
@@ -140,7 +137,7 @@ public static class LocalManager
         {
             try
             {
-                var url = $"https://raw.githubusercontent.com/{_userName}/{_repoName}/main/{_repoName}/Localization/{lang}.json";
+                var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}/main/{XIVConfigUIMain._repoName}/Localization/{lang}.json";
                 using var client = new HttpClient();
                 _rightLang = _translations[lang] = JsonConvert.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
             }
@@ -156,6 +153,8 @@ public static class LocalManager
             }
         }
 
+        XIVConfigUIMain.DisableCommand();
+        XIVConfigUIMain.EnableCommand();
         LanguageChanged?.Invoke();
     }
 
