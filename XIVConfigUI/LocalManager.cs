@@ -75,7 +75,7 @@ public static class LocalManager
 #if DEBUG
         RightLang[key] = @default;
 #else
-        if (_rightLang.TryGetValue(key, out var value)) return value;
+        if (RightLang.TryGetValue(key, out var value)) return value;
 #endif
         return @default;
     }
