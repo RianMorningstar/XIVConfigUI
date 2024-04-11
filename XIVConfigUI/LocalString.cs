@@ -20,4 +20,10 @@ internal enum LocalString
 
     [Description("Copy \"{0}\"")]
     CopyCommand,
+
+    [Description("Click to open the crowdin for modifying localization!")]
+    Localization,
+
+    [Description("Click to see the source code!")]
+    SourceCode,
 }

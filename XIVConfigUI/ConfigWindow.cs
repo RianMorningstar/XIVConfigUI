@@ -46,6 +46,11 @@ public abstract class ConfigWindow : Window
     /// </summary>
     protected virtual string Kofi => string.Empty;
 
+    /// <summary>
+    /// Your project name in crowdin.
+    /// </summary>
+    protected virtual string Crowdin => string.Empty;
+
     private ConfigWindowItem[]? _items = null;
     private ConfigWindowItem[] Items => _items ??= GetItems();
 
@@ -414,5 +419,14 @@ public abstract class ConfigWindow : Window
         {
             Util.OpenLink($"https://GitHub.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}");
         }
+        ImGuiHelper.HoveredTooltip(LocalString.SourceCode.Local());
+
+        if (!string.IsNullOrEmpty(Crowdin)
+            && ImageLoader.GetTexture("https://badges.crowdin.net/badge/light/crowdin-on-dark.png", out icon)
+            && ImGuiHelper.TextureButton(icon, width, width))
+        {
+            Util.OpenLink($"https://crowdin.com/project/{Crowdin}");
+        }
+        ImGuiHelper.HoveredTooltip(LocalString.Localization.Local());
     }
 }
