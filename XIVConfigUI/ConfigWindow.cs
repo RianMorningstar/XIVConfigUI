@@ -15,12 +15,30 @@ namespace XIVConfigUI;
 public abstract class ConfigWindow : Window
 {
     private string _searchText = string.Empty;
+
+    /// <summary>
+    /// The searching result.
+    /// </summary>
     protected Searchable[] _searchResults = [];
+
+    /// <summary>
+    /// The actived tab index.
+    /// </summary>
     protected int _activeTabIndex = -1;
 
+    /// <summary>
+    /// The scale in the imgui.
+    /// </summary>
     protected static float Scale => ImGuiHelpers.GlobalScale;
 
+    /// <summary>
+    /// The min column Width in sidebar.
+    /// </summary>
     protected static float MinColumnWidth => 24 * Scale;
+
+    /// <summary>
+    /// The max icon width in sidebar.
+    /// </summary>
     protected static float MaxIconWidth => 50 * Scale;
 
     /// <summary>
@@ -29,11 +47,18 @@ public abstract class ConfigWindow : Window
     protected virtual string Kofi => string.Empty;
 
     private ConfigWindowItem[]? _items = null;
-    protected ConfigWindowItem[] Items => _items ??= GetItems();
-    public abstract SearchableCollection AllSearchable { get; }
+    private ConfigWindowItem[] Items => _items ??= GetItems();
 
-    public virtual IEnumerable<Searchable> Searchables => AllSearchable;
+    /// <summary>
+    /// The all searchables for searching.
+    /// </summary>
+    public virtual IEnumerable<Searchable> Searchables => [];
 
+    /// <summary>
+    /// Create a config window.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="flags"></param>
     public ConfigWindow(string name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
         : base(name, flags | ImGuiWindowFlags.NoScrollbar, false)
     {
@@ -46,11 +71,23 @@ public abstract class ConfigWindow : Window
         RespectCloseHotkey = true;
     }
 
+    /// <summary>
+    /// Get all items.
+    /// </summary>
+    /// <returns></returns>
     protected virtual ConfigWindowItem[] GetItems()
     {
         return GetType().GetNestedTypes()
             .Where(t => t.IsAssignableTo(typeof(ConfigWindowItem)) && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) is not null)
             .Select(Activator.CreateInstance).OfType<ConfigWindowItem>().ToArray();
+    }
+
+    /// <summary>
+    /// Clear all items.
+    /// </summary>
+    public void ClearItems()
+    {
+        _items = null;
     }
 
     /// <inheritdoc/>
@@ -292,11 +329,16 @@ public abstract class ConfigWindow : Window
         }
     }
 
+    /// <summary>
+    /// Render the header
+    /// </summary>
+    /// <param name="wholeWidth"></param>
+    /// <param name="iconSize"></param>
     protected virtual void DrawHeader(float wholeWidth, float iconSize)
     {
         var size = MathF.Max(MathF.Min(wholeWidth, Scale * 128), MinColumnWidth);
 
-        if (ImageLoader.GetTexture((uint)0, out var overlay))
+        if (ImageLoader.GetTexture(0, out var overlay))
         {
             ImGuiHelper.DrawItemMiddle(() =>
             {
@@ -320,11 +362,24 @@ public abstract class ConfigWindow : Window
         }
     }
 
+    /// <summary>
+    /// The way to get the logo.
+    /// </summary>
+    /// <param name="texture"></param>
+    /// <returns></returns>
     protected virtual bool GetLogo(out IDalamudTextureWrap texture) 
         => ImageLoader.GetTexture(XIVConfigUIMain.IconUrl, out texture);
 
+    /// <summary>
+    /// Draw the sub header.
+    /// </summary>
+    /// <param name="wholeWidth"></param>
+    /// <returns></returns>
     protected abstract bool DrawSubHeader(float wholeWidth);
 
+    /// <summary>
+    /// The way to draw the about.
+    /// </summary>
     protected virtual void DrawAbout()
     {
         using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))

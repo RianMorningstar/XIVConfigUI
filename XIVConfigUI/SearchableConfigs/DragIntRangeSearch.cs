@@ -1,6 +1,4 @@
-﻿using XIVConfigUI.Attributes;
-
-namespace XIVConfigUI.SearchableConfigs;
+﻿namespace XIVConfigUI.SearchableConfigs;
 
 /// <summary>
 /// The drag int.

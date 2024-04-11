@@ -132,6 +132,10 @@ public abstract class Searchable
         {
             _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
         }
+        else
+        {
+            _default = null!;
+        }
     }
 
     /// <summary>
@@ -242,6 +246,10 @@ public abstract class Searchable
         if (ImGui.IsItemHovered()) ShowTooltip(false);
     }
 
+    /// <summary>
+    /// On the string value to change this value.
+    /// </summary>
+    /// <param name="value"></param>
     public virtual void OnCommand(string value)
     {
         var type = _property.PropertyType;
@@ -273,7 +281,7 @@ public abstract class Searchable
         }
     }
 
-    public static Searchable[] SimilarItems(IEnumerable<Searchable> items, string searchingText)
+    internal static Searchable[] SimilarItems(IEnumerable<Searchable> items, string searchingText)
     {
         if (string.IsNullOrEmpty(searchingText)) return [];
 

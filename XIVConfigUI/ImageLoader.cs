@@ -1,16 +1,18 @@
 ﻿using Dalamud.Interface.Internal;
-using FFXIVClientStructs.Havok;
 using Svg;
 using System.Collections.Concurrent;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using static Dalamud.Plugin.Services.ITextureProvider;
 
 namespace XIVConfigUI;
+
+/// <summary>
+/// A image loader.
+/// </summary>
 public static class ImageLoader
 {
-    private static ConcurrentDictionary<string, IDalamudTextureWrap?> _cachedTextures = [];
-    private static ConcurrentDictionary<(uint ID, IconFlags HQ), IDalamudTextureWrap?> _cachedIcons = [];
+    private static readonly ConcurrentDictionary<string, IDalamudTextureWrap?> _cachedTextures = [];
+    private static readonly ConcurrentDictionary<(uint ID, IconFlags HQ), IDalamudTextureWrap?> _cachedIcons = [];
     private static readonly Dictionary<uint, uint> _actionIcons = [];
 
 
@@ -20,7 +22,7 @@ public static class ImageLoader
         SvgToPng,
     ];
 
-    public static void Init()
+    internal static void Init()
     {
         GetTexture(0, IconFlags.HiRes, out _);
         GetTextureRaw("ui/uld/image2.tex", out _);
@@ -62,6 +64,13 @@ public static class ImageLoader
         return GetTexture(iconId, out texture);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="icon"></param>
+    /// <param name="texture"></param>
+    /// <param name="default"></param>
+    /// <returns></returns>
     public static bool GetTexture(uint icon, out IDalamudTextureWrap texture, uint @default = 0)
         => GetTexture(icon, IconFlags.HiRes, out texture)
         || GetTexture(icon, IconFlags.None, out texture)
@@ -69,6 +78,13 @@ public static class ImageLoader
         || GetTexture(@default, IconFlags.None, out texture)
         || GetTexture(0, IconFlags.HiRes, out texture);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="icon"></param>
+    /// <param name="hq"></param>
+    /// <param name="texture"></param>
+    /// <returns></returns>
     public static bool GetTexture(uint icon, IconFlags hq, out IDalamudTextureWrap texture)
     {
         if (!_cachedIcons.TryGetValue((icon, hq), out texture!))
@@ -83,6 +99,12 @@ public static class ImageLoader
         return texture is not null;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="texture"></param>
+    /// <returns></returns>
     public static bool GetTexture(string path, out IDalamudTextureWrap texture)
         => GetTextureRaw(path, out texture)
         || IsUrl(path) && GetTextureRaw("ui/uld/image2.tex", out texture)
@@ -135,7 +157,6 @@ public static class ImageLoader
 
     private static IDalamudTextureWrap? LoadTexture(byte[] array)
     {
-        int i = 0;
         foreach (var convert in _conversionsToBitmap)
         {
             try

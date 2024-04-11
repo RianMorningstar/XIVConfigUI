@@ -13,12 +13,26 @@ public static class XIVConfigUIMain
     internal readonly static List<SearchableCollection> _searchableCollections = [];
     private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
 
+    /// <summary>
+    /// Control if show tooltips.
+    /// </summary>
     public static Func<bool> ShowTooltip { get; set; } = () => true;
 
     internal static string CommandForChangingSetting { get; private set; } = "/ConfigUI";
 
+    /// <summary>
+    /// The punchline of this plugin.
+    /// </summary>
     public static string Punchline => (Service.PluginInterface.InternalName + "." + nameof(Punchline)).Local(_punchline);
+
+    /// <summary>
+    /// The description of this plugin.
+    /// </summary>
     public static string Description => (Service.PluginInterface.InternalName + "." + nameof(Description)).Local(_descirption);
+
+    /// <summary>
+    /// The icon of this plugin.
+    /// </summary>
     public static string IconUrl => (Service.PluginInterface.InternalName + "." + nameof(IconUrl)).Local(_iconUrl);
 
     /// <summary>

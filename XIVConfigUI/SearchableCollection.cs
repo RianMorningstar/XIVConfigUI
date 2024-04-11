@@ -5,12 +5,31 @@ namespace XIVConfigUI;
 
 internal readonly record struct SearchPair(UIAttribute Attribute, Searchable Searchable);
 
+/// <summary>
+/// The filter for drawing configs.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public readonly record struct FilterKey<T> where T : Enum
 {
+    /// <summary>
+    /// The filter.
+    /// </summary>
     public T Filter { get; init; }
+
+    /// <summary>
+    /// Before drawing.
+    /// </summary>
     public Action? Before { get; init; }
+
+    /// <summary>
+    /// After drawing.
+    /// </summary>
     public Action? After { get; init; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="filter"></param>
     public static implicit operator FilterKey<T>(T filter) => new() { Filter = filter };
 }
 

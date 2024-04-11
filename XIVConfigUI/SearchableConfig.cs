@@ -1,5 +1,4 @@
-﻿using Dalamud.Interface.Internal;
-using XIVConfigUI.SearchableConfigs;
+﻿using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
 
