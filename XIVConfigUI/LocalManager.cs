@@ -142,7 +142,7 @@ public static class LocalManager
         {
             try
             {
-                var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}/main/{XIVConfigUIMain._repoName}/Localization/{lang}.json";
+                var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain.UserName}/{XIVConfigUIMain.RepoName}/main/{XIVConfigUIMain.RepoName}/Localization/{lang}.json";
                 using var client = new HttpClient();
                 RightLang = Translations[lang] = JsonConvert.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
             }

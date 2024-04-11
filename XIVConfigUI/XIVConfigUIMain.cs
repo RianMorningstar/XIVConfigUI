@@ -11,9 +11,8 @@ public static class XIVConfigUIMain
 {
     private static Action<string>? _onCommand;
     private static bool _inited = false;
-    private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
+    private static string _punchline = string.Empty, _descirption = string.Empty;
 
-    internal static string _userName = "", _repoName = "";
     internal static readonly List<SearchableCollection> _searchableCollections = [];
 
     /// <summary>
@@ -36,7 +35,17 @@ public static class XIVConfigUIMain
     /// <summary>
     /// The icon of this plugin.
     /// </summary>
-    public static string IconUrl => _iconUrl;
+    public static string IconUrl { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// The user name in github.
+    /// </summary>
+    public static string UserName { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// The repo name in github.
+    /// </summary>
+    public static string RepoName { get; private set; } = string.Empty;
 
     /// <summary>
     /// 
@@ -66,7 +75,7 @@ public static class XIVConfigUIMain
         var obj = JObject.Parse(File.ReadAllText(path));
         _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
         _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
-        _iconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
+        IconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
 
         var repoUrl = obj["RepoUrl"]?.ToString() ?? string.Empty;
 
@@ -77,8 +86,8 @@ public static class XIVConfigUIMain
 
         items = repoUrl.Split("/");
 
-        _userName = items[^2];
-        _repoName = items[^1];
+        UserName = items[^2];
+        RepoName = items[^1];
     }
     internal static void EnableCommand()
     {

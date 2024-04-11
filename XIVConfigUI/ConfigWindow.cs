@@ -415,9 +415,9 @@ public abstract class ConfigWindow : Window
 
         var width = ImGui.GetWindowWidth();
 
-        if (ImageLoader.GetTexture($"https://GitHub-readme-stats.vercel.app/api/pin/?username={XIVConfigUIMain._userName}&repo={XIVConfigUIMain._repoName}&theme=dark", out var icon) && ImGuiHelper.TextureButton(icon, width, width))
+        if (ImageLoader.GetTexture($"https://GitHub-readme-stats.vercel.app/api/pin/?username={XIVConfigUIMain.UserName}&repo={XIVConfigUIMain.RepoName}&theme=dark", out var icon) && ImGuiHelper.TextureButton(icon, width, width))
         {
-            Util.OpenLink($"https://GitHub.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}");
+            Util.OpenLink($"https://GitHub.com/{XIVConfigUIMain.UserName}/{XIVConfigUIMain.RepoName}");
         }
         ImGuiHelper.HoveredTooltip(LocalString.SourceCode.Local());
 
