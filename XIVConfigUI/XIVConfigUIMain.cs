@@ -39,9 +39,9 @@ public static class XIVConfigUIMain
     /// 
     /// </summary>
     /// <param name="pluginInterface"></param>
-    /// <param name="userName"></param>
-    /// <param name="repoName"></param>
-    /// <param name="commandForChangingSetting"></param>
+    /// <param name="userName">the user name in github</param>
+    /// <param name="repoName">the repo name in github</param>
+    /// <param name="commandForChangingSetting">the command for changing config</param>
     public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string commandForChangingSetting)
     {
         if (_inited) return;

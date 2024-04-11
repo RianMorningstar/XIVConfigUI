@@ -67,7 +67,7 @@ public static class ImGuiHelper
     /// </summary>
     /// <param name="size"></param>
     /// <returns></returns>
-    public unsafe static ImFontPtr GetFont(float size)
+    public static unsafe ImFontPtr GetFont(float size)
     {
         var style = new Dalamud.Interface.GameFonts.GameFontStyle(Dalamud.Interface.GameFonts.GameFontStyle.GetRecommendedFamilyAndSize(Dalamud.Interface.GameFonts.GameFontFamily.Axis, size));
 
@@ -227,7 +227,7 @@ public static class ImGuiHelper
     /// <param name="selected"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, bool selected, string id = "")
+    public static unsafe bool SilenceImageButton(IntPtr handle, Vector2 size, bool selected, string id = "")
     => SilenceImageButton(handle, size, Vector2.Zero, Vector2.One, selected, id);
 
     /// <summary>
@@ -240,7 +240,7 @@ public static class ImGuiHelper
     /// <param name="selected"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, bool selected, string id = "")
+    public static unsafe bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, bool selected, string id = "")
     {
         return SilenceImageButton(handle, size, uv0, uv1, selected ? ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.Header)) : 0, id);
     }
@@ -255,7 +255,7 @@ public static class ImGuiHelper
     /// <param name="buttonColor"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public unsafe static bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, uint buttonColor, string id = "")
+    public static unsafe bool SilenceImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, uint buttonColor, string id = "")
     {
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderActive)));
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
@@ -312,7 +312,7 @@ public static class ImGuiHelper
     /// <param name="size"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public unsafe static bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, string id = "")
+    public static unsafe bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, string id = "")
     => NoPaddingNoColorImageButton(handle, size, Vector2.Zero, Vector2.One, id);
 
     /// <summary>
@@ -324,7 +324,7 @@ public static class ImGuiHelper
     /// <param name="uv1"></param>
     /// <param name="id"></param>
     /// <returns></returns>
-    public unsafe static bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, string id = "")
+    public static unsafe bool NoPaddingNoColorImageButton(IntPtr handle, Vector2 size, Vector2 uv0, Vector2 uv1, string id = "")
     {
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, 0);
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0);
@@ -441,7 +441,7 @@ public static class ImGuiHelper
     #endregion
 
     #region Tooltip
-    const ImGuiWindowFlags TOOLTIP_FLAG =
+    private const ImGuiWindowFlags TOOLTIP_FLAG =
       ImGuiWindowFlags.Tooltip |
       ImGuiWindowFlags.NoMove |
       ImGuiWindowFlags.NoSavedSettings |
@@ -450,7 +450,7 @@ public static class ImGuiHelper
       ImGuiWindowFlags.NoInputs |
       ImGuiWindowFlags.AlwaysAutoResize;
 
-    const string TOOLTIP_ID = "Config UI Tooltips";
+    private const string TOOLTIP_ID = "Config UI Tooltips";
 
     /// <summary>
     /// 

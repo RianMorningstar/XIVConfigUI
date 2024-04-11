@@ -64,5 +64,8 @@
 		<Using Include="ImGuiNET" />
 
 		<PackageReference Include="Svg" Version="3.4.7" />
+
+		<Using Include="System.Numerics" />
+		<Using Include="System.Reflection" />
 	</ItemGroup>
 </Project>
