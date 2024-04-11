@@ -1,7 +1,9 @@
 using System.ComponentModel;
 
 namespace XIVConfigUI;
-internal enum LocalString
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+public enum LocalString
 {
     [Description("Search Result")]
     Search_Result,
