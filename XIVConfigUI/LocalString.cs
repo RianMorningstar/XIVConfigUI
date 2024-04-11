@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace XIVConfigUI;
 internal enum LocalString
@@ -11,4 +11,13 @@ internal enum LocalString
 
     [Description("Search")]
     Search,
+
+    [Description("Reset to Default Value.")]
+    ResetToDefault,
+
+    [Description("Execute \"{0}\"")]
+    ExecuteCommand,
+
+    [Description("Copy \"{0}\"")]
+    CopyCommand,
 }

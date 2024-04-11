@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	  <TargetFramework>net8.0-windows</TargetFramework>
@@ -61,11 +61,11 @@
 			<HintPath>$(DalamudLibPath)SharpDX.Mathematics.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
-		<Using Include="ImGuiNET" />
 
 		<PackageReference Include="Svg" Version="3.4.7" />
 
-		<Using Include="System.Numerics" />
+        <Using Include="ImGuiNET" />
+        <Using Include="System.Numerics" />
 		<Using Include="System.Reflection" />
 	</ItemGroup>
 </Project>

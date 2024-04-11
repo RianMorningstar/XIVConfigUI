@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Keys;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Internal;
@@ -99,7 +99,7 @@ public static class ImGuiHelper
     /// <param name="reset"></param>
     public static void PrepareGroup(string key, string command, Action reset)
     {
-        DrawHotKeysPopup(key, command, ("Reset to Default Value.", reset, ["Backspace"]));
+        DrawHotKeysPopup(key, command, (LocalString.ResetToDefault.Local(), reset, ["Backspace"]));
     }
 
     /// <summary>
@@ -122,9 +122,11 @@ public static class ImGuiHelper
                 }
                 if (!string.IsNullOrEmpty(command))
                 {
-                    DrawHotKeys($"Execute \"{command}\"", () => ExecuteCommand(command), "Alt");
+                    DrawHotKeys(string.Format(LocalString.ExecuteCommand.Local(), command), 
+                        () => ExecuteCommand(command), "Alt");
 
-                    DrawHotKeys($"Copy \"{command}\"", () => CopyCommand(command), "Ctrl");
+                    DrawHotKeys(string.Format(LocalString.CopyCommand.Local(), command), 
+                        () => CopyCommand(command), "Ctrl");
                 }
                 ImGui.EndTable();
             }

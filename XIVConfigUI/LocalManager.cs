@@ -1,4 +1,5 @@
-﻿using Dalamud.Utility;
+using Dalamud;
+using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.ComponentModel;
 
@@ -9,14 +10,14 @@ namespace XIVConfigUI;
 /// </summary>
 public static class LocalManager
 {
-    private static Dictionary<string, string> _rightLang = [];
+    private static Dictionary<string, string> RightLang = [];
 
     /// <summary>
     /// 
     /// </summary>
-    public static event Action? LanguageChanged;
+    public static event Action? OnLanguageChanged;
 
-    private static readonly Dictionary<string, Dictionary<string, string>> _translations = [];
+    private static readonly Dictionary<string, Dictionary<string, string>> Translations = [];
 
     /// <summary>
     /// 
@@ -72,7 +73,7 @@ public static class LocalManager
     public static string Local(this string key, string @default)
     {
 #if DEBUG
-        _rightLang[key] = @default;
+        RightLang[key] = @default;
 #else
         if (_rightLang.TryGetValue(key, out var value)) return value;
 #endif
@@ -95,10 +96,10 @@ public static class LocalManager
 
         if (File.Exists(path))
         {
-            _rightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
+            RightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
         }
 
-        if (_rightLang.Count == 0)
+        if (RightLang.Count == 0)
         {
             Service.Log.Error("Load translations failed");
         }
@@ -116,22 +117,26 @@ public static class LocalManager
 
         var directory = dirInfo.FullName + @"\Localization";
 
-        if (!Directory.Exists(directory)) return;
+        if (!Directory.Exists(directory))
+        {
+            Service.Log.Warning($"Failed to find the path \"{directory}\" to save the Localization.json");
+            return;
+        }
 
         if (Service.PluginInterface.UiLanguage != "en") return;
 
         //Default values.
         var path = Path.Combine(directory, "Localization.json");
-        File.WriteAllText(path, JsonConvert.SerializeObject(_rightLang, Formatting.Indented));
+        File.WriteAllText(path, JsonConvert.SerializeObject(RightLang, Formatting.Indented));
 
         Service.Log.Info("Exported the json file");
     }
 #endif
     private static async void SetLanguage(string lang)
     {
-        if (_translations.TryGetValue(lang, out var value))
+        if (Translations.TryGetValue(lang, out var value))
         {
-            _rightLang = value;
+            RightLang = value;
         }
         else
         {
@@ -139,23 +144,23 @@ public static class LocalManager
             {
                 var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain._userName}/{XIVConfigUIMain._repoName}/main/{XIVConfigUIMain._repoName}/Localization/{lang}.json";
                 using var client = new HttpClient();
-                _rightLang = _translations[lang] = JsonConvert.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
+                RightLang = Translations[lang] = JsonConvert.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
             }
             catch (HttpRequestException ex) when (ex?.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
                 Service.Log.Information(ex, $"No language {lang}");
-                _rightLang = [];
+                RightLang = [];
             }
             catch (Exception ex)
             {
                 Service.Log.Warning(ex, $"Failed to download the language {lang}");
-                _rightLang = [];
+                RightLang = [];
             }
         }
 
         XIVConfigUIMain.DisableCommand();
         XIVConfigUIMain.EnableCommand();
-        LanguageChanged?.Invoke();
+        OnLanguageChanged?.Invoke();
     }
 
     internal static void Dispose()

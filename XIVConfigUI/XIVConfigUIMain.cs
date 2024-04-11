@@ -14,7 +14,7 @@ public static class XIVConfigUIMain
     private static string _punchline = string.Empty, _descirption = string.Empty, _iconUrl = string.Empty;
 
     internal static string _userName = "", _repoName = "";
-    internal readonly static List<SearchableCollection> _searchableCollections = [];
+    internal static readonly List<SearchableCollection> _searchableCollections = [];
 
     /// <summary>
     /// Control if show tooltips.
@@ -36,7 +36,7 @@ public static class XIVConfigUIMain
     /// <summary>
     /// The icon of this plugin.
     /// </summary>
-    public static string IconUrl => (Service.PluginInterface.InternalName + "." + nameof(IconUrl)).Local(_iconUrl);
+    public static string IconUrl => _iconUrl;
 
     /// <summary>
     /// 

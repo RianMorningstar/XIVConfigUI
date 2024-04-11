@@ -25,7 +25,7 @@ public class InputTextSearch(PropertyInfo property, object obj) : Searchable(pro
     {
         var value = Value;
         ImGui.SetNextItemWidth(DRAG_WIDTH * 1.5f * Scale);
-        if (ImGui.InputText($"{Name}##Config_{ID}{GetHashCode()}", ref value, uint.MaxValue))
+        if (ImGui.InputText($"{Name}##Config_{ID}{GetHashCode()}", ref value, (uint)(Name.Length + 10)))
         {
             Value = value;
         }
