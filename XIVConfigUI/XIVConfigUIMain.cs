@@ -42,20 +42,16 @@ public static class XIVConfigUIMain
     /// 
     /// </summary>
     /// <param name="pluginInterface"></param>
-    /// <param name="userName">the user name in github</param>
-    /// <param name="repoName">the repo name in github</param>
     /// <param name="command">the command for changing config</param>
     /// <param name="descriptionAboutCommand"></param>
     /// <param name="onCommand"></param>
-    public static void Init(DalamudPluginInterface pluginInterface, string userName, string repoName, string command,
+    public static void Init(DalamudPluginInterface pluginInterface, string command,
         string? descriptionAboutCommand = null, Action<string>? onCommand = null)
     {
         if (_inited) return;
         _inited = true;
 
         pluginInterface.Create<Service>();
-        _userName = userName;
-        _repoName = repoName;
         _onCommand = onCommand;
         LocalManager.InIt();
         ImageLoader.Init();
@@ -71,8 +67,19 @@ public static class XIVConfigUIMain
         _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
         _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
         _iconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
-    }
 
+        var repoUrl = obj["RepoUrl"]?.ToString() ?? string.Empty;
+
+        if (!repoUrl.Contains("github.com"))
+        {
+            Service.Log.Warning("XIV Config needs your `RepoUrl` is set with a github url!");
+        }
+
+        items = repoUrl.Split("/");
+
+        _userName = items[^2];
+        _repoName = items[^1];
+    }
     internal static void EnableCommand()
     {
         Service.Commands.AddHandler(Command, new CommandInfo(OnCommand)

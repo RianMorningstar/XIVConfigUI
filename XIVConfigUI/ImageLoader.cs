@@ -1,4 +1,4 @@
-﻿using Dalamud.Interface.Internal;
+using Dalamud.Interface.Internal;
 using Svg;
 using System.Collections.Concurrent;
 using System.Drawing.Imaging;
@@ -163,9 +163,11 @@ public static class ImageLoader
             {
                 return Service.PluginInterface.UiBuilder.LoadImage(convert(array));
             }
-            catch(Exception ex) 
+            catch (Exception ex) 
             {
+#if DEBUG
                 Service.Log.Error(ex, "Failed to load the image");
+#endif
             }
         }
         Service.Log.Verbose($"Failed to convert the data to an image!");
