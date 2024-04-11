@@ -73,7 +73,10 @@ public static class LocalManager
     public static string Local(this string key, string @default)
     {
 #if DEBUG
-        RightLang[key] = @default;
+        if(!string.IsNullOrEmpty(@default))
+        {
+            RightLang[key] = @default;
+        }
 #else
         if (RightLang.TryGetValue(key, out var value)) return value;
 #endif
