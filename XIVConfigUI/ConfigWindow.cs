@@ -42,6 +42,16 @@ public abstract class ConfigWindow : Window
     protected static float MaxIconWidth => 50 * Scale;
 
     /// <summary>
+    /// The discord server id.
+    /// </summary>
+    protected virtual string DiscordServerID => string.Empty;
+
+    /// <summary>
+    /// The discord server invite id.
+    /// </summary>
+    protected virtual string DiscordServerInviteLink => string.Empty;
+
+    /// <summary>
     /// Your kofi-icon.
     /// </summary>
     protected virtual string Kofi => string.Empty;
@@ -415,7 +425,16 @@ public abstract class ConfigWindow : Window
 
         var width = ImGui.GetWindowWidth();
 
-        if (ImageLoader.GetTexture($"https://GitHub-readme-stats.vercel.app/api/pin/?username={XIVConfigUIMain.UserName}&repo={XIVConfigUIMain.RepoName}&theme=dark", out var icon) && ImGuiHelper.TextureButton(icon, width, width))
+        if (!string.IsNullOrEmpty(DiscordServerID)
+            && ImageLoader.GetTexture($"https://discordapp.com/api/guilds/{DiscordServerID}/embed.png?style=banner2", out var icon) && ImGuiHelper.TextureButton(icon, width, width))
+        {
+            if (!string.IsNullOrEmpty(DiscordServerInviteLink))
+            {
+                Util.OpenLink("https://discord.gg/" + DiscordServerInviteLink);
+            }
+        }
+
+        if (ImageLoader.GetTexture($"https://GitHub-readme-stats.vercel.app/api/pin/?username={XIVConfigUIMain.UserName}&repo={XIVConfigUIMain.RepoName}&theme=dark", out icon) && ImGuiHelper.TextureButton(icon, width, width))
         {
             Util.OpenLink($"https://GitHub.com/{XIVConfigUIMain.UserName}/{XIVConfigUIMain.RepoName}");
         }
