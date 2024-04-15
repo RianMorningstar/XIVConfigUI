@@ -46,30 +46,12 @@ public abstract class Searchable
     /// <summary>
     /// The name of it.
     /// </summary>
-    public virtual string Name
-    {
-        get
-        {
-            var ui = _property.GetCustomAttribute<UIAttribute>();
-            if (ui == null || string.IsNullOrEmpty(ui.Name)) return string.Empty;
-
-            return _property.Local("Name", ui.Name);
-        }
-    }
+    public virtual string Name => _property.LocalUIName();
 
     /// <summary>
     /// The description about this item.
     /// </summary>
-    public virtual string Description
-    {
-        get
-        {
-            var ui = _property.GetCustomAttribute<UIAttribute>();
-            if (ui == null || string.IsNullOrEmpty(ui.Description)) return string.Empty;
-
-            return _property.Local("Description", ui.Description);
-        }
-    }
+    public virtual string Description => _property.LocalUIDescription();
 
     internal string LeadingCommand
     {

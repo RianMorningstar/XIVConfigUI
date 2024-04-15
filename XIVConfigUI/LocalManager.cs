@@ -65,6 +65,32 @@ public static class LocalManager
     }
 
     /// <summary>
+    /// Get the ui name of the property.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    public static string LocalUIName(this PropertyInfo property)
+    {
+        var ui = property.GetCustomAttribute<UIAttribute>();
+        if (ui == null || string.IsNullOrEmpty(ui.Name)) return string.Empty;
+
+        return property.Local("Name", ui.Name);
+    }
+
+    /// <summary>
+    /// Get the ui description of the property.
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    public static string LocalUIDescription(this PropertyInfo property)
+    {
+        var ui = property.GetCustomAttribute<UIAttribute>();
+        if (ui == null || string.IsNullOrEmpty(ui.Description)) return string.Empty;
+
+        return property.Local("Description", ui.Description);
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="key"></param>
