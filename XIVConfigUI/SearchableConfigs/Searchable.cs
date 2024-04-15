@@ -51,7 +51,7 @@ public abstract class Searchable
         get
         {
             var ui = _property.GetCustomAttribute<UIAttribute>();
-            if (ui == null) return string.Empty;
+            if (ui == null || string.IsNullOrEmpty(ui.Name)) return string.Empty;
 
             return _property.Local("Name", ui.Name);
         }

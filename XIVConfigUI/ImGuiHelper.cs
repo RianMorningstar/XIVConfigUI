@@ -1,10 +1,12 @@
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.Internal;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
+using Svg;
 using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI;
@@ -38,6 +40,11 @@ public enum FontSize : byte
     /// 18
     /// </summary>
     Fifth,
+
+    /// <summary>
+    /// 12
+    /// </summary>
+    Sixth,
 }
 
 /// <summary>
@@ -49,8 +56,9 @@ public static class ImGuiHelper
     /// 
     /// </summary>
     /// <param name="size"></param>
+    /// <param name="fontFamily"></param>
     /// <returns></returns>
-    public static ImFontPtr GetFont(FontSize size)
+    public static ImFontPtr GetFont(FontSize size, GameFontFamily fontFamily = GameFontFamily.Axis)
     {
         return GetFont(size switch
         {
@@ -58,25 +66,25 @@ public static class ImGuiHelper
             FontSize.Second => 48,
             FontSize.Third => 32,
             FontSize.Forth => 24,
-            _ => 18,
-        });
+            FontSize.Fifth => 18,
+            _ => 12,
+        }, fontFamily);
     }
 
     /// <summary>
     /// Get the font based on size.
     /// </summary>
     /// <param name="size"></param>
+    /// <param name="fontFamily"></param>
     /// <returns></returns>
-    public static unsafe ImFontPtr GetFont(float size)
+    public static unsafe ImFontPtr GetFont(float size, GameFontFamily fontFamily = GameFontFamily.Axis)
     {
-        var style = new Dalamud.Interface.GameFonts.GameFontStyle(Dalamud.Interface.GameFonts.GameFontStyle.GetRecommendedFamilyAndSize(Dalamud.Interface.GameFonts.GameFontFamily.Axis, size));
-
+        var style = new GameFontStyle(GameFontStyle.GetRecommendedFamilyAndSize(fontFamily, size));
         var handle = Service.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(style);
 
         try
         {
             var font = handle.Lock().ImFont;
-
             if ((IntPtr)font.NativePtr == IntPtr.Zero)
             {
                 return ImGui.GetFont();
