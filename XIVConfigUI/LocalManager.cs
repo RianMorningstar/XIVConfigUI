@@ -133,7 +133,9 @@ public static class LocalManager
             Service.Log.Error("Load translations failed");
         }
 
-        foreach (var type in initTypes.Append(typeof(LocalString)))
+        foreach (var type in initTypes
+            .Append(typeof(LocalString))
+            .Append(typeof(ConfigUnitType)))
         {
             if (type.IsEnum)
             {
