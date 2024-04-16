@@ -109,7 +109,7 @@ public static class LocalManager
         return @default;
     }
 
-    internal static void InIt()
+    internal static void InIt(params Type[] initTypes)
     {
 #if DEBUG
         var dirInfo = Service.PluginInterface.AssemblyLocation.Directory;
@@ -132,6 +132,27 @@ public static class LocalManager
         {
             Service.Log.Error("Load translations failed");
         }
+
+        foreach (var type in initTypes.Append(typeof(LocalString)))
+        {
+            if (type.IsEnum)
+            {
+                foreach (var value in Enum.GetValues(type))
+                {
+                    ((Enum)value).Local();
+                }
+            }
+            else
+            {
+                foreach (var property in type.GetRuntimeProperties())
+                {
+                    property.LocalUIName();
+                    property.LocalUIDescription();
+                }
+            }
+
+        }
+
 #else
         SetLanguage(Service.PluginInterface.UiLanguage);
 #endif

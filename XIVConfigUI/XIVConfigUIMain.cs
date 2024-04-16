@@ -54,15 +54,16 @@ public static class XIVConfigUIMain
     /// <param name="command">the command for changing config</param>
     /// <param name="descriptionAboutCommand"></param>
     /// <param name="onCommand"></param>
+    /// <param name="intiTypes">the types for init the local.</param>
     public static void Init(DalamudPluginInterface pluginInterface, string command,
-        string? descriptionAboutCommand = null, Action<string>? onCommand = null)
+        string? descriptionAboutCommand = null, Action<string>? onCommand = null, params Type[] intiTypes)
     {
         if (_inited) return;
         _inited = true;
 
         pluginInterface.Create<Service>();
         _onCommand = onCommand;
-        LocalManager.InIt();
+        LocalManager.InIt(intiTypes);
         ImageLoader.Init();
 
         Command = command;
