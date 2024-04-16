@@ -150,9 +150,7 @@ public static class LocalManager
                     property.LocalUIDescription();
                 }
             }
-
         }
-
 #else
         SetLanguage(Service.PluginInterface.UiLanguage);
 #endif

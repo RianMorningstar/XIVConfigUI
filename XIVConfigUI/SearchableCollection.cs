@@ -1,4 +1,5 @@
 using System.Collections;
+using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
@@ -123,7 +124,13 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
             }
             else if (type == typeof(Vector4))
             {
-                return new ColorEditSearch(property, config);
+                var uiType = property.GetCustomAttribute<UITypeAttribute>()?.Type ?? UiType.Color;
+
+                return uiType switch
+                {
+                    UiType.Padding => new PaddingSearch(property, config),
+                    _ => new ColorEditSearch(property, config),
+                };
             }
             else if (type == typeof(string))
             {
