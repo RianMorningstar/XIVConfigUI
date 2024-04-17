@@ -25,10 +25,14 @@ public class InputTextSearch(PropertyInfo property, object obj) : Searchable(pro
     {
         var value = Value;
         ImGui.SetNextItemWidth(DRAG_WIDTH * 1.5f * Scale);
-        if (ImGui.InputText($"{Name}##Config_{ID}{GetHashCode()}", ref value, (uint)(Name.Length + 10)))
+        if (ImGui.InputText($"##Config_{ID}{GetHashCode()}", ref value, (uint)(Name.Length + 10)))
         {
             Value = value;
         }
         if (ImGui.IsItemHovered()) ShowTooltip();
+
+        ImGui.SameLine();
+
+        DrawName();
     }
 }

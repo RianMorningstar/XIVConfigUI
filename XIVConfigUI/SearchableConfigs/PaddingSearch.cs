@@ -57,14 +57,8 @@ public class PaddingSearch: Searchable
     /// <inheritdoc/>
     protected override void DrawMain()
     {
-
         var value = Value;
 
-        ImGui.Text(Name);
-        if (ImGui.IsItemHovered()) ShowTooltip();
-
-        ImGui.SameLine();
-        
         ImGui.SetNextItemWidth(DRAG_WIDTH * 0.5f * Scale);
         if (ImGui.DragFloat($"L##Config_{ID}{GetHashCode()}", ref value.X, Speed, Min, Max, $"{value.X:F2}{Unit.ToSymbol()}"))
         {
@@ -98,6 +92,10 @@ public class PaddingSearch: Searchable
             Value = value;
         }
         if (ImGui.IsItemHovered()) ShowTooltip();
+
+        ImGui.SameLine();
+
+        DrawName();
     }
 
     /// <inheritdoc/>
