@@ -2,6 +2,7 @@ using Dalamud;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI;
 

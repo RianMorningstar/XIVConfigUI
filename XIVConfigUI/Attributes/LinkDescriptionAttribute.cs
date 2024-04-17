@@ -1,4 +1,4 @@
-﻿namespace XIVConfigUI;
+﻿namespace XIVConfigUI.Attributes;
 /// <summary>
 /// The link to a image or web about your rotation.
 /// </summary>

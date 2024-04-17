@@ -1,4 +1,6 @@
-﻿namespace XIVConfigUI.SearchableConfigs;
+﻿using XIVConfigUI.Attributes;
+
+namespace XIVConfigUI.SearchableConfigs;
 
 /// <summary>
 /// The padding search.

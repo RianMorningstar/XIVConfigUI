@@ -1,4 +1,4 @@
-﻿namespace XIVConfigUI;
+﻿namespace XIVConfigUI.Attributes;
 
 /// <summary>
 /// The attribute for the ui configs.

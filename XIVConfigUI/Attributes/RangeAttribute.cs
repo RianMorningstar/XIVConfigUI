@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace XIVConfigUI;
+namespace XIVConfigUI.Attributes;
 
 /// <summary>
 /// The range of the configs.
