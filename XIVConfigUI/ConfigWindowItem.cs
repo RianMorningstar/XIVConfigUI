@@ -23,6 +23,11 @@ public abstract class ConfigWindowItem
     public virtual string Description => string.Empty;
 
     /// <summary>
+    /// For the case if this is a link button
+    /// </summary>
+    public virtual string Link => string.Empty;
+
+    /// <summary>
     /// The way to get the icon.
     /// </summary>
     /// <param name="texture"></param>
@@ -33,5 +38,5 @@ public abstract class ConfigWindowItem
     /// Draw on the body.
     /// </summary>
     /// <param name="window"></param>
-    public abstract void Draw(ConfigWindow window);
+    public virtual void Draw(ConfigWindow window) { }
 }

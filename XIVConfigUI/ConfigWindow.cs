@@ -283,8 +283,15 @@ public abstract class ConfigWindow : Window
                         var cursor = ImGui.GetCursorPos();
                         if (ImGuiHelper.NoPaddingNoColorImageButton(icon.ImGuiHandle, Vector2.One * iconSize, item.GetHashCode().ToString()))
                         {
-                            _activeTabIndex = i;
-                            _searchResults = [];
+                            if (string.IsNullOrEmpty(item.Link))
+                            {
+                                _activeTabIndex = i;
+                                _searchResults = [];
+                            }
+                            else
+                            {
+                                Util.OpenLink(item.Link);
+                            }
                         }
                         ImGuiHelper.DrawActionOverlay(cursor, iconSize, _activeTabIndex == i ? 1 : 0);
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
@@ -298,8 +305,15 @@ public abstract class ConfigWindow : Window
                 {
                     if (ImGui.Selectable(item.Name, _activeTabIndex == i, ImGuiSelectableFlags.None, new Vector2(0, 20)))
                     {
-                        _activeTabIndex = i;
-                        _searchResults = [];
+                        if (string.IsNullOrEmpty(item.Link))
+                        {
+                            _activeTabIndex = i;
+                            _searchResults = [];
+                        }
+                        else
+                        {
+                            Util.OpenLink(item.Link);
+                        }
                     }
                     if (ImGui.IsItemHovered())
                     {
