@@ -239,7 +239,14 @@ public abstract class Searchable
         {
             try
             {
-                v = Convert.ChangeType(value, type);
+                if (type.IsEnum)
+                {
+                    v = Enum.Parse(type, value);
+                }
+                else
+                {
+                    v = Convert.ChangeType(value, type);
+                }
             }
             catch (Exception e)
             {
