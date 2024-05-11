@@ -88,7 +88,7 @@ public class DragIntRangeSearch : Searchable
         var minValue = MinValue;
         var maxValue = MaxValue;
         ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-        if (ImGui.DragIntRange2($"##Config_{ID}{GetHashCode()}", ref minValue, ref maxValue, Speed, Min, Max))
+        if (ImGui.DragIntRange2($"##Config_{ID}{GetHashCode()}", ref minValue, ref maxValue, Speed, Min, Max, $"{minValue}{Unit.ToSymbol()}", $"{maxValue}{Unit.ToSymbol()}"))
         {
             MinValue = Math.Min(minValue, maxValue);
             MaxValue = Math.Max(minValue, maxValue);

@@ -25,6 +25,11 @@ public class DragIntSearch : Searchable
     /// <summary>
     /// 
     /// </summary>
+    public ConfigUnitType Unit { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     protected int Value
     {
         get => (int)_property.GetValue(_obj)!;
@@ -46,6 +51,7 @@ public class DragIntSearch : Searchable
         Min = (int?)range?.MinValue ?? 0;
         Max = (int?)range?.MaxValue ?? 1;
         Speed = range?.Speed ?? 0.001f;
+        Unit = range?.UnitType ?? ConfigUnitType.None;
     }
 
     /// <summary>
@@ -56,7 +62,7 @@ public class DragIntSearch : Searchable
         var value = Value;
 
         ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-        if (ImGui.DragInt($"##Config_{ID}{GetHashCode()}", ref value, Speed, Min, Max))
+        if (ImGui.DragInt($"##Config_{ID}{GetHashCode()}", ref value, Speed, Min, Max, $"{value}{Unit.ToSymbol()}"))
         {
             Value = value;
         }

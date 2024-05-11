@@ -65,6 +65,11 @@ public abstract class ConfigWindow : Window
     private ConfigWindowItem[] Items => _items ??= GetItems();
 
     /// <summary>
+    /// The active item.
+    /// </summary>
+    protected ConfigWindowItem ActiveItem => Items[_activeTabIndex];
+
+    /// <summary>
     /// The searchable collection.
     /// </summary>
     public virtual SearchableCollection Collection { get; } = new SearchableCollection(new object());
@@ -198,7 +203,7 @@ public abstract class ConfigWindow : Window
                 }
                 else
                 {
-                    Items[_activeTabIndex].Draw(this);
+                    ActiveItem.Draw(this);
                 }
             }
         }
