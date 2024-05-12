@@ -52,9 +52,14 @@ public abstract class ConfigWindow : Window
     protected virtual string DiscordServerInviteLink => string.Empty;
 
     /// <summary>
-    /// Your kofi-icon.
+    /// Your kofi page.
     /// </summary>
     protected virtual string Kofi => string.Empty;
+
+    /// <summary>
+    /// Your patreon page.
+    /// </summary>
+    protected virtual string Patreon => string.Empty;
 
     /// <summary>
     /// Your project name in crowdin.
@@ -221,7 +226,7 @@ public abstract class ConfigWindow : Window
 
         DrawSearchingBox();
         DrawList();
-        DrawKofi();
+        DrawDonate();
 
         void DrawSearchingBox()
         {
@@ -325,27 +330,43 @@ public abstract class ConfigWindow : Window
             }
         }
 
-        void DrawKofi()
+        void DrawDonate()
         {
-            if (string.IsNullOrEmpty(Kofi)) return;
-
-            if (wholeWidth <= 60 * Scale
-                ? ImageLoader.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_s_logo_nolabel.png", out var texture)
-                : ImageLoader.GetTexture("https://storage.ko-fi.com/cdn/brandasset/kofi_bg_tag_dark.png", out texture))
+            float bottom = ImGui.GetWindowSize().Y + ImGui.GetScrollY();
+            if (!string.IsNullOrEmpty(Kofi))
             {
-                var width = Math.Min(150 * Scale, Math.Max(MinColumnWidth, Math.Min(wholeWidth, texture.Width)));
-                var size = new Vector2(width, width * texture.Height / texture.Width);
-                size *= MathF.Max(MinColumnWidth / size.Y, 1);
-                var result = false;
-                ImGuiHelper.DrawItemMiddle(() =>
-                {
-                    ImGui.SetCursorPosY(ImGui.GetWindowSize().Y + ImGui.GetScrollY() - size.Y);
-                    result = ImGuiHelper.NoPaddingNoColorImageButton(texture.ImGuiHandle, size, "Donate Plugin");
-                }, wholeWidth, size.X);
+                DrawIcon("https://storage.ko-fi.com/cdn/brandasset/kofi_s_logo_nolabel.png",
+                    "https://storage.ko-fi.com/cdn/brandasset/kofi_bg_tag_dark.png",
+                    "https://ko-fi.com/" + Kofi);
+            }
 
-                if (result)
+            if (!string.IsNullOrEmpty(Patreon))
+            {
+                DrawIcon("https://c14.patreon.com/qhd_Patreon_Symbol_6fff9723d3.png",
+                    "https://c14.patreon.com/qhd_Patreon_Wordmark_fb38c295a1.png",
+                    "https://www.patreon.com/" + Patreon);
+            }
+
+            void DrawIcon(string iconSmall, string iconBig, string link)
+            {
+                if (wholeWidth <= 60 * Scale
+                    ? ImageLoader.GetTexture(iconSmall, out var texture)
+                    : ImageLoader.GetTexture(iconBig, out texture))
                 {
-                    Util.OpenLink("https://ko-fi.com/" + Kofi);
+                    var width = Math.Min(150 * Scale, Math.Max(MinColumnWidth, Math.Min(wholeWidth, texture.Width)));
+                    var size = new Vector2(width, width * texture.Height / texture.Width);
+                    size *= MathF.Max(MinColumnWidth / size.Y, 1);
+                    var result = false;
+                    ImGuiHelper.DrawItemMiddle(() =>
+                    {
+                        ImGui.SetCursorPosY(bottom -= size.Y);
+                        result = ImGuiHelper.NoPaddingNoColorImageButton(texture.ImGuiHandle, size, "Donate Plugin");
+                    }, wholeWidth, size.X);
+
+                    if (result)
+                    {
+                        Util.OpenLink(link);
+                    }
                 }
             }
         }
