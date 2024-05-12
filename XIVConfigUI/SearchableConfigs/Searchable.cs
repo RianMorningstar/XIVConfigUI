@@ -126,7 +126,7 @@ public abstract class Searchable
         if (_config?.IsPropertyValid(_property) ?? true)
         {
             DrawMain();
-            ImGuiHelper.PrepareGroup(Popup_Key, Command, () => ResetToDefault());
+            ImGuiHelper.PrepareGroup(Popup_Key, Command, ResetToDefault);
         }
         else
         {

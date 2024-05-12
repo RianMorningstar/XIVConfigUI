@@ -70,6 +70,11 @@ public abstract class ConfigWindow : Window
     private ConfigWindowItem[] Items => _items ??= GetItems();
 
     /// <summary>
+    /// The active item.
+    /// </summary>
+    protected ConfigWindowItem ActiveItem => Items[_activeTabIndex];
+
+    /// <summary>
     /// The searchable collection.
     /// </summary>
     public virtual SearchableCollection Collection { get; } = new SearchableCollection(new object());
@@ -203,7 +208,7 @@ public abstract class ConfigWindow : Window
                 }
                 else
                 {
-                    Items[_activeTabIndex].Draw(this);
+                    ActiveItem.Draw(this);
                 }
             }
         }
@@ -288,15 +293,7 @@ public abstract class ConfigWindow : Window
                         var cursor = ImGui.GetCursorPos();
                         if (ImGuiHelper.NoPaddingNoColorImageButton(icon.ImGuiHandle, Vector2.One * iconSize, item.GetHashCode().ToString()))
                         {
-                            if (string.IsNullOrEmpty(item.Link))
-                            {
-                                _activeTabIndex = i;
-                                _searchResults = [];
-                            }
-                            else
-                            {
-                                Util.OpenLink(item.Link);
-                            }
+                            Invoke();
                         }
                         ImGuiHelper.DrawActionOverlay(cursor, iconSize, _activeTabIndex == i ? 1 : 0);
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
@@ -310,21 +307,28 @@ public abstract class ConfigWindow : Window
                 {
                     if (ImGui.Selectable(item.Name, _activeTabIndex == i, ImGuiSelectableFlags.None, new Vector2(0, 20)))
                     {
-                        if (string.IsNullOrEmpty(item.Link))
-                        {
-                            _activeTabIndex = i;
-                            _searchResults = [];
-                        }
-                        else
-                        {
-                            Util.OpenLink(item.Link);
-                        }
+                        Invoke();
                     }
                     if (ImGui.IsItemHovered())
                     {
                         ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
                         var desc = item.Description;
                         if (!string.IsNullOrEmpty(desc)) ImGuiHelper.ShowTooltip(desc);
+                    }
+                }
+
+                void Invoke()
+                {
+                    if (item.OnClick()) return;
+
+                    if (string.IsNullOrEmpty(item.Link))
+                    {
+                        _activeTabIndex = i;
+                        _searchResults = [];
+                    }
+                    else
+                    {
+                        Util.OpenLink(item.Link);
                     }
                 }
             }

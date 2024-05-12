@@ -39,4 +39,10 @@ public abstract class ConfigWindowItem
     /// </summary>
     /// <param name="window"></param>
     public virtual void Draw(ConfigWindow window) { }
+
+    /// <summary>
+    /// On the item was clicked.
+    /// </summary>
+    /// <returns></returns>
+    public virtual bool OnClick() => false;
 }
