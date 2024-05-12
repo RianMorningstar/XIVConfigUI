@@ -346,8 +346,8 @@ public abstract class ConfigWindow : Window
 
             if (!string.IsNullOrEmpty(Patreon))
             {
-                DrawIcon("https://c14.patreon.com/qhd_Patreon_Symbol_6fff9723d3.png",
-                    "https://c14.patreon.com/qhd_Patreon_Wordmark_fb38c295a1.png",
+                DrawIcon("https://raw.githubusercontent.com/ArchiDog1998/XIVConfigUI/main/Resources/PATREON_SYMBOL_1_WHITE_RGB.png",
+                    "https://raw.githubusercontent.com/ArchiDog1998/XIVConfigUI/main/Resources/PATREON_WORDMARK_1_WHITE_RGB.png",
                     "https://www.patreon.com/" + Patreon);
             }
 
