@@ -52,6 +52,11 @@ public abstract class ConfigWindow : Window
     protected virtual string DiscordServerInviteLink => string.Empty;
 
     /// <summary>
+    /// Show the donate link.
+    /// </summary>
+    protected virtual bool ShowDonate => true;
+
+    /// <summary>
     /// Your kofi page.
     /// </summary>
     protected virtual string Kofi => string.Empty;
@@ -336,6 +341,8 @@ public abstract class ConfigWindow : Window
 
         void DrawDonate()
         {
+            if (!ShowDonate) return;
+
             float bottom = ImGui.GetWindowSize().Y + ImGui.GetScrollY();
             if (!string.IsNullOrEmpty(Kofi))
             {
