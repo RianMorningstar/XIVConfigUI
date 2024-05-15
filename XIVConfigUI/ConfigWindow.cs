@@ -178,7 +178,7 @@ public abstract class ConfigWindow : Window
         {
             if (_searchResults != null && _searchResults.Length != 0)
             {
-                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))
+                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Fourth)))
                 {
                     using var color = ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(ImGuiColors.DalamudYellow));
                     ImGui.TextWrapped(LocalString.Search_Result.Local());
@@ -416,7 +416,7 @@ public abstract class ConfigWindow : Window
     /// </summary>
     protected virtual void DrawAbout()
     {
-        using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))
+        using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Fourth)))
         {
             using var color = ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(ImGuiColors.DalamudYellow));
             ImGui.TextWrapped(XIVConfigUIMain.Punchline);
