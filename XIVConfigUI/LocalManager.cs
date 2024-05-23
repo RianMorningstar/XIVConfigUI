@@ -29,12 +29,29 @@ public static class LocalManager
     /// <returns></returns>
     public static string Local(this Enum @enum, string suffix = "", string value = "")
     {
+        if (@enum.GetAttribute<FlagsAttribute>() == null) return @enum.LocalRaw(suffix, value);
+
+        var definedValues = Enum.GetValues(@enum.GetType());
+
+        List<string> values = [];
+        foreach (Enum definedValue in definedValues)
+        {
+            if (!@enum.HasFlag(definedValue)) continue;
+
+            values.Add(definedValue.LocalRaw(suffix, value));
+        }
+
+        return string.Join(", ", values);
+    }
+
+    private static string LocalRaw(this Enum @enum, string suffix, string value)
+    {
         var key = (@enum.GetType().FullName ?? string.Empty) + suffix + "." + @enum.ToString();
         value = string.IsNullOrEmpty(value) ? @enum.GetAttribute<DescriptionAttribute>()?.Description ?? @enum.ToString()
             : value;
         return key.Local(value);
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
