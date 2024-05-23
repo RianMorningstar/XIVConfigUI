@@ -34,7 +34,7 @@ public enum FontSize : byte
     /// <summary>
     /// 24
     /// </summary>
-    Forth,
+    Fourth,
 
     /// <summary>
     /// 18
@@ -65,7 +65,7 @@ public static class ImGuiHelper
             FontSize.First => 72,
             FontSize.Second => 48,
             FontSize.Third => 32,
-            FontSize.Forth => 24,
+            FontSize.Fourth => 24,
             FontSize.Fifth => 18,
             _ => 12,
         }, fontFamily);

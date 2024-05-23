@@ -52,6 +52,11 @@ public abstract class ConfigWindow : Window
     protected virtual string DiscordServerInviteLink => string.Empty;
 
     /// <summary>
+    /// Show the donate link.
+    /// </summary>
+    protected virtual bool ShowDonate => true;
+
+    /// <summary>
     /// Your kofi page.
     /// </summary>
     protected virtual string Kofi => string.Empty;
@@ -183,7 +188,7 @@ public abstract class ConfigWindow : Window
         {
             if (_searchResults != null && _searchResults.Length != 0)
             {
-                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))
+                using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Fourth)))
                 {
                     using var color = ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(ImGuiColors.DalamudYellow));
                     ImGui.TextWrapped(LocalString.Search_Result.Local());
@@ -336,6 +341,8 @@ public abstract class ConfigWindow : Window
 
         void DrawDonate()
         {
+            if (!ShowDonate) return;
+
             float bottom = ImGui.GetWindowSize().Y + ImGui.GetScrollY();
             if (!string.IsNullOrEmpty(Kofi))
             {
@@ -437,7 +444,7 @@ public abstract class ConfigWindow : Window
     /// </summary>
     protected virtual void DrawAbout()
     {
-        using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Forth)))
+        using (var font = ImRaii.PushFont(ImGuiHelper.GetFont(FontSize.Fourth)))
         {
             using var color = ImRaii.PushColor(ImGuiCol.Text, ImGui.ColorConvertFloat4ToU32(ImGuiColors.DalamudYellow));
             ImGui.TextWrapped(XIVConfigUIMain.Punchline);
