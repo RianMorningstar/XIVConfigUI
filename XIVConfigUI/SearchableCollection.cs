@@ -90,11 +90,11 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
         {
             var type = property.PropertyType;
 
-            if (searchableConfig?.PropertyNameCreaters?.TryGetValue(property.Name, out var func) ?? false)
+            if (searchableConfig?.PropertyNameCreators?.TryGetValue(property.Name, out var func) ?? false)
             {
                 return func(property);
             }
-            else if (searchableConfig?.PropertyTypeCreaters?.TryGetValue(type, out func) ?? false)
+            else if (searchableConfig?.PropertyTypeCreators?.TryGetValue(type, out func) ?? false)
             {
                 return func(property);
             }

@@ -15,12 +15,12 @@ public abstract class SearchableConfig
     /// <summary>
     /// 
     /// </summary>
-    public virtual Dictionary<string, Func<PropertyInfo, Searchable>>  PropertyNameCreaters { get; } = [];
+    public virtual Dictionary<string, Func<PropertyInfo, Searchable>>  PropertyNameCreators { get; } = [];
 
     /// <summary>
     /// 
     /// </summary>
-    public virtual  Dictionary<Type, Func<PropertyInfo, Searchable>> PropertyTypeCreaters { get; } = [];
+    public virtual  Dictionary<Type, Func<PropertyInfo, Searchable>> PropertyTypeCreators { get; } = [];
 
     /// <summary>
     /// 
