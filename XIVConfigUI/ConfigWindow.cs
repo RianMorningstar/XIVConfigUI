@@ -22,7 +22,7 @@ public abstract class ConfigWindow : Window
     protected Searchable[] _searchResults = [];
 
     /// <summary>
-    /// The actived tab index.
+    /// The active tab index.
     /// </summary>
     protected int _activeTabIndex = -1;
 
@@ -121,12 +121,7 @@ public abstract class ConfigWindow : Window
     /// Get all items.
     /// </summary>
     /// <returns></returns>
-    protected virtual ConfigWindowItem[] GetItems()
-    {
-        return GetType().GetNestedTypes()
-            .Where(t => t.IsAssignableTo(typeof(ConfigWindowItem)) && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) is not null)
-            .Select(Activator.CreateInstance).OfType<ConfigWindowItem>().ToArray();
-    }
+    protected abstract ConfigWindowItem[] GetItems();
 
     /// <summary>
     /// Clear all items.
