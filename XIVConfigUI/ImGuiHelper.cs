@@ -389,7 +389,7 @@ public static class ImGuiHelper
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 4));
 
                 //var step = new Vector2(88f / cover.Width, 96f / cover.Height);
-                var start = new Vector2((96f * 0 + 4f) / cover.Width, (96f * 2) / cover.Height);
+                var start = new Vector2(((96f * 0) + 4f) / cover.Width, (96f * 2) / cover.Height);
 
                 //Out Size is 88, 96
                 //Inner Size is 82, 82
@@ -405,9 +405,8 @@ public static class ImGuiHelper
 
                 var P = (int)(percent * 81);
 
-
                 var step = new Vector2(88f / cover.Width, 96f / cover.Height);
-                var start = new Vector2(P % 9 * step.X, P / 9 * step.Y);
+                var start = new Vector2((P % 9) * step.X, P / 9 * step.Y);
 
                 //Out Size is 88, 96
                 //Inner Size is 82, 82
@@ -419,7 +418,6 @@ public static class ImGuiHelper
         {
             if (ImageLoader.GetTexture("ui/uld/icona_frame_hr1.tex", out var cover))
             {
-
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 4));
 
                 //Out Size is 88, 96
@@ -436,10 +434,10 @@ public static class ImGuiHelper
             {
                 ImGui.SetCursorPos(cursor - new Vector2(pixPerUnit * 3, pixPerUnit * 0));
 
-                var P = (int)(percent % 1 * 81);
+                var P = (int)((percent % 1) * 81);
 
                 var step = new Vector2(88f / cover.Width, 96f / cover.Height);
-                var start = new Vector2((P % 9 + 9) * step.X, P / 9 * step.Y);
+                var start = new Vector2(((P % 9) + 9) * step.X, P / 9 * step.Y);
 
                 //Out Size is 88, 96
                 //Inner Size is 82, 82
