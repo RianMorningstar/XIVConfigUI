@@ -97,7 +97,6 @@ public abstract class ConfigWindow : Window
     public ConfigWindow(AssemblyName name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
         : this((name.Name ?? name.FullName) + " v" + (name.Version?.ToString() ?? "?.?.?"), flags)
     {
-        
     }
 
     /// <summary>
@@ -272,7 +271,6 @@ public abstract class ConfigWindow : Window
                         }
                         ImGuiHelper.DrawActionOverlay(cursor, iconSize, -1);
                         ImGuiHelper.HoveredTooltip(LocalString.Search.Local());
-
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
                 }
             }
