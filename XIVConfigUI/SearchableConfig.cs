@@ -10,7 +10,7 @@ public abstract class SearchableConfig
     /// <summary>
     /// 
     /// </summary>
-    public virtual bool GeneratDefault { get; } = true;
+    public virtual bool GeneralDefault { get; } = true;
 
     /// <summary>
     /// 
