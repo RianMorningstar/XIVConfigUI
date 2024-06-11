@@ -137,6 +137,7 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
                 return new InputTextSearch(property, config);
             }
 
+
 #if DEBUG
             Service.Log.Warning($"Failed to create search item, the type is {type.Name}");
 #endif
