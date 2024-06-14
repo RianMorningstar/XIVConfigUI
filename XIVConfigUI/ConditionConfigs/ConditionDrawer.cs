@@ -2,8 +2,10 @@
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
+using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Xml.Linq;
 using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.ConditionConfigs;
@@ -31,7 +33,15 @@ public static class ConditionDrawer
         }
         else
         {
-            DrawItem(obj);
+            bool addSameLine = false;
+            foreach (var prop in type.GetRuntimeProperties())
+            {
+                if (prop.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+                if (addSameLine) ImGui.SameLine();
+                addSameLine = true;
+
+                DrawProperty(obj, prop, uiAttribute);
+            }
         }
     }
 
@@ -100,12 +110,28 @@ public static class ConditionDrawer
         void AddButton()
         {
             var hash = list.GetHashCode();
+            if (!_creatableItems.TryGetValue(innerType, out var types))
+            {
+                types = innerType.Assembly.GetTypes().Where(t =>
+                {
+                    if (t.IsAbstract) return false;
+                    if (t.GetConstructor([]) == null) return false;
+                    return t.IsAssignableFrom(innerType);
+                }).ToArray();
+            }
 
             using (var iconFont = ImRaii.PushFont(UiBuilder.IconFont))
             {
                 if (ImGui.Button($"{FontAwesomeIcon.Plus.ToIconString()}##AddButton{hash}"))
                 {
-                    ImGui.OpenPopup("PopupButton" + hash);
+                    if(types.Length == 1)
+                    {
+                        list.Add(Activator.CreateInstance(types[0]));
+                    }
+                    else
+                    {
+                        ImGui.OpenPopup("PopupButton" + hash);
+                    }
                 }
             }
 
@@ -118,16 +144,6 @@ public static class ConditionDrawer
             using var popUp = ImRaii.Popup("PopupButton" + hash);
             if (popUp)
             {
-                if(!_creatableItems.TryGetValue(innerType, out var types))
-                {
-                    types = innerType.Assembly.GetTypes().Where(t =>
-                    {
-                        if (t.IsAbstract) return false;
-                        if (t.GetConstructor([]) == null) return false;
-                        return t.IsAssignableFrom(innerType);
-                    }).ToArray();
-                }
-
                 foreach (var type in types)
                 {
                     if (ImGui.Selectable(type.Local()))
@@ -157,8 +173,58 @@ public static class ConditionDrawer
 
     private static readonly Dictionary<Type, Type[]> _creatableItems = [];
 
-    private static void DrawItem(object obj)
+    private static void DrawProperty(object obj, PropertyInfo property, UIAttribute ui)
     {
+        var propertyType = property.PropertyType;
+        if (propertyType.IsEnum)
+        {
+            DrawEnum(obj, property);
+        }
+        else if(propertyType == typeof(string))
+        {
+            DrawString(obj, property);
+        }
+        else if(propertyType == typeof(bool))
+        {
+            DrawBool(obj, property);
+        }
+    }
 
+    private static void DrawBool(object obj, PropertyInfo property)
+    {
+        var b = property.GetValue(obj) as bool?;
+        if (b == null) return;
+        var bo = b.Value;
+
+        if (ImGui.Checkbox("##" + property.Name + obj.GetHashCode(), ref bo))
+        {
+            property.SetValue(obj, bo);
+        }
+        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
+    }
+
+    private static void DrawString(object obj, PropertyInfo property)
+    {
+        var str = property.GetValue(obj) as string;
+        ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(str).X + 30 * ImGuiHelpers.GlobalScale));
+
+        if (ImGui.InputTextWithHint($"##{property.Name}{obj.GetHashCode()}", property.LocalUIName(), ref str, 128))
+        {
+            property.SetValue(obj, str);
+        }
+        ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
+    }
+
+    private static void DrawEnum(object obj, PropertyInfo property)
+    {
+        var value = property.GetValue(obj);
+        var values = Enum.GetValues(property.PropertyType).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+        var index = Array.IndexOf(values, value);
+        var names = values.Select(v => v.Local()).ToArray();
+
+        if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref index, description: property.LocalUINameDesc()))
+        {
+            property.SetValue(obj, values[index]);
+        }
     }
 }

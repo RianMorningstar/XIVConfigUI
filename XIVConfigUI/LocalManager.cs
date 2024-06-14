@@ -83,6 +83,22 @@ public static class LocalManager
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="property"></param>
+    /// <returns></returns>
+    public static string LocalUINameDesc(this PropertyInfo property)
+    {
+        var desc = property.LocalUIName();
+        var relay = property.LocalUIDescription();
+        if (!string.IsNullOrEmpty(relay))
+        {
+            desc += "\n" + relay;
+        }
+        return desc;
+    }
+
+    /// <summary>
     /// Get the ui name of the property.
     /// </summary>
     /// <param name="property"></param>

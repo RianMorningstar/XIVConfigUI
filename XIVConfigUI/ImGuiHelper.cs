@@ -555,4 +555,77 @@ public static class ImGuiHelper
         ConfigUnitType.Percent => " %%",
         _ => string.Empty,
     };
+
+    public static unsafe bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
+    {
+        var count = items.Length;
+        var originIndex = index;
+        index = Math.Max(0, index) % count;
+        var name = items[index] + "##" + popUp;
+
+        var result = originIndex != index;
+
+        if (SelectableButton(name, font, color))
+        {
+            if (count < 3)
+            {
+                index = (index + 1) % count;
+                result = true;
+            }
+            else
+            {
+                if (!ImGui.IsPopupOpen(popUp)) ImGui.OpenPopup(popUp);
+            }
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+            if (!string.IsNullOrEmpty(description))
+            {
+                ShowTooltip(description);
+            }
+        }
+
+        ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 500 * ImGuiHelpers.GlobalScale);
+
+        if (ImGui.BeginPopup(popUp))
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (ImGui.Selectable(items[i]))
+                {
+                    index = i;
+                    result = true;
+                }
+            }
+            ImGui.EndPopup();
+        }
+
+        return result;
+    }
+
+    public static unsafe bool SelectableButton(string name, ImFontPtr? font = null, Vector4? color = null)
+    {
+        List<IDisposable> disposables = new(2);
+        if (font != null)
+        {
+            disposables.Add(ImRaii.PushFont(font.Value));
+        }
+        if (color != null)
+        {
+            disposables.Add(ImRaii.PushColor(ImGuiCol.Text, color.Value));
+        }
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderActive)));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, ImGui.ColorConvertFloat4ToU32(*ImGui.GetStyleColorVec4(ImGuiCol.HeaderHovered)));
+        ImGui.PushStyleColor(ImGuiCol.Button, 0);
+        var result = ImGui.Button(name);
+        ImGui.PopStyleColor(3);
+        foreach (var item in disposables)
+        {
+            item.Dispose();
+        }
+
+        return result;
+    }
 }
