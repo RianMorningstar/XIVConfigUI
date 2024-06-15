@@ -283,7 +283,7 @@ public static class ConditionDrawer
         {
             DrawInt2(obj, property);
         }
-        else if (propertyType.IsClass)
+        else if (propertyType.IsClass || propertyType.IsInterface)
         {
             if (DrawSubItem(obj, property))
             {
