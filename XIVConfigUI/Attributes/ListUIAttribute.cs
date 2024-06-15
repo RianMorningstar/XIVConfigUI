@@ -10,5 +10,5 @@ public class ListUIAttribute(uint icon) : Attribute
     {
 
     }
-    public virtual void OnClick() { }
+    public virtual void OnClick(object obj) { }
 }

@@ -7,6 +7,8 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using XIVConfigUI.Attributes;
+using static Dalamud.Interface.Utility.Raii.ImRaii;
+using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIFarmManagement;
 
 namespace XIVConfigUI;
 
@@ -648,6 +650,57 @@ public static class ImGuiHelper
             {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    internal static bool DragInt(string name, float width, ref int value, RangeAttribute range)
+    {
+        var show = $"{value}{range.UnitType.ToSymbol()}";
+        ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
+
+        if (ImGui.DragInt(name, ref value, range.Speed, (int)range.MinValue, (int)range.MaxValue, show))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
+    {
+        var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.X:F2}{range.UnitType.ToSymbol()}";
+        var showMax = range.UnitType == ConfigUnitType.Percent ? $"{value.Y * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.Y:F2}{range.UnitType.ToSymbol()}";
+
+        ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, 
+            Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2 
+            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().FramePadding.X));
+
+        if (ImGui.DragFloatRange2(name, ref value.X, ref value.Y, range.Speed, range.MinValue, range.MaxValue, showMin, showMax))
+        {
+            value.X = Math.Min(value.X, value.Y);
+            value.Y = Math.Max(value.X, value.Y);
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool DragInt2(string name, float width, ref Vector2Int value, RangeAttribute range)
+    {
+        var showMin =$"{value.X}{range.UnitType.ToSymbol()}";
+        var showMax =$"{value.Y}{range.UnitType.ToSymbol()}";
+
+        ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale,
+            Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2
+            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().FramePadding.X));
+
+        if (ImGui.DragIntRange2(name, ref value.X, ref value.Y, range.Speed, (int)range.MinValue, (int)range.MaxValue, showMin, showMax))
+        {
+            value.X = Math.Min(value.X, value.Y);
+            value.Y = Math.Max(value.X, value.Y);
+            return true;
         }
 
         return false;

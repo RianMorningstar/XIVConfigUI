@@ -7,25 +7,8 @@ namespace XIVConfigUI.SearchableConfigs;
 /// </summary>
 public class DragIntSearch : Searchable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public int Min { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public int Max { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Speed { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public ConfigUnitType Unit { get; }
+    /// <summary/>
+    public RangeAttribute Range { get; }
 
     /// <summary>
     /// 
@@ -47,11 +30,7 @@ public class DragIntSearch : Searchable
     /// <param name="obj"></param>
     public DragIntSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>();
-        Min = (int?)range?.MinValue ?? 0;
-        Max = (int?)range?.MaxValue ?? 1;
-        Speed = range?.Speed ?? 0.001f;
-        Unit = range?.UnitType ?? ConfigUnitType.None;
+        Range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
     }
 
     /// <summary>
@@ -60,13 +39,10 @@ public class DragIntSearch : Searchable
     protected override void DrawMain()
     {
         var value = Value;
-
-        ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-        if (ImGui.DragInt($"##Config_{ID}{GetHashCode()}", ref value, Speed, Min, Max, $"{value}{Unit.ToSymbol()}"))
+        if (ImGuiHelper.DragInt($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
         {
             Value = value;
         }
-
         if (ImGui.IsItemHovered()) ShowTooltip();
 
         DrawName();

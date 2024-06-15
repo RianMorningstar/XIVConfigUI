@@ -7,25 +7,8 @@ namespace XIVConfigUI.SearchableConfigs;
 /// </summary>
 public class DragIntRangeSearch : Searchable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public int Min { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public int Max { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Speed { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public ConfigUnitType Unit { get; }
+    /// <summary/>
+    public RangeAttribute Range { get; }
 
     /// <summary>
     /// 
@@ -43,55 +26,21 @@ public class DragIntRangeSearch : Searchable
     /// <summary>
     /// 
     /// </summary>
-    protected int MinValue
-    {
-        get => Value.X;
-        set
-        {
-            var v = Value;
-            v.X = value;
-            Value = v;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    protected int MaxValue
-    {
-        get => Value.Y;
-        set
-        {
-            var v = Value;
-            v.Y = value;
-            Value = v;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
     /// <param name="property"></param>
     /// <param name="obj"></param>
     public DragIntRangeSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>();
-        Min = (int?)range?.MinValue ?? 0;
-        Max = (int?)range?.MaxValue ?? 1;
-        Speed = range?.Speed ?? 0.001f;
-        Unit = range?.UnitType ?? ConfigUnitType.None;
+        Range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
     }
 
     /// <inheritdoc/>
     protected override void DrawMain()
     {
-        var minValue = MinValue;
-        var maxValue = MaxValue;
+        var value = Value;
         ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-        if (ImGui.DragIntRange2($"##Config_{ID}{GetHashCode()}", ref minValue, ref maxValue, Speed, Min, Max, $"{minValue}{Unit.ToSymbol()}", $"{maxValue}{Unit.ToSymbol()}"))
+        if (ImGuiHelper.DragInt2($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
         {
-            MinValue = Math.Min(minValue, maxValue);
-            MaxValue = Math.Max(minValue, maxValue);
+            Value = value;
         }
         if (ImGui.IsItemHovered()) ShowTooltip();
         DrawName();
@@ -101,7 +50,7 @@ public class DragIntRangeSearch : Searchable
     protected override void TooltipAdditional()
     {
         ImGui.Separator();
-        ImGui.TextDisabled(Unit.Local());
+        ImGui.TextDisabled(Range.UnitType.Local());
         base.TooltipAdditional();
     }
 }

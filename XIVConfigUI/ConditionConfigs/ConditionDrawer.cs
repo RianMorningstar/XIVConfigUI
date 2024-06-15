@@ -11,6 +11,8 @@ namespace XIVConfigUI.ConditionConfigs;
 
 public static class ConditionDrawer
 {
+    public static Dictionary<Type, Func<object, PropertyInfo, Action?>> CustomDrawings { get; } = [];
+
     private static float IconSizeRaw => ImGuiHelpers.GetButtonSize("H").Y;
     public static float IconSize => IconSizeRaw * ImGuiHelpers.GlobalScale;
 
@@ -85,7 +87,7 @@ public static class ConditionDrawer
 
     private static void DrawList(IList list, Type innerType)
     {
-        var attr = innerType.GetCustomAttribute<ListUIAttribute>() ?? new();
+        var attrBase = innerType.GetCustomAttribute<ListUIAttribute>() ?? new();
 
         AddButton();
 
@@ -94,6 +96,8 @@ public static class ConditionDrawer
             var item = list[i];
 
             if (item == null) continue;
+            var t = item.GetType();
+            var attr = t.GetCustomAttribute<ListUIAttribute>(false) ?? attrBase;
 
             void Delete()
             {
@@ -128,7 +132,7 @@ public static class ConditionDrawer
 
             if (item is ICondition condition)
             {
-                DrawCondition(condition.State, $"Icon :{item.GetHashCode()}", attr.OnClick);
+                DrawCondition(condition.State, $"Icon :{item.GetHashCode()}", () => attr.OnClick(item));
             }
             else
             {
@@ -136,7 +140,7 @@ public static class ConditionDrawer
                 {
                     if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * IconSize, false, $"Icon :{item.GetHashCode()}"))
                     {
-                        attr.OnClick();
+                        attr.OnClick(item);
                     }
                 }
             }
@@ -195,9 +199,9 @@ public static class ConditionDrawer
                 ImGui.GetStyle().FramePadding = padding; ;
             }
 
-            if (!string.IsNullOrEmpty(attr.Description))
+            if (!string.IsNullOrEmpty(attrBase.Description))
             {
-                ImGuiHelper.HoveredTooltip(innerType.Local("Description", attr.Description));
+                ImGuiHelper.HoveredTooltip(innerType.Local("Description", attrBase.Description));
             }
 
             using var popUp = ImRaii.Popup("PopupButton" + hash);
@@ -247,6 +251,10 @@ public static class ConditionDrawer
                 }
             }
         }
+        else if(CustomDrawings.TryGetValue(propertyType, out var method))
+        {
+            drawSub = method(obj, property);
+        }
         else if (propertyType.IsEnum)
         {
             DrawEnum(obj, property);
@@ -262,6 +270,18 @@ public static class ConditionDrawer
         else if (propertyType == typeof(float))
         {
             DrawFloat(obj, property);
+        }
+        else if(propertyType == typeof(int))
+        {
+            DrawInt(obj, property);
+        }
+        else if(propertyType == typeof(Vector2))
+        {
+            DrawFloat2(obj, property);
+        }
+        else if (propertyType == typeof(Vector2Int))
+        {
+            DrawInt2(obj, property);
         }
         else if (propertyType.IsClass)
         {
@@ -301,6 +321,60 @@ public static class ConditionDrawer
         ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
 
         return opened;
+    }
+
+    private static void DrawInt2(object obj, PropertyInfo property)
+    {
+        var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
+
+        var value = (property.GetValue(obj) as Vector2Int?)!.Value;
+
+        if (ImGuiHelper.DragInt2("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        {
+            property.SetValue(obj, value);
+        }
+        var tooltip = property.LocalUINameDesc();
+        if (!string.IsNullOrEmpty(tooltip))
+        {
+            tooltip += "\n";
+        }
+        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+    }
+
+    private static void DrawFloat2(object obj, PropertyInfo property)
+    {
+        var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
+
+        var value = (property.GetValue(obj) as Vector2?)!.Value;
+
+        if (ImGuiHelper.DragFloat2("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        {
+            property.SetValue(obj, value);
+        }
+        var tooltip = property.LocalUINameDesc();
+        if (!string.IsNullOrEmpty(tooltip))
+        {
+            tooltip += "\n";
+        }
+        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+    }
+
+    private static void DrawInt(object obj, PropertyInfo property)
+    {
+        var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
+
+        var value = (property.GetValue(obj) as int?)!.Value;
+
+        if (ImGuiHelper.DragInt("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        {
+            property.SetValue(obj, value);
+        }
+        var tooltip = property.LocalUINameDesc();
+        if (!string.IsNullOrEmpty(tooltip))
+        {
+            tooltip += "\n";
+        }
+        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
     }
 
     private static void DrawFloat(object obj, PropertyInfo property)

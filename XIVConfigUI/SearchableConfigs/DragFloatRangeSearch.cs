@@ -7,25 +7,8 @@ namespace XIVConfigUI.SearchableConfigs;
 /// </summary>
 public class DragFloatRangeSearch : Searchable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Min { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Max { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Speed { get; }
-
-    /// <summary>
-    /// Type.
-    /// </summary>
-    public ConfigUnitType Unit { get; }
+    /// <summary/>
+    public RangeAttribute Range { get; }
 
     /// <summary>
     /// Value.
@@ -41,63 +24,26 @@ public class DragFloatRangeSearch : Searchable
     }
 
     /// <summary>
-    /// 
-    /// </summary>
-    protected float MinValue 
-    {
-        get => Value.X;
-        set
-        {
-            var v = Value;
-            v.X = value;
-            Value = v;
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    protected float MaxValue
-    {
-        get => Value.Y;
-        set
-        {
-            var v = Value;
-            v.Y = value;
-            Value = v;
-        }
-    }
-
-    /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="property"></param>
     /// <param name="obj"></param>
     public DragFloatRangeSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
-        Min = range.MinValue;
-        Max = range.MaxValue;
-        Speed = range.Speed;
-        Unit = range.UnitType;
+        Range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
     }
 
     /// <inheritdoc/>
     protected override void DrawMain()
     {
-        var minValue = MinValue;
-        var maxValue = MaxValue;
+        var value = Value;
         ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-
-        if (ImGui.DragFloatRange2($"##Config_{ID}{GetHashCode()}", ref minValue, ref maxValue, Speed, Min, Max,
-     Unit == ConfigUnitType.Percent ? $"{minValue * 100:F1}{Unit.ToSymbol()}" : $"{minValue:F2}{Unit.ToSymbol()}",
-    Unit == ConfigUnitType.Percent ? $"{maxValue * 100:F1}{Unit.ToSymbol()}" : $"{maxValue:F2}{Unit.ToSymbol()}"))
+        if (ImGuiHelper.DragFloat2($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
         {
-            MinValue = Math.Min(minValue, maxValue);
-            MaxValue = Math.Max(minValue, maxValue);
+            Value = value;
         }
-
         if (ImGui.IsItemHovered()) ShowTooltip();
+
         DrawName();
     }
 
@@ -105,7 +51,7 @@ public class DragFloatRangeSearch : Searchable
     protected override void TooltipAdditional()
     {
         ImGui.Separator();
-        ImGui.TextDisabled(Unit.Local());
+        ImGui.TextDisabled(Range.UnitType.Local());
         base.TooltipAdditional();
     }
 }
