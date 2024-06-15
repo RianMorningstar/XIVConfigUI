@@ -134,7 +134,7 @@ public static class ConditionDrawer
             {
                 DrawCondition(condition.State, $"Icon :{item.GetHashCode()}", () => attr.OnClick(item));
             }
-            else
+            else if(attr.Icon != 0)
             {
                 if (ImageLoader.GetTexture(attr.Icon, out var texture))
                 {
@@ -143,6 +143,10 @@ public static class ConditionDrawer
                         attr.OnClick(item);
                     }
                 }
+            }
+            else
+            {
+                DrawCondition(null, $"Icon :{item.GetHashCode()}", () => attr.OnClick(item));
             }
 
             string desc = item.GetType().Local();
