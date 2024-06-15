@@ -10,23 +10,7 @@ public class DragFloatSearch : Searchable
     /// <summary>
     /// 
     /// </summary>
-    public float Min { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Max { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Speed { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public ConfigUnitType Unit { get; }
-
+    public RangeAttribute Range { get; }
     /// <summary>
     /// Value.
     /// </summary>
@@ -47,34 +31,17 @@ public class DragFloatSearch : Searchable
     /// <param name="obj"></param>
     public DragFloatSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>();
-        Min = range?.MinValue ?? 0f;
-        Max = range?.MaxValue ?? 1f;
-        Speed = range?.Speed ?? 0.001f;
-        Unit = range?.UnitType ?? ConfigUnitType.None;
+        Range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
     }
 
     /// <inheritdoc/>
     protected override void DrawMain()
     {
         var value = Value;
-        ImGui.SetNextItemWidth(Scale * DRAG_WIDTH);
-
-        if (Unit == ConfigUnitType.Percent)
+        if (ImGuiHelper.DragFloat($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
         {
-            if (ImGui.SliderFloat($"##Config_{ID}{GetHashCode()}", ref value, Min, Max, $"{value * 100f:F1}{Unit.ToSymbol()}"))
-            {
-                Value = float.Round(value, 3);
-            }
+            Value = value;
         }
-        else
-        {
-            if (ImGui.DragFloat($"##Config_{ID}{GetHashCode()}", ref value, Speed, Min, Max, $"{value:F2}{Unit.ToSymbol()}"))
-            {
-                Value = value;
-            }
-        }
-
         if (ImGui.IsItemHovered()) ShowTooltip();
 
         DrawName();
@@ -84,7 +51,7 @@ public class DragFloatSearch : Searchable
     protected override void TooltipAdditional()
     {
         ImGui.Separator();
-        ImGui.TextDisabled(Unit.Local());
+        ImGui.TextDisabled(Range.UnitType.Local());
         base.TooltipAdditional();
     }
 }

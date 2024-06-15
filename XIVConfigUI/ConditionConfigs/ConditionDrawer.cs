@@ -5,7 +5,10 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Xml.Linq;
 using XIVConfigUI.Attributes;
+using static Dalamud.Interface.Utility.Raii.ImRaii;
+using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIFarmManagement;
 
 namespace XIVConfigUI.ConditionConfigs;
 
@@ -135,15 +138,31 @@ public static class ConditionDrawer
                 }).ToArray();
             }
 
-            if (ImGui.Button($"+ {innerType.Local()}##AddButton{hash}"))
+            using(var textColor = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudYellow))
             {
-                ImGui.OpenPopup("PopupButton" + hash);
+                using var grp = ImRaii.Group();
+
+                ImGui.Text($"{LocalString.List.Local()}: ");
+                ImGui.SameLine();
+
+                using var color = ImRaii.PushColor(ImGuiCol.Button, 0);
+
+                var padding = ImGui.GetStyle().FramePadding;
+                ImGui.GetStyle().FramePadding = Vector2.Zero;
+                if (ImGui.Button($"{innerType.Local()} +##AddButton{hash}"))
+                {
+                    ImGui.OpenPopup("PopupButton" + hash);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                }
+                ImGui.GetStyle().FramePadding = padding; ;
             }
 
             if (!string.IsNullOrEmpty(attr.Description))
             {
-                ImGui.SameLine();
-                ImGui.Text(innerType.Local("Description", attr.Description));
+                ImGuiHelper.HoveredTooltip(innerType.Local("Description", attr.Description));
             }
 
             using var popUp = ImRaii.Popup("PopupButton" + hash);
@@ -197,13 +216,17 @@ public static class ConditionDrawer
         {
             DrawEnum(obj, property);
         }
-        else if(propertyType == typeof(string))
+        else if (propertyType == typeof(string))
         {
             DrawString(obj, property);
         }
-        else if(propertyType == typeof(bool))
+        else if (propertyType == typeof(bool))
         {
             DrawBool(obj, property);
+        }
+        else if (propertyType == typeof(float))
+        {
+            DrawFloat(obj, property);
         }
         else if (propertyType.IsClass)
         {
@@ -217,6 +240,7 @@ public static class ConditionDrawer
         }
     }
 
+    private static readonly List<string> _showedItem = [];
     private static bool DrawSubItem(object obj, PropertyInfo property)
     {
         var key = property.Name + obj.GetHashCode();
@@ -244,8 +268,23 @@ public static class ConditionDrawer
         return opened;
     }
 
-    private static readonly List<string> _showedItem = [];
+    private static void DrawFloat(object obj, PropertyInfo property)
+    {
+        var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
 
+        var value = (property.GetValue(obj) as float?)!.Value;
+
+        if (ImGuiHelper.DragFloat("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        {
+            property.SetValue(obj, value);
+        }
+        var tooltip = property.LocalUINameDesc();
+        if (!string.IsNullOrEmpty(tooltip))
+        {
+            tooltip += "\n";
+        }
+        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+    }
     private static void DrawBool(object obj, PropertyInfo property)
     {
         var b = property.GetValue(obj) as bool?;

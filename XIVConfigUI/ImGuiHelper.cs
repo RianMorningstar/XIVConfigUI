@@ -8,6 +8,7 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Svg;
 using XIVConfigUI.Attributes;
+using static Dalamud.Interface.Utility.Raii.ImRaii;
 
 namespace XIVConfigUI;
 
@@ -627,5 +628,30 @@ public static class ImGuiHelper
         }
 
         return result;
+    }
+
+    internal static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
+    {
+        var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"{value:F2}{range.UnitType.ToSymbol()}";
+
+        ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
+
+        if (range.UnitType == ConfigUnitType.Percent)
+        {
+            if (ImGui.SliderFloat(name, ref value, range.MinValue, range.MaxValue, show))
+            {
+                value = float.Round(value, 3);
+                return true;
+            }
+        }
+        else
+        {
+            if (ImGui.DragFloat(name, ref value, range.Speed, range.MinValue, range.MaxValue, show))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

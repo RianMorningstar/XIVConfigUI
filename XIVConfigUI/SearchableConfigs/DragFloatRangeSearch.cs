@@ -75,11 +75,11 @@ public class DragFloatRangeSearch : Searchable
     /// <param name="obj"></param>
     public DragFloatRangeSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>();
-        Min = range?.MinValue ?? 0f;
-        Max = range?.MaxValue ?? 1f;
-        Speed = range?.Speed ?? 0.001f;
-        Unit = range?.UnitType ?? ConfigUnitType.None;
+        var range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
+        Min = range.MinValue;
+        Max = range.MaxValue;
+        Speed = range.Speed;
+        Unit = range.UnitType;
     }
 
     /// <inheritdoc/>

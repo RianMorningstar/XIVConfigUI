@@ -44,4 +44,7 @@ public enum LocalString
 
     [Description("From Clipboard")]
     FromClipboard,
+
+    [Description("List")]
+    List,
 }
