@@ -6,7 +6,7 @@
 /// <param name="name"></param>
 /// <param name="filter">The filter</param>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class UIAttribute(string name, int filter = 0) : Attribute
+public class UIAttribute(string name = "", int filter = 0) : Attribute
 {
     /// <summary>
     /// The name of this config.

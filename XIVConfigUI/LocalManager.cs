@@ -106,9 +106,11 @@ public static class LocalManager
     public static string LocalUIName(this PropertyInfo property)
     {
         var ui = property.GetCustomAttribute<UIAttribute>();
-        if (ui == null || string.IsNullOrEmpty(ui.Name)) return string.Empty;
 
-        return property.Local("Name", ui.Name);
+        if (ui == null) return string.Empty;
+        var name = string.IsNullOrEmpty(ui.Name) ? property.Name : ui.Name;
+
+        return property.Local("Name", name);
     }
 
     /// <summary>

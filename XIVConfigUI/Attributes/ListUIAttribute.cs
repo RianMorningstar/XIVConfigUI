@@ -1,6 +1,6 @@
 ﻿namespace XIVConfigUI.Attributes;
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 public class ListUIAttribute(uint icon) : Attribute
 {
     public uint Icon => icon;

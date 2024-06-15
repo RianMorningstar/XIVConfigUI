@@ -1,11 +1,10 @@
 ﻿using Dalamud.Game.ClientState.Keys;
-using Dalamud.Interface;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.Collections;
-using System.Xml.Linq;
 using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.ConditionConfigs;
@@ -15,24 +14,17 @@ public static class ConditionDrawer
     private static float IconSizeRaw => ImGuiHelpers.GetButtonSize("H").Y;
     public static float IconSize => IconSizeRaw * ImGuiHelpers.GlobalScale;
 
-    public static void Draw(object obj, JsonSerializerSettings? setting = null)
+    public static void Draw(object obj)
     {
         var type = obj.GetType();
 
-        if (type.IsGenericType)
+        if (IsList(type, out var innerType) && obj is IList list)
         {
-            if(type.GetGenericTypeDefinition() == typeof(List<>) && obj is IList list)
-            {
-                var innerType = type.GetGenericArguments()[0];
-
-                if (innerType.GetCustomAttributes().FirstOrDefault(i => i is ListUIAttribute) is ListUIAttribute attr)
-                {
-                    DrawList(list, attr, setting, innerType);
-                }
-            }
+            DrawList(list, innerType);
         }
         else
         {
+            List<Action?> actions = [];
             bool addSameLine = false;
             foreach (var prop in type.GetRuntimeProperties())
             {
@@ -40,13 +32,36 @@ public static class ConditionDrawer
                 if (addSameLine) ImGui.SameLine();
                 addSameLine = true;
 
-                DrawProperty(obj, prop, uiAttribute);
+                DrawProperty(obj, prop, uiAttribute, out var act);
+                actions.Add(act);
+            }
+
+            foreach (var action in actions)
+            {
+                action?.Invoke();
             }
         }
     }
 
-    private static void DrawList(IList list, ListUIAttribute attr, JsonSerializerSettings? setting, Type innerType)
+    private static bool IsList(Type type, out Type innerType)
     {
+        if (type.IsGenericType
+            && type.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            innerType = type.GetGenericArguments()[0];
+            return true;
+        }
+        innerType = null!;
+        return false;
+    }
+
+    private static void DrawList(IList list, Type innerType)
+    {
+        if (innerType.GetCustomAttributes().FirstOrDefault(i => i is ListUIAttribute) is not ListUIAttribute attr)
+        {
+            return;
+        }
+
         AddButton();
 
         for (int i = 0; i < list.Count; i++)
@@ -74,7 +89,7 @@ public static class ConditionDrawer
 
             void Copy()
             {
-                var str = JsonConvert.SerializeObject(list[i], Formatting.Indented, setting);
+                var str = JsonConvert.SerializeObject(list[i], Formatting.Indented, GeneralJsonConverter.Instance);
                 ImGui.SetClipboardText(str);
             }
 
@@ -104,7 +119,7 @@ public static class ConditionDrawer
 
             using var grp = ImRaii.Group();
 
-            Draw(item, setting);
+            Draw(item);
         }
 
         void AddButton()
@@ -116,23 +131,13 @@ public static class ConditionDrawer
                 {
                     if (t.IsAbstract) return false;
                     if (t.GetConstructor([]) == null) return false;
-                    return t.IsAssignableFrom(innerType);
+                    return t.IsAssignableTo(innerType);
                 }).ToArray();
             }
 
-            using (var iconFont = ImRaii.PushFont(UiBuilder.IconFont))
+            if (ImGui.Button($"+ {innerType.Local()}##AddButton{hash}"))
             {
-                if (ImGui.Button($"{FontAwesomeIcon.Plus.ToIconString()}##AddButton{hash}"))
-                {
-                    if(types.Length == 1)
-                    {
-                        list.Add(Activator.CreateInstance(types[0]));
-                    }
-                    else
-                    {
-                        ImGui.OpenPopup("PopupButton" + hash);
-                    }
-                }
+                ImGui.OpenPopup("PopupButton" + hash);
             }
 
             if (!string.IsNullOrEmpty(attr.Description))
@@ -158,7 +163,7 @@ public static class ConditionDrawer
                     var str = ImGui.GetClipboardText();
                     try
                     {
-                        var s = JsonConvert.DeserializeObject(str, innerType, setting)!;
+                        var s = JsonConvert.DeserializeObject(str, innerType, GeneralJsonConverter.Instance)!;
                         list.Add(s);
                     }
                     catch (Exception ex)
@@ -173,10 +178,22 @@ public static class ConditionDrawer
 
     private static readonly Dictionary<Type, Type[]> _creatableItems = [];
 
-    private static void DrawProperty(object obj, PropertyInfo property, UIAttribute ui)
+    private static void DrawProperty(object obj, PropertyInfo property, UIAttribute ui, out Action? drawSub)
     {
+        drawSub = null;
         var propertyType = property.PropertyType;
-        if (propertyType.IsEnum)
+
+        if (IsList(propertyType, out var innerType))
+        {
+            if (DrawSubItem(obj, property))
+            {
+                if (property.GetValue(obj) is IList list)
+                {
+                    drawSub = () => DrawList(list, innerType);
+                }
+            }
+        }
+        else if (propertyType.IsEnum)
         {
             DrawEnum(obj, property);
         }
@@ -188,7 +205,46 @@ public static class ConditionDrawer
         {
             DrawBool(obj, property);
         }
+        else if (propertyType.IsClass)
+        {
+            if (DrawSubItem(obj, property))
+            {
+                if (property.GetValue(obj) is object @class)
+                {
+                    drawSub = () => Draw(@class);
+                }
+            }
+        }
     }
+
+    private static bool DrawSubItem(object obj, PropertyInfo property)
+    {
+        var key = property.Name + obj.GetHashCode();
+        var opened = _showedItem.Contains(key);
+
+        IDisposable? dispose = null;
+        if (opened)
+        {
+            dispose = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.ParsedGreen);
+        }
+        if (ImGui.Button($"{property.LocalUIName()}##{key}"))
+        {
+            if (opened)
+            {
+                _showedItem.Remove(key);
+            }
+            else
+            {
+                _showedItem.Add(key);
+            }
+        }
+        dispose?.Dispose();
+        ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
+
+        return opened;
+    }
+
+    private static readonly List<string> _showedItem = [];
 
     private static void DrawBool(object obj, PropertyInfo property)
     {
