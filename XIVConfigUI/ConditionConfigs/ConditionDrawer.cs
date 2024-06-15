@@ -5,10 +5,7 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.Collections;
-using System.Xml.Linq;
 using XIVConfigUI.Attributes;
-using static Dalamud.Interface.Utility.Raii.ImRaii;
-using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIFarmManagement;
 
 namespace XIVConfigUI.ConditionConfigs;
 
@@ -29,9 +26,37 @@ public static class ConditionDrawer
         {
             List<Action?> actions = [];
             bool addSameLine = false;
-            foreach (var prop in type.GetRuntimeProperties())
+
+            var props = type.GetRuntimeProperties();
+            foreach (var prop in props)
             {
                 if (prop.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+
+                var parent = uiAttribute.Parent;
+                if (!string.IsNullOrEmpty(parent))
+                {
+                    var parentProp = props.FirstOrDefault(p => p.Name == parent);
+                    if (parentProp != null)
+                    {
+                        var v = parentProp.GetValue(obj);
+                        if (v is bool b)
+                        {
+                            if (!b) continue;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (Convert.ToInt32(v) != uiAttribute.Filter) continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                Service.Log.Error(ex, "Failed to check the filter");
+                            }
+                        }
+                    }
+                }
+
                 if (addSameLine) ImGui.SameLine();
                 addSameLine = true;
 
@@ -60,10 +85,7 @@ public static class ConditionDrawer
 
     private static void DrawList(IList list, Type innerType)
     {
-        if (innerType.GetCustomAttributes().FirstOrDefault(i => i is ListUIAttribute) is not ListUIAttribute attr)
-        {
-            return;
-        }
+        var attr = innerType.GetCustomAttribute<ListUIAttribute>() ?? new();
 
         AddButton();
 
@@ -92,7 +114,7 @@ public static class ConditionDrawer
 
             void Copy()
             {
-                var str = JsonConvert.SerializeObject(list[i], Formatting.Indented, GeneralJsonConverter.Instance);
+                var str = JsonConvert.SerializeObject(item, Formatting.Indented, GeneralJsonConverter.Instance);
                 ImGui.SetClipboardText(str);
             }
 
@@ -104,15 +126,28 @@ public static class ConditionDrawer
                 (LocalString.MoveDown.Local(), Down, ["↓"]),
                 (LocalString.CopyToClipboard.Local(), Copy, ["Ctrl"]));
 
-            if (ImageLoader.GetTexture(attr.Icon, out var texture))
+            if (item is ICondition condition)
             {
-                if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * IconSize, false, $"Icon :{item.GetHashCode()}"))
+                DrawCondition(condition.State, $"Icon :{item.GetHashCode()}", attr.OnClick);
+            }
+            else
+            {
+                if (ImageLoader.GetTexture(attr.Icon, out var texture))
                 {
-                    attr.OnClick();
+                    if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * IconSize, false, $"Icon :{item.GetHashCode()}"))
+                    {
+                        attr.OnClick();
+                    }
                 }
             }
 
-            ImGuiHelper.ExecuteHotKeysPopup(key, string.Empty, string.Empty, true,
+            string desc = item.GetType().Local();
+            if (!string.IsNullOrEmpty(attr.Description))
+            {
+                desc += "\n" + innerType.Local("Description", attr.Description);
+            }
+
+            ImGuiHelper.ExecuteHotKeysPopup(key, string.Empty, desc, true,
                 (Delete, [VirtualKey.DELETE]),
                 (Up, [VirtualKey.UP]),
                 (Down, [VirtualKey.DOWN]),
@@ -285,6 +320,7 @@ public static class ConditionDrawer
         }
         ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
     }
+
     private static void DrawBool(object obj, PropertyInfo property)
     {
         var b = property.GetValue(obj) as bool?;
@@ -320,6 +356,33 @@ public static class ConditionDrawer
         if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref index, description: property.LocalUINameDesc()))
         {
             property.SetValue(obj, values[index]);
+        }
+    }
+
+    internal static void DrawCondition(bool? tag, string id, Action? action = null, uint buttonColor = 0)
+    {
+        float size = IconSize * (1 + (8 / 82));
+        if (!tag.HasValue)
+        {
+            if (ImageLoader.GetTexture("ui/uld/image2.tex", out var texture) || ImageLoader.GetTexture(0u, out texture))
+            {
+                if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * size, false, id))
+                {
+                    action?.Invoke();
+                }
+            }
+        }
+        else
+        {
+            if (ImageLoader.GetTexture("ui/uld/readycheck_hr1.tex", out var texture))
+            {
+                if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * size,
+                    new Vector2(tag.Value ? 0 : 0.5f, 0),
+                    new Vector2(tag.Value ? 0.5f : 1, 1), buttonColor, id))
+                {
+                    action?.Invoke();
+                }
+            }
         }
     }
 }

@@ -7,10 +7,9 @@ namespace XIVConfigUI.SearchableConfigs;
 /// </summary>
 public class DragFloatSearch : Searchable
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary/>
     public RangeAttribute Range { get; }
+
     /// <summary>
     /// Value.
     /// </summary>

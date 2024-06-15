@@ -6,9 +6,7 @@ using Dalamud.Interface.Internal;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
-using Svg;
 using XIVConfigUI.Attributes;
-using static Dalamud.Interface.Utility.Raii.ImRaii;
 
 namespace XIVConfigUI;
 
