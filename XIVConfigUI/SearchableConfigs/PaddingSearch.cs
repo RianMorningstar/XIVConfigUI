@@ -1,4 +1,5 @@
-﻿using XIVConfigUI.Attributes;
+﻿using Dalamud.Interface.Utility.Raii;
+using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.SearchableConfigs;
 
@@ -7,25 +8,8 @@ namespace XIVConfigUI.SearchableConfigs;
 /// </summary>
 public class PaddingSearch: Searchable
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Min { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Max { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public float Speed { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public ConfigUnitType Unit { get; }
+    /// <summary/>
+    public RangeAttribute Range { get; }
 
     /// <summary>
     /// Value
@@ -47,11 +31,7 @@ public class PaddingSearch: Searchable
     /// <param name="obj"></param>
     public PaddingSearch(PropertyInfo property, object obj) : base(property, obj)
     {
-        var range = _property.GetCustomAttribute<RangeAttribute>();
-        Min = range?.MinValue ?? 0f;
-        Max = range?.MaxValue ?? 1f;
-        Speed = range?.Speed ?? 0.001f;
-        Unit = range?.UnitType ?? ConfigUnitType.None;
+        Range = _property.GetCustomAttribute<RangeAttribute>() ?? new();
     }
 
     /// <inheritdoc/>
@@ -59,40 +39,12 @@ public class PaddingSearch: Searchable
     {
         var value = Value;
 
-        ImGui.SetNextItemWidth(DRAG_WIDTH * 0.5f * Scale);
-        if (ImGui.DragFloat($"L##Config_{ID}{GetHashCode()}", ref value.X, Speed, Min, Max, $"{value.X:F2}{Unit.ToSymbol()}"))
+        if (ImGuiHelper.DragFloat4($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
         {
             Value = value;
         }
+
         if (ImGui.IsItemHovered()) ShowTooltip();
-
-        ImGui.SameLine();
-
-        ImGui.SetNextItemWidth(DRAG_WIDTH * 0.5f * Scale);
-        if (ImGui.DragFloat($"T##Config_{ID}{GetHashCode()}", ref value.Y, Speed, Min, Max, $"{value.Y:F2}{Unit.ToSymbol()}"))
-        {
-            Value = value;
-        }
-        if (ImGui.IsItemHovered()) ShowTooltip();
-
-        ImGui.SameLine();
-
-        ImGui.SetNextItemWidth(DRAG_WIDTH * 0.5f * Scale);
-        if (ImGui.DragFloat($"R##Config_{ID}{GetHashCode()}", ref value.Z, Speed, Min, Max, $"{value.Z:F2}{Unit.ToSymbol()}"))
-        {
-            Value = value;
-        }
-        if (ImGui.IsItemHovered()) ShowTooltip();
-
-        ImGui.SameLine();
-
-        ImGui.SetNextItemWidth(DRAG_WIDTH * 0.5f * Scale);
-        if (ImGui.DragFloat($"B##Config_{ID}{GetHashCode()}", ref value.W, Speed, Min, Max, $"{value.W:F2}{Unit.ToSymbol()}"))
-        {
-            Value = value;
-        }
-        if (ImGui.IsItemHovered()) ShowTooltip();
-
         ImGui.SameLine();
 
         DrawName();
@@ -102,7 +54,7 @@ public class PaddingSearch: Searchable
     protected override void TooltipAdditional()
     {
         ImGui.Separator();
-        ImGui.TextDisabled(Unit.Local());
+        ImGui.TextDisabled(Range.UnitType.Local());
         base.TooltipAdditional();
     }
 }

@@ -35,10 +35,14 @@ public static class ConditionDrawer
 
             var keys = propsGrp.Keys.Union(methodsGrp.Keys).OrderBy(CountOfInheritance);
 
+            var newline = obj.GetType().GetCustomAttribute<ListUIAttribute>()?.NewlineWhenInheritance ?? false;
+
             foreach (var key in keys)
             {
                 if (!propsGrp.TryGetValue(key, out var props)) props = [];
                 if (!methodsGrp.TryGetValue(key, out var methods)) methods = [];
+
+                if (newline) addSameLine = false;
 
                 foreach (var prop in props)
                 {
@@ -93,8 +97,12 @@ public static class ConditionDrawer
                 }
             }
 
+            if (!actions.Any(i => i is not null)) return;
 
+            ImGui.Text("    ");
+            ImGui.SameLine();
 
+            using var grp = ImRaii.Group();
             foreach (var action in actions)
             {
                 action?.Invoke();
@@ -334,6 +342,10 @@ public static class ConditionDrawer
         {
             DrawInt2(obj, property);
         }
+        else if (propertyType == typeof(Vector4))
+        {
+            DrawFloat4(obj, property);
+        }
         else if (propertyType.IsClass || propertyType.IsInterface)
         {
             if (DrawSubItem(obj, property))
@@ -373,6 +385,38 @@ public static class ConditionDrawer
 
         return opened;
     }
+    private static void DrawFloat4(object obj, PropertyInfo property)
+    {
+        var value = (property.GetValue(obj) as Vector4?)!.Value;
+        var type = property.GetCustomAttribute<UITypeAttribute>()?.Type ?? UiType.Color;
+
+        switch(type)
+        {
+            case UiType.Padding:
+                var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
+
+                if (ImGuiHelper.DragFloat4("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+                {
+                    property.SetValue(obj, value);
+                }
+                var tooltip = property.LocalUINameDesc();
+                if (!string.IsNullOrEmpty(tooltip))
+                {
+                    tooltip += "\n";
+                }
+                ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+                break;
+
+            default:
+                if (ImGui.ColorEdit4("##" + property.Name + obj.GetHashCode(), ref value, ImGuiColorEditFlags.NoOptions))
+                {
+                    property.SetValue(obj, value);
+                }
+                ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
+
+                break;
+        }
+    }
 
     private static void DrawInt2(object obj, PropertyInfo property)
     {
@@ -398,10 +442,33 @@ public static class ConditionDrawer
 
         var value = (property.GetValue(obj) as Vector2?)!.Value;
 
-        if (ImGuiHelper.DragFloat2("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        var type = property.GetCustomAttribute<UITypeAttribute>()?.Type ?? UiType.Range;
+
+        switch (type)
         {
-            property.SetValue(obj, value);
+            case UiType.Padding:
+                var v = value.X;
+                if (ImGuiHelper.DragFloat("##X" + property.Name + obj.GetHashCode(), 50, ref v, range))
+                {
+                    property.SetValue(obj, new Vector2(v, value.Y));
+                }
+                ImGui.SameLine();
+                v = value.Y;
+                if (ImGuiHelper.DragFloat("##Y" + property.Name + obj.GetHashCode(), 50, ref v, range))
+                {
+                    property.SetValue(obj, new Vector2(value.X, v));
+                }
+                break;
+
+            default:
+                if (ImGuiHelper.DragFloat2("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+                {
+                    property.SetValue(obj, value);
+                }
+                break;
         }
+
+
         var tooltip = property.LocalUINameDesc();
         if (!string.IsNullOrEmpty(tooltip))
         {
@@ -462,6 +529,21 @@ public static class ConditionDrawer
     private static void DrawString(object obj, PropertyInfo property)
     {
         var str = property.GetValue(obj) as string;
+
+        if (property.GetCustomAttribute<ChoicesAttribute>() is ChoicesAttribute choiceAttr)
+        {
+            var choices = choiceAttr.Choices;
+
+            var values = choices.Select(i => i.Value).ToArray();
+            var shows = choices.Select(i => i.Show).ToArray();
+            var index = Array.IndexOf(values, str);
+
+            if (ImGuiHelper.SelectableCombo($"##{property.Name}{obj.GetHashCode()}Selector", shows, ref index, description: property.LocalUINameDesc()))
+            {
+                property.SetValue(obj, values[index]);
+            }
+            return;
+        }
 
         var uiType = property.GetCustomAttribute<UITypeAttribute>()?.Type ?? UiType.OneLine;
 

@@ -6,6 +6,8 @@ public class ListUIAttribute(uint icon) : Attribute
     public uint Icon => icon;
     public string Description { get; set; }
 
+    public bool NewlineWhenInheritance { get; set; }
+
     internal ListUIAttribute() : this(0)
     {
 

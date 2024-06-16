@@ -8,7 +8,6 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using XIVConfigUI.Attributes;
 using static Dalamud.Interface.Utility.Raii.ImRaii;
-using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIFarmManagement;
 
 namespace XIVConfigUI;
 
@@ -705,4 +704,36 @@ public static class ImGuiHelper
 
         return false;
     }
+
+    public static bool DragFloat4(string name, float width, ref Vector4 value, RangeAttribute range)
+    {
+        using var grp = ImRaii.Group();
+        var result = false;
+
+        if (DragFloat("L" + name, width, ref value.X, range))
+        {
+            result = true;
+        }
+        ImGui.SameLine();
+
+        if (DragFloat("T" + name, width, ref value.Y, range))
+        {
+            result = true;
+        }
+        ImGui.SameLine();
+
+        if (DragFloat("R" + name, width, ref value.Z, range))
+        {
+            result = true;
+        }
+        ImGui.SameLine();
+
+        if (DragFloat("B" + name, width, ref value.W, range))
+        {
+            result = true;
+        }
+
+        return result;
+    }
+
 }

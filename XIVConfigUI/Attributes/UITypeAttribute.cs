@@ -25,6 +25,9 @@ public enum UiType : byte
     Padding,
 
     /// <summary/>
+    Range,
+
+    /// <summary/>
     OneLine,
 
     /// <summary/>
