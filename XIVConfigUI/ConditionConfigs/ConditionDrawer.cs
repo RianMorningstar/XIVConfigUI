@@ -25,69 +25,92 @@ public static class ConditionDrawer
         {
             DrawList(list, innerType);
         }
-        else
+        else 
         {
             List<Action?> actions = [];
             bool addSameLine = false;
 
-            var props = type.GetRuntimeProperties();
-            foreach (var prop in props)
-            {
-                if (prop.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+            var propsGrp = type.GetRuntimeProperties().GroupBy(p => p.DeclaringType!).ToDictionary(i => i.Key, i => i.ToList());
+            var methodsGrp = type.GetRuntimeMethods().GroupBy(p => p.DeclaringType!).ToDictionary(i => i.Key, i => i.ToList());
 
-                var parent = uiAttribute.Parent;
-                if (!string.IsNullOrEmpty(parent))
+            var keys = propsGrp.Keys.Union(methodsGrp.Keys).OrderBy(CountOfInheritance);
+
+            foreach (var key in keys)
+            {
+                if (!propsGrp.TryGetValue(key, out var props)) props = [];
+                if (!methodsGrp.TryGetValue(key, out var methods)) methods = [];
+
+                foreach (var prop in props)
                 {
-                    var parentProp = props.FirstOrDefault(p => p.Name == parent);
-                    if (parentProp != null)
+                    if (prop.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+
+                    var parent = uiAttribute.Parent;
+                    if (!string.IsNullOrEmpty(parent))
                     {
-                        var v = parentProp.GetValue(obj);
-                        if (v is bool b)
+                        var parentProp = props.FirstOrDefault(p => p.Name == parent);
+                        if (parentProp != null)
                         {
-                            if (!b) continue;
-                        }
-                        else
-                        {
-                            try
+                            var v = parentProp.GetValue(obj);
+                            if (v is bool b)
                             {
-                                if (Convert.ToInt32(v) != uiAttribute.Filter) continue;
+                                if (!b) continue;
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Service.Log.Error(ex, "Failed to check the filter");
+                                try
+                                {
+                                    if (Convert.ToInt32(v) != uiAttribute.Filter) continue;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Service.Log.Error(ex, "Failed to check the filter");
+                                }
                             }
                         }
                     }
+
+                    if (addSameLine) ImGui.SameLine();
+                    addSameLine = true;
+
+                    DrawProperty(obj, prop, uiAttribute, out var act);
+                    actions.Add(act);
                 }
 
-                if (addSameLine) ImGui.SameLine();
-                addSameLine = true;
-
-                DrawProperty(obj, prop, uiAttribute, out var act);
-                actions.Add(act);
-            }
-
-            foreach (var method in type.GetRuntimeMethods())
-            {
-                if (method.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
-                if (method.ReturnType != typeof(void)) continue;
-                if (method.GetParameters().Length != 0) continue;
-
-                if (addSameLine) ImGui.SameLine();
-                addSameLine = true;
-
-                if (ImGui.Button(method.LocalUIName() + "##" + method.Name + obj.GetHashCode()))
+                foreach (var method in methods)
                 {
-                    method.Invoke(obj, []);
+                    if (method.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+                    if (method.ReturnType != typeof(void)) continue;
+                    if (method.GetParameters().Length != 0) continue;
+
+                    if (addSameLine) ImGui.SameLine();
+                    addSameLine = true;
+
+                    if (ImGui.Button(method.LocalUIName() + "##" + method.Name + obj.GetHashCode()))
+                    {
+                        method.Invoke(obj, []);
+                    }
+                    ImGuiHelper.HoveredTooltip(method.LocalUIDescription());
                 }
-                ImGuiHelper.HoveredTooltip(method.LocalUIDescription());
             }
+
+
 
             foreach (var action in actions)
             {
                 action?.Invoke();
             }
         }
+    }
+
+    private static int CountOfInheritance(Type? type)
+    {
+        int result = 0;
+        while(type != null)
+        {
+            result++;
+            type = type.BaseType;
+        }
+        return result;
     }
 
     private static bool IsList(Type type, out Type innerType)
