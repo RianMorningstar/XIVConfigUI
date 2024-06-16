@@ -630,7 +630,7 @@ public static class ImGuiHelper
         return result;
     }
 
-    internal static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
+    public static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
     {
         var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"{value:F2}{range.UnitType.ToSymbol()}";
 
@@ -655,7 +655,7 @@ public static class ImGuiHelper
         return false;
     }
 
-    internal static bool DragInt(string name, float width, ref int value, RangeAttribute range)
+    public static bool DragInt(string name, float width, ref int value, RangeAttribute range)
     {
         var show = $"{value}{range.UnitType.ToSymbol()}";
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
@@ -668,7 +668,7 @@ public static class ImGuiHelper
         return false;
     }
 
-    internal static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
+    public static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
     {
         var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.X:F2}{range.UnitType.ToSymbol()}";
         var showMax = range.UnitType == ConfigUnitType.Percent ? $"{value.Y * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.Y:F2}{range.UnitType.ToSymbol()}";
@@ -687,7 +687,7 @@ public static class ImGuiHelper
         return false;
     }
 
-    internal static bool DragInt2(string name, float width, ref Vector2Int value, RangeAttribute range)
+    public static bool DragInt2(string name, float width, ref Vector2Int value, RangeAttribute range)
     {
         var showMin =$"{value.X}{range.UnitType.ToSymbol()}";
         var showMax =$"{value.Y}{range.UnitType.ToSymbol()}";

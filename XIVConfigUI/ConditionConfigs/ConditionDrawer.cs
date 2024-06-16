@@ -12,6 +12,7 @@ namespace XIVConfigUI.ConditionConfigs;
 public static class ConditionDrawer
 {
     public static Dictionary<Type, Func<object, PropertyInfo, Action?>> CustomDrawings { get; } = [];
+    public static Dictionary<Type, ListUIAttribute> CustomListUIs { get; } = [];
 
     private static float IconSizeRaw => ImGuiHelpers.GetButtonSize("H").Y;
     public static float IconSize => IconSizeRaw * ImGuiHelpers.GlobalScale;
@@ -66,6 +67,22 @@ public static class ConditionDrawer
                 actions.Add(act);
             }
 
+            foreach (var method in type.GetRuntimeMethods())
+            {
+                if (method.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
+                if (method.ReturnType != typeof(void)) continue;
+                if (method.GetParameters().Length != 0) continue;
+
+                if (addSameLine) ImGui.SameLine();
+                addSameLine = true;
+
+                if (ImGui.Button(method.LocalUIName() + "##" + method.Name + obj.GetHashCode()))
+                {
+                    method.Invoke(obj, []);
+                }
+                ImGuiHelper.HoveredTooltip(method.LocalUIDescription());
+            }
+
             foreach (var action in actions)
             {
                 action?.Invoke();
@@ -87,7 +104,14 @@ public static class ConditionDrawer
 
     private static void DrawList(IList list, Type innerType)
     {
-        var attrBase = innerType.GetCustomAttribute<ListUIAttribute>() ?? new();
+        var attrBase = innerType.GetCustomAttribute<ListUIAttribute>();
+
+        if (attrBase == null)
+        {
+            CustomListUIs.TryGetValue(innerType, out attrBase);
+        }
+
+        attrBase ??= new();
 
         AddButton();
 
@@ -173,10 +197,10 @@ public static class ConditionDrawer
             var hash = list.GetHashCode();
             if (!_creatableItems.TryGetValue(innerType, out var types))
             {
-                types = innerType.Assembly.GetTypes().Where(t =>
+                _creatableItems[innerType] = types = innerType.Assembly.GetTypes().Where(t =>
                 {
                     if (t.IsAbstract) return false;
-                    if (t.GetConstructor([]) == null) return false;
+                    if (t.IsClass && t.GetConstructor([]) == null) return false;
                     return t.IsAssignableTo(innerType);
                 }).ToArray();
             }
@@ -415,13 +439,32 @@ public static class ConditionDrawer
     private static void DrawString(object obj, PropertyInfo property)
     {
         var str = property.GetValue(obj) as string;
-        ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(str).X + 30 * ImGuiHelpers.GlobalScale));
 
-        if (ImGui.InputTextWithHint($"##{property.Name}{obj.GetHashCode()}", property.LocalUIName(), ref str, 128))
+        var uiType = property.GetCustomAttribute<UITypeAttribute>()?.Type ?? UiType.OneLine;
+
+        switch (uiType)
         {
-            property.SetValue(obj, str);
+            case UiType.Multiline:
+                if (ImGui.InputTextMultiline($"##{property.Name}{obj.GetHashCode()}", ref str, 1024,
+                    new Vector2(-1, 50 * ImGuiHelpers.GlobalScale)))
+                {
+                    property.SetValue(obj, str);
+                }
+                ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
+
+                break;
+
+            default:
+                ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(str).X + 30 * ImGuiHelpers.GlobalScale));
+
+                if (ImGui.InputTextWithHint($"##{property.Name}{obj.GetHashCode()}", property.LocalUIName(), ref str, 128))
+                {
+                    property.SetValue(obj, str);
+                }
+                ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
+
+                break;
         }
-        ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
     }
 
     private static void DrawEnum(object obj, PropertyInfo property)

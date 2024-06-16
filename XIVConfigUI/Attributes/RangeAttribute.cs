@@ -32,7 +32,10 @@ public class RangeAttribute(float minValue, float maxValue, ConfigUnitType unitT
     /// </summary>
     public ConfigUnitType UnitType => unitType;
 
-    internal RangeAttribute() : this(0, 0, ConfigUnitType.None, 0.1f)
+    /// <summary>
+    /// 
+    /// </summary>
+    public RangeAttribute() : this(0, 0, ConfigUnitType.None, 0.1f)
     {
         
     }

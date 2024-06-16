@@ -18,13 +18,15 @@ public class UITypeAttribute(UiType type) : Attribute
 /// </summary>
 public enum UiType : byte
 {
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary/>
     Color,
 
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary/>
     Padding,
+
+    /// <summary/>
+    OneLine,
+
+    /// <summary/>
+    Multiline,
 }

@@ -77,20 +77,20 @@ public static class LocalManager
     public static string Local(this Type type, string suffix = "", string value = "")
     {
         var key = (type.FullName ?? type.Name) + suffix;
-        value = string.IsNullOrEmpty(value) ? type.GetCustomAttribute<DescriptionAttribute>()?.Description ?? type.ToString()!
-            : value;
+        value = string.IsNullOrEmpty(value) ? type.GetCustomAttribute<DescriptionAttribute>()?.Description 
+            ?? type.Name : value;
         return key.Local(value);
     }
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="property"></param>
+    /// <param name="member"></param>
     /// <returns></returns>
-    public static string LocalUINameDesc(this PropertyInfo property)
+    public static string LocalUINameDesc(this MemberInfo member)
     {
-        var desc = property.LocalUIName();
-        var relay = property.LocalUIDescription();
+        var desc = member.LocalUIName();
+        var relay = member.LocalUIDescription();
         if (!string.IsNullOrEmpty(relay))
         {
             desc += "\n" + relay;
@@ -101,29 +101,29 @@ public static class LocalManager
     /// <summary>
     /// Get the ui name of the property.
     /// </summary>
-    /// <param name="property"></param>
+    /// <param name="member"></param>
     /// <returns></returns>
-    public static string LocalUIName(this PropertyInfo property)
+    public static string LocalUIName(this MemberInfo member)
     {
-        var ui = property.GetCustomAttribute<UIAttribute>();
+        var ui = member.GetCustomAttribute<UIAttribute>();
 
         if (ui == null) return string.Empty;
-        var name = string.IsNullOrEmpty(ui.Name) ? property.Name : ui.Name;
+        var name = string.IsNullOrEmpty(ui.Name) ? member.Name : ui.Name;
 
-        return property.Local("Name", name);
+        return member.Local("Name", name);
     }
 
     /// <summary>
     /// Get the ui description of the property.
     /// </summary>
-    /// <param name="property"></param>
+    /// <param name="member"></param>
     /// <returns></returns>
-    public static string LocalUIDescription(this PropertyInfo property)
+    public static string LocalUIDescription(this MemberInfo member)
     {
-        var ui = property.GetCustomAttribute<UIAttribute>();
+        var ui = member.GetCustomAttribute<UIAttribute>();
         if (ui == null || string.IsNullOrEmpty(ui.Description)) return string.Empty;
 
-        return property.Local("Description", ui.Description);
+        return member.Local("Description", ui.Description);
     }
 
     /// <summary>

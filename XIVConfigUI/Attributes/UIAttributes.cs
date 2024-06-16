@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="name"></param>
 /// <param name="filter">The filter</param>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
 public class UIAttribute(string name = "", int filter = 0) : Attribute
 {
     /// <summary>
