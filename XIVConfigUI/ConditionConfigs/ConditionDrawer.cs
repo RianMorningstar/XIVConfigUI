@@ -30,7 +30,8 @@ public static class ConditionDrawer
             List<Action?> actions = [];
             bool addSameLine = false;
 
-            var propsGrp = type.GetRuntimeProperties().GroupBy(p => p.DeclaringType!).ToDictionary(i => i.Key, i => i.ToList());
+            var allProps = type.GetRuntimeProperties();
+            var propsGrp = allProps.GroupBy(p => p.DeclaringType!).ToDictionary(i => i.Key, i => i.ToList());
             var methodsGrp = type.GetRuntimeMethods().GroupBy(p => p.DeclaringType!).ToDictionary(i => i.Key, i => i.ToList());
 
             var keys = propsGrp.Keys.Union(methodsGrp.Keys).OrderBy(CountOfInheritance);
@@ -47,31 +48,7 @@ public static class ConditionDrawer
                 foreach (var prop in props)
                 {
                     if (prop.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
-
-                    var parent = uiAttribute.Parent;
-                    if (!string.IsNullOrEmpty(parent))
-                    {
-                        var parentProp = props.FirstOrDefault(p => p.Name == parent);
-                        if (parentProp != null)
-                        {
-                            var v = parentProp.GetValue(obj);
-                            if (v is bool b)
-                            {
-                                if (!b) continue;
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    if (Convert.ToInt32(v) != uiAttribute.Filter) continue;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Service.Log.Error(ex, "Failed to check the filter");
-                                }
-                            }
-                        }
-                    }
+                    if(!IsAttributeValid(uiAttribute)) continue;
 
                     if (addSameLine) ImGui.SameLine();
                     addSameLine = true;
@@ -85,6 +62,7 @@ public static class ConditionDrawer
                     if (method.GetCustomAttribute<UIAttribute>() is not UIAttribute uiAttribute) continue;
                     if (method.ReturnType != typeof(void)) continue;
                     if (method.GetParameters().Length != 0) continue;
+                    if (!IsAttributeValid(uiAttribute)) continue;
 
                     if (addSameLine) ImGui.SameLine();
                     addSameLine = true;
@@ -106,6 +84,35 @@ public static class ConditionDrawer
             foreach (var action in actions)
             {
                 action?.Invoke();
+            }
+
+            bool IsAttributeValid(UIAttribute uiAttribute)
+            {
+                var parent = uiAttribute.Parent;
+                if (!string.IsNullOrEmpty(parent))
+                {
+                    var parentProp = allProps.FirstOrDefault(p => p.Name == parent);
+                    if (parentProp != null)
+                    {
+                        var v = parentProp.GetValue(obj);
+                        if (v is bool b)
+                        {
+                            if (!b) return false;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (Convert.ToInt32(v) != uiAttribute.Filter) return false;
+                            }
+                            catch (Exception ex)
+                            {
+                                Service.Log.Error(ex, "Failed to check the filter");
+                            }
+                        }
+                    }
+                }
+                return true;
             }
         }
     }
@@ -358,26 +365,27 @@ public static class ConditionDrawer
         }
     }
 
-    private static readonly List<string> _showedItem = [];
+    private static readonly Dictionary<int, string> _showedItem = [];
     private static bool DrawSubItem(object obj, PropertyInfo property)
     {
-        var key = property.Name + obj.GetHashCode();
-        var opened = _showedItem.Contains(key);
+        var id = obj.GetHashCode();
+        var name = property.Name;
+        var opened = _showedItem.TryGetValue(id, out var savedName) && savedName == name;
 
         IDisposable? dispose = null;
         if (opened)
         {
             dispose = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.ParsedGreen);
         }
-        if (ImGui.Button($"{property.LocalUIName()}##{key}"))
+        if (ImGui.Button($"{property.LocalUIName()}##{name}{id}"))
         {
             if (opened)
             {
-                _showedItem.Remove(key);
+                _showedItem.Remove(id);
             }
             else
             {
-                _showedItem.Add(key);
+                _showedItem[id] = name;
             }
         }
         dispose?.Dispose();
