@@ -173,7 +173,7 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
     public void DrawItems(int filter)
     {
         bool isFirst = true;
-        foreach (var grp in _items.Where(i => i.Attribute.Filter == filter)
+        foreach (var grp in _items.Where(i => i.Attribute.Filters.Contains(filter))
             .GroupBy(i => i.Attribute.Section))
         {
             if (!isFirst)

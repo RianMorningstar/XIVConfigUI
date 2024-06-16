@@ -4,9 +4,9 @@
 /// The attribute for the ui configs.
 /// </summary>
 /// <param name="name"></param>
-/// <param name="filter">The filter</param>
+/// <param name="filters">The filters</param>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
-public class UIAttribute(string name = "", int filter = 0) : Attribute
+public class UIAttribute(string name = "", params int[] filters) : Attribute
 {
     /// <summary>
     /// The name of this config.
@@ -26,7 +26,7 @@ public class UIAttribute(string name = "", int filter = 0) : Attribute
     /// <summary>
     /// The filter to get this ui item.
     /// </summary>
-    public int Filter => filter;
+    public int[] Filters => filters.Length == 0 ? [0] : filters;
 
     /// <summary>
     /// The order of this item.

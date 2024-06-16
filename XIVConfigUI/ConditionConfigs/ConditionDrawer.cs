@@ -17,8 +17,10 @@ public static class ConditionDrawer
     private static float IconSizeRaw => ImGuiHelpers.GetButtonSize("H").Y;
     public static float IconSize => IconSizeRaw * ImGuiHelpers.GlobalScale;
 
-    public static void Draw(object obj)
+    public static void Draw(object? obj)
     {
+        if (obj == null) return;
+
         var type = obj.GetType();
 
         if (IsList(type, out var innerType) && obj is IList list)
@@ -103,7 +105,7 @@ public static class ConditionDrawer
                         {
                             try
                             {
-                                if (Convert.ToInt32(v) != uiAttribute.Filter) return false;
+                                if (!uiAttribute.Filters.Contains(Convert.ToInt32(v))) return false;
                             }
                             catch (Exception ex)
                             {
