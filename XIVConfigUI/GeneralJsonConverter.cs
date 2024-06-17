@@ -50,14 +50,21 @@ public class GeneralJsonConverter : JsonConverter
         return target;
     }
 
+    private readonly static Dictionary<Type, Type[]> _types = [];
+
     private object? Create(JObject jObject, Type objectType)
     {
-        foreach (var type in objectType.Assembly.GetTypes().Where(t =>
+        if (!_types.TryGetValue(objectType, out var types))
         {
-            if (t.IsAbstract) return false;
-            if (t.GetConstructor([]) == null) return false;
-            return t.IsAssignableTo(objectType);
-        }))
+            _types[objectType] = types = objectType.Assembly.GetTypes().Where(t =>
+            {
+                if (t.IsAbstract) return false;
+                if (t.GetConstructor([]) == null) return false;
+                return t.IsAssignableTo(objectType);
+            }).ToArray();
+        }
+
+        foreach (var type in types)
         {
             var propertiesName = GetTypeProperties(type);
             if (propertiesName.All(n => jObject[n] != null))
