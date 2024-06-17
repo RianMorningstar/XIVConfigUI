@@ -52,7 +52,7 @@ public class GeneralJsonConverter : JsonConverter
 
     private readonly static Dictionary<Type, Type[]> _types = [];
 
-    private object? Create(JObject jObject, Type objectType)
+    private static object? Create(JObject jObject, Type objectType)
     {
         if (!_types.TryGetValue(objectType, out var types))
         {
@@ -78,7 +78,7 @@ public class GeneralJsonConverter : JsonConverter
         return null;
     }
 
-    private string[] GetTypeProperties(Type type)
+    private static string[] GetTypeProperties(Type type)
     {
         var fields = type.GetRuntimeFields();
         var fieldsName = fields.Where(f => f.GetCustomAttribute<JsonPropertyAttribute>() != null || f.GetCustomAttribute<JsonIgnoreAttribute>() == null && f.IsPublic)
@@ -96,10 +96,5 @@ public class GeneralJsonConverter : JsonConverter
         }).Select(f => f.Name);
 
         return [.. fieldsName, .. propertiesName];
-    }
-
-    private static bool FieldExists(string fieldName, JObject jObject)
-    {
-        return jObject[fieldName] != null;
     }
 }
