@@ -5,6 +5,7 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Newtonsoft.Json;
 using System.Collections;
+using System.Reflection;
 using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.ConditionConfigs;
@@ -129,6 +130,11 @@ public static class ConditionDrawer
                             {
                                 Service.Log.Error(ex, "Failed to check the filter");
                             }
+                        }
+
+                        if (parentProp.GetCustomAttribute<UIAttribute>() is UIAttribute ui)
+                        {
+                            if (!IsAttributeValid(ui)) return false;
                         }
                     }
                 }
