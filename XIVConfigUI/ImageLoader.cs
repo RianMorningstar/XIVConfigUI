@@ -163,13 +163,16 @@ public static class ImageLoader
             {
                 return Service.PluginInterface.UiBuilder.LoadImage(convert(array));
             }
+#if DEBUG
             catch (Exception ex) 
             {
-#if DEBUG
                 Service.Log.Error(ex, "Failed to load the image");
+#else
+            catch
+            {
 #endif
             }
-        }
+    }
         Service.Log.Verbose($"Failed to convert the data to an image!");
         return null;
     }
