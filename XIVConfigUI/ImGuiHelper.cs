@@ -7,7 +7,6 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using XIVConfigUI.Attributes;
-using static Dalamud.Interface.Utility.Raii.ImRaii;
 
 namespace XIVConfigUI;
 
@@ -556,6 +555,16 @@ public static class ImGuiHelper
         _ => string.Empty,
     };
 
+    /// <summary>
+    /// Selectable combo.
+    /// </summary>
+    /// <param name="popUp"></param>
+    /// <param name="items"></param>
+    /// <param name="index"></param>
+    /// <param name="font"></param>
+    /// <param name="color"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
     public static unsafe bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
     {
         var count = items.Length;
@@ -605,6 +614,13 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="font"></param>
+    /// <param name="color"></param>
+    /// <returns></returns>
     public static unsafe bool SelectableButton(string name, ImFontPtr? font = null, Vector4? color = null)
     {
         List<IDisposable> disposables = new(2);
@@ -629,6 +645,14 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// Drag Float.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="width"></param>
+    /// <param name="value"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
     {
         var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"{value:F2}{range.UnitType.ToSymbol()}";
@@ -654,6 +678,14 @@ public static class ImGuiHelper
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="width"></param>
+    /// <param name="value"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static bool DragInt(string name, float width, ref int value, RangeAttribute range)
     {
         var show = $"{value}{range.UnitType.ToSymbol()}";
@@ -667,6 +699,14 @@ public static class ImGuiHelper
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="width"></param>
+    /// <param name="value"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
     {
         var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.X:F2}{range.UnitType.ToSymbol()}";
@@ -686,6 +726,14 @@ public static class ImGuiHelper
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="width"></param>
+    /// <param name="value"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static bool DragInt2(string name, float width, ref Vector2Int value, RangeAttribute range)
     {
         var showMin =$"{value.X}{range.UnitType.ToSymbol()}";
@@ -705,6 +753,14 @@ public static class ImGuiHelper
         return false;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="width"></param>
+    /// <param name="value"></param>
+    /// <param name="range"></param>
+    /// <returns></returns>
     public static bool DragFloat4(string name, float width, ref Vector4 value, RangeAttribute range)
     {
         using var grp = ImRaii.Group();
@@ -736,4 +792,12 @@ public static class ImGuiHelper
         return result;
     }
 
+    /// <summary>
+    /// Set the next item with the string length.
+    /// </summary>
+    /// <param name="name"></param>
+    public static void SetNextWidthWithName(string name)
+    {
+        ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(name).X + 30 * ImGuiHelpers.GlobalScale));
+    }
 }

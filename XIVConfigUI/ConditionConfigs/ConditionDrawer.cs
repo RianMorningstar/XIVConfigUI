@@ -9,14 +9,32 @@ using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.ConditionConfigs;
 
+/// <summary>
+/// The drawer for condition style.
+/// </summary>
 public static class ConditionDrawer
 {
+    /// <summary>
+    /// The custom way to draw a condition.
+    /// </summary>
     public static Dictionary<Type, Func<object, PropertyInfo, Action?>> CustomDrawings { get; } = [];
+
+    /// <summary>
+    /// The custom list item ui list.
+    /// </summary>
     public static Dictionary<Type, ListUIAttribute> CustomListUIs { get; } = [];
 
     private static float IconSizeRaw => ImGuiHelpers.GetButtonSize("H").Y;
+
+    /// <summary>
+    /// The size for condition icon.
+    /// </summary>
     public static float IconSize => IconSizeRaw * ImGuiHelpers.GlobalScale;
 
+    /// <summary>
+    /// The main method to draw a condition.
+    /// </summary>
+    /// <param name="obj"></param>
     public static void Draw(object? obj)
     {
         if (obj == null) return;
@@ -538,7 +556,7 @@ public static class ConditionDrawer
 
     private static void DrawString(object obj, PropertyInfo property)
     {
-        var str = property.GetValue(obj) as string;
+        var str = (property.GetValue(obj) as string)!;
 
         if (property.GetCustomAttribute<ChoicesAttribute>() is ChoicesAttribute choiceAttr)
         {
@@ -570,7 +588,7 @@ public static class ConditionDrawer
                 break;
 
             default:
-                ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(str).X + 30 * ImGuiHelpers.GlobalScale));
+                ImGuiHelper.SetNextWidthWithName(str);
 
                 if (ImGui.InputTextWithHint($"##{property.Name}{obj.GetHashCode()}", property.LocalUIName(), ref str, 128))
                 {
