@@ -35,19 +35,26 @@ public class GeneralJsonConverter : JsonConverter
     /// <inheritdoc/>
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        // Load JObject from stream
-        JObject jObject = JObject.Load(reader);
-
-        // Create target object based on JObject
-        var target = Create(jObject, objectType);
-
-        // Populate the object properties
-        if (target != null)
+        try
         {
-            serializer.Populate(jObject.CreateReader(), target);
-        }
+            // Load JObject from stream
+            JObject jObject = JObject.Load(reader);
 
-        return target;
+            // Create target object based on JObject
+            var target = Create(jObject, objectType);
+
+            // Populate the object properties
+            if (target != null)
+            {
+                serializer.Populate(jObject.CreateReader(), target);
+            }
+
+            return target;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private readonly static Dictionary<Type, Type[]> _types = [];

@@ -444,7 +444,7 @@ public static class ConditionDrawer
                 break;
 
             default:
-                if (ImGui.ColorEdit4("##" + property.Name + obj.GetHashCode(), ref value, ImGuiColorEditFlags.NoOptions))
+                if (ImGui.ColorEdit4("##" + property.Name + obj.GetHashCode(), ref value, ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.NoTooltip))
                 {
                     property.SetValue(obj, value);
                 }
@@ -483,17 +483,21 @@ public static class ConditionDrawer
         switch (type)
         {
             case UiType.Padding:
-                var v = value.X;
-                if (ImGuiHelper.DragFloat("##X" + property.Name + obj.GetHashCode(), 50, ref v, range))
+                using (var group = ImRaii.Group())
                 {
-                    property.SetValue(obj, new Vector2(v, value.Y));
+                    var v = value.X;
+                    if (ImGuiHelper.DragFloat("X##" + property.Name + obj.GetHashCode(), 50, ref v, range))
+                    {
+                        property.SetValue(obj, new Vector2(v, value.Y));
+                    }
+                    ImGui.SameLine();
+                    v = value.Y;
+                    if (ImGuiHelper.DragFloat("Y##" + property.Name + obj.GetHashCode(), 50, ref v, range))
+                    {
+                        property.SetValue(obj, new Vector2(value.X, v));
+                    }
                 }
-                ImGui.SameLine();
-                v = value.Y;
-                if (ImGuiHelper.DragFloat("##Y" + property.Name + obj.GetHashCode(), 50, ref v, range))
-                {
-                    property.SetValue(obj, new Vector2(value.X, v));
-                }
+
                 break;
 
             default:
