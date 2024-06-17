@@ -57,7 +57,9 @@ public static class ConditionDrawer
 
             var keys = propsGrp.Keys.Union(methodsGrp.Keys).OrderBy(CountOfInheritance);
 
-            var newline = obj.GetType().GetCustomAttribute<ListUIAttribute>()?.NewlineWhenInheritance ?? false;
+            var attr = obj.GetType().GetCustomAttribute<ListUIAttribute>(false) 
+                ?? obj.GetType().GetCustomAttribute<ListUIAttribute>();
+            var newline = attr?.NewlineWhenInheritance ?? false;
 
             foreach (var key in keys)
             {
