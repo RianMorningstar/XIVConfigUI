@@ -208,7 +208,7 @@ public static class ConditionDrawer
 
             void Copy()
             {
-                var str = JsonConvert.SerializeObject(item, Formatting.Indented, GeneralJsonConverter.Instance);
+                var str = JsonHelper.SerializeObject(item);
                 ImGui.SetClipboardText(str);
             }
 
@@ -315,7 +315,7 @@ public static class ConditionDrawer
                     var str = ImGui.GetClipboardText();
                     try
                     {
-                        var s = JsonConvert.DeserializeObject(str, innerType, GeneralJsonConverter.Instance)!;
+                        var s = JsonHelper.DeserializeObject(str, innerType)!;
                         list.Add(s);
                     }
                     catch (Exception ex)

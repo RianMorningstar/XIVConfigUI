@@ -161,7 +161,7 @@ public static class LocalManager
 
         if (File.Exists(path))
         {
-            RightLang = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
+            RightLang = JsonHelper.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
         }
 
         if (RightLang.Count == 0)
@@ -213,7 +213,7 @@ public static class LocalManager
 
         //Default values.
         var path = Path.Combine(directory, "Localization.json");
-        File.WriteAllText(path, JsonConvert.SerializeObject(RightLang, Formatting.Indented));
+        File.WriteAllText(path, JsonHelper.SerializeObject(RightLang));
 
         Service.Log.Info("Exported the json file");
     }
@@ -230,7 +230,7 @@ public static class LocalManager
             {
                 var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain.UserName}/{XIVConfigUIMain.RepoName}/main/{XIVConfigUIMain.RepoName}/Localization/{lang}.json";
                 using var client = new HttpClient();
-                RightLang = Translations[lang] = JsonConvert.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
+                RightLang = Translations[lang] = JsonHelper.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
             }
             catch (HttpRequestException ex) when (ex?.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
