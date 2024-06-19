@@ -90,7 +90,7 @@ public static class LocalManager
     public static string LocalUINameDesc(this MemberInfo member)
     {
         var desc = member.LocalUIName();
-        var relay = member.LocalUIDescription();
+        var relay = member.LocalUIDesc();
         if (!string.IsNullOrEmpty(relay))
         {
             desc += "\n" + relay;
@@ -118,7 +118,17 @@ public static class LocalManager
     /// </summary>
     /// <param name="member"></param>
     /// <returns></returns>
-    public static string LocalUIDescription(this MemberInfo member)
+    public static string LocalUIDesc(this MemberInfo member)
+    {
+        var desc = member.LocalUIDescription();
+        if(member.GetCustomAttribute<RangeAttribute>() is RangeAttribute range)
+        {
+            desc += "\n" + range.UnitType.Local();
+        }
+        return desc;
+    }
+
+    internal static string LocalUIDescription(this MemberInfo member)
     {
         var ui = member.GetCustomAttribute<UIAttribute>();
         if (ui == null || string.IsNullOrEmpty(ui.Description)) return string.Empty;

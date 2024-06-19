@@ -47,8 +47,7 @@ public static class JsonHelper
             Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
             {
                 args.ErrorContext.Handled = true;
-            }
-            !
+            }!
         });
     }
 }

@@ -94,7 +94,7 @@ public static class ConditionDrawer
                     {
                         method.Invoke(obj, []);
                     }
-                    ImGuiHelper.HoveredTooltip(method.LocalUIDescription());
+                    ImGuiHelper.HoveredTooltip(method.LocalUIDesc());
                 }
             }
 
@@ -417,7 +417,7 @@ public static class ConditionDrawer
             }
         }
         dispose?.Dispose();
-        ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
+        ImGuiHelper.HoveredTooltip(property.LocalUIDesc());
 
         return opened;
     }
@@ -435,12 +435,7 @@ public static class ConditionDrawer
                 {
                     property.SetValue(obj, value);
                 }
-                var tooltip = property.LocalUINameDesc();
-                if (!string.IsNullOrEmpty(tooltip))
-                {
-                    tooltip += "\n";
-                }
-                ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+                ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
                 break;
 
             default:
@@ -464,12 +459,7 @@ public static class ConditionDrawer
         {
             property.SetValue(obj, value);
         }
-        var tooltip = property.LocalUINameDesc();
-        if (!string.IsNullOrEmpty(tooltip))
-        {
-            tooltip += "\n";
-        }
-        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
     }
 
     private static void DrawFloat2(object obj, PropertyInfo property)
@@ -507,14 +497,7 @@ public static class ConditionDrawer
                 }
                 break;
         }
-
-
-        var tooltip = property.LocalUINameDesc();
-        if (!string.IsNullOrEmpty(tooltip))
-        {
-            tooltip += "\n";
-        }
-        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
     }
 
     private static void DrawInt(object obj, PropertyInfo property)
@@ -527,12 +510,7 @@ public static class ConditionDrawer
         {
             property.SetValue(obj, value);
         }
-        var tooltip = property.LocalUINameDesc();
-        if (!string.IsNullOrEmpty(tooltip))
-        {
-            tooltip += "\n";
-        }
-        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
     }
 
     private static void DrawFloat(object obj, PropertyInfo property)
@@ -545,12 +523,7 @@ public static class ConditionDrawer
         {
             property.SetValue(obj, value);
         }
-        var tooltip = property.LocalUINameDesc();
-        if (!string.IsNullOrEmpty(tooltip))
-        {
-            tooltip += "\n";
-        }
-        ImGuiHelper.HoveredTooltip(tooltip + range.UnitType.Local());
+        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
     }
 
     private static void DrawBool(object obj, PropertyInfo property)
@@ -606,7 +579,7 @@ public static class ConditionDrawer
                 {
                     property.SetValue(obj, str);
                 }
-                ImGuiHelper.HoveredTooltip(property.LocalUIDescription());
+                ImGuiHelper.HoveredTooltip(property.LocalUIDesc());
 
                 break;
         }
