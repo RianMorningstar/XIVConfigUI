@@ -7,6 +7,7 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using XIVConfigUI.Attributes;
+using XIVConfigUI.SearchableConfigs;
 
 namespace XIVConfigUI;
 
@@ -555,6 +556,7 @@ public static class ImGuiHelper
         _ => string.Empty,
     };
 
+    private static string _searchKey = string.Empty;
     /// <summary>
     /// Selectable combo.
     /// </summary>
@@ -600,14 +602,37 @@ public static class ImGuiHelper
 
         if (ImGui.BeginPopup(popUp))
         {
+            List<(int, string)> pairs = [];
             for (int i = 0; i < count; i++)
             {
-                if (ImGui.Selectable(items[i]))
+                pairs.Add((i, items[i]));
+            }
+            var members = pairs.OrderByDescending(s => Searchable.Similarity(s.Item2, _searchKey));
+
+            ImGui.SetNextItemWidth(Math.Max(50 * ImGuiHelpers.GlobalScale, members.Max(i => ImGuiHelpers.GetButtonSize(i.Item2).X)));
+            ImGui.InputTextWithHint("##Searching the member", LocalString.Searching.Local(), ref _searchKey, 128);
+
+            ImGui.Spacing();
+
+            ImRaii.IEndObject? child = null;
+            if (members.Count() >= 15)
+            {
+                ImGui.SetNextWindowSizeConstraints(new Vector2(0, 300) * ImGuiHelpers.GlobalScale, new Vector2(500, 300) * ImGuiHelpers.GlobalScale);
+                child = ImRaii.Child(popUp + "Child");
+                if (!child) return result;
+            }
+
+            foreach (var member in members)
+            {
+                if (ImGui.Selectable(member.Item2))
                 {
-                    index = i;
+                    index = member.Item1;
                     result = true;
+                    ImGui.CloseCurrentPopup();
                 }
             }
+
+            child?.Dispose();
             ImGui.EndPopup();
         }
 
@@ -714,7 +739,7 @@ public static class ImGuiHelper
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, 
             Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2 
-            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().FramePadding.X));
+            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X));
 
         if (ImGui.DragFloatRange2(name, ref value.X, ref value.Y, range.Speed, range.MinValue, range.MaxValue, showMin, showMax))
         {
@@ -741,7 +766,7 @@ public static class ImGuiHelper
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale,
             Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2
-            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().FramePadding.X));
+            + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X));
 
         if (ImGui.DragIntRange2(name, ref value.X, ref value.Y, range.Speed, (int)range.MinValue, (int)range.MaxValue, showMin, showMax))
         {
