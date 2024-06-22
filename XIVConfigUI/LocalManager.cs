@@ -240,7 +240,7 @@ public static class LocalManager
             {
                 var url = $"https://raw.githubusercontent.com/{XIVConfigUIMain.UserName}/{XIVConfigUIMain.RepoName}/main/{XIVConfigUIMain.RepoName}/Localization/{lang}.json";
                 using var client = new HttpClient();
-                RightLang = Translations[lang] = JsonHelper.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url))!;
+                RightLang = Translations[lang] = JsonHelper.DeserializeObject<Dictionary<string, string>>(await client.GetStringAsync(url)) ?? [];
             }
             catch (HttpRequestException ex) when (ex?.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
