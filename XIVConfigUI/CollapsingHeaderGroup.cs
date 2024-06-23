@@ -54,7 +54,7 @@ public class CollapsingHeaderGroup()
     /// <summary>
     /// 
     /// </summary>
-    public void Draw()
+    public void Draw(string tooltips = "")
     {
         var index = -1;
         foreach (var header in _headers)
@@ -81,6 +81,10 @@ public class CollapsingHeaderGroup()
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+                    if (!string.IsNullOrEmpty(tooltips))
+                    {
+                        ImGuiHelper.ShowTooltip(tooltips);
+                    }
                 }
                 if (changed)
                 {
