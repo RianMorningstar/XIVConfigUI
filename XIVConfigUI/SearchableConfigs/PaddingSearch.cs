@@ -39,7 +39,7 @@ public class PaddingSearch: Searchable
     {
         var value = Value;
 
-        if (ImGuiHelper.DragFloat4($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
+        if (ImGuiHelper.DragFloat4($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH / 2, ref value, Range))
         {
             Value = value;
         }

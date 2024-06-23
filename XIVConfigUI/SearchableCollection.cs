@@ -35,7 +35,7 @@ public readonly record struct FilterKey<T> where T : Enum
 }
 
 /// <summary>
-/// The collections that can be serached.
+/// The collections that can be searched.
 /// </summary>
 public class SearchableCollection : IDisposable, IEnumerable<Searchable>
 {

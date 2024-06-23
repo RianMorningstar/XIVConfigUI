@@ -119,7 +119,6 @@ public static class ImageLoader
             {
                 _cachedTextures[url] = LoadTexture(url);
                 Service.Log.Verbose($"Logged the image at {url}!");
-
             });
         }
         return texture is not null;

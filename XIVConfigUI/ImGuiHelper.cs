@@ -529,7 +529,10 @@ public static class ImGuiHelper
             Util.OpenLink(link.Url);
         }
 
-        ImGui.TextWrapped(link.Description);
+        if (!string.IsNullOrEmpty(link.Description))
+        {
+            ImGui.TextWrapped(link.Description);
+        }
 
         if (drawQuestion && !hasTexture && !string.IsNullOrEmpty(link.Url))
         {
@@ -609,7 +612,8 @@ public static class ImGuiHelper
             }
             var members = pairs.OrderByDescending(s => Searchable.Similarity(s.Item2, _searchKey));
 
-            ImGui.SetNextItemWidth(Math.Max(50 * ImGuiHelpers.GlobalScale, members.Max(i => ImGuiHelpers.GetButtonSize(i.Item2).X)));
+            ImGui.SetNextItemWidth(Math.Max(ImGuiHelpers.GetButtonSize(LocalString.Searching.Local()).X, 
+                members.Max(i => ImGuiHelpers.GetButtonSize(i.Item2).X) + ImGui.GetStyle().ScrollbarSize));
             ImGui.InputTextWithHint("##Searching the member", LocalString.Searching.Local(), ref _searchKey, 128);
 
             ImGui.Spacing();
