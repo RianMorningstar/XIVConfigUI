@@ -263,12 +263,12 @@ public static class ConditionDrawer
             var hash = list.GetHashCode();
             if (!_creatableItems.TryGetValue(innerType, out var types))
             {
-                _creatableItems[innerType] = types = innerType.Assembly.GetTypes().Where(t =>
+                _creatableItems[innerType] = types = innerType.Assembly.GetTypes().Append(innerType).Where(t =>
                 {
                     if (t.IsAbstract) return false;
                     if (t.IsClass && t.GetConstructor([]) == null) return false;
                     return t.IsAssignableTo(innerType);
-                }).ToArray();
+                }).ToHashSet().ToArray();
             }
 
             using(var textColor = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudYellow))

@@ -44,6 +44,7 @@ public static class JsonHelper
         {
             Converters = [GeneralJsonConverter.Instance],
             MissingMemberHandling = MissingMemberHandling.Error,
+            NullValueHandling = NullValueHandling.Ignore,
             Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
             {
                 args.ErrorContext.Handled = true;

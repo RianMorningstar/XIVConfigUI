@@ -22,7 +22,7 @@ public class ListUIAttribute(uint icon) : Attribute
     /// </summary>
     public bool NewlineWhenInheritance { get; set; }
 
-    internal ListUIAttribute() : this(0)
+    internal ListUIAttribute() : this(114053)
     {
 
     }
