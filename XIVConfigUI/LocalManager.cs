@@ -46,7 +46,7 @@ public static class LocalManager
 
     private static string LocalRaw(this Enum @enum, string suffix, string value)
     {
-        var key = (@enum.GetType().FullName ?? string.Empty) + suffix + "." + @enum.ToString();
+        var key = GetTypeName(@enum.GetType()) + suffix + "." + @enum.ToString();
         value = string.IsNullOrEmpty(value) ? @enum.GetAttribute<DescriptionAttribute>()?.Description ?? @enum.ToString()
             : value;
         return key.Local(value);
@@ -61,7 +61,7 @@ public static class LocalManager
     /// <returns></returns>
     public static string Local(this MemberInfo member, string suffix = "", string value = "")
     {
-        var key = (member.DeclaringType?.FullName ?? string.Empty) + suffix + "." + member.Name;
+        var key = GetTypeName(member.DeclaringType) + suffix + "." + member.Name;
         value = string.IsNullOrEmpty(value) ? member.GetCustomAttribute<DescriptionAttribute>()?.Description ?? member.ToString()!
             : value;
         return key.Local(value);
@@ -76,10 +76,16 @@ public static class LocalManager
     /// <returns></returns>
     public static string Local(this Type type, string suffix = "", string value = "")
     {
-        var key = (type.FullName ?? type.Name) + suffix;
+        var key = GetTypeName(type) + suffix;
         value = string.IsNullOrEmpty(value) ? type.GetCustomAttribute<DescriptionAttribute>()?.Description 
             ?? type.Name : value;
         return key.Local(value);
+    }
+
+    private static string GetTypeName(Type? type)
+    {
+        if (type == null) return string.Empty;
+        return (type.FullName ?? type.Name).Split('`').First();
     }
 
     /// <summary>
