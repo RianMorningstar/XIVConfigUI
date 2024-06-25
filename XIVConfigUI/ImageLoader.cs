@@ -1,8 +1,8 @@
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 using Svg;
 using System.Collections.Concurrent;
 using System.Drawing.Imaging;
-using static Dalamud.Plugin.Services.ITextureProvider;
 
 namespace XIVConfigUI;
 
@@ -11,10 +11,9 @@ namespace XIVConfigUI;
 /// </summary>
 public static class ImageLoader
 {
-    private static readonly ConcurrentDictionary<string, IDalamudTextureWrap?> _cachedTextures = [];
-    private static readonly ConcurrentDictionary<(uint ID, IconFlags HQ), IDalamudTextureWrap?> _cachedIcons = [];
+    private static readonly ConcurrentDictionary<string, ISharedImmediateTexture> _cachedSharedTextures = [];
+    private static readonly ConcurrentDictionary<string, IDalamudTextureWrap> _cachedTextures = [];
     private static readonly Dictionary<uint, uint> _actionIcons = [];
-
 
     private static readonly List<Func<byte[], byte[]>> _conversionsToBitmap = 
     [
@@ -24,7 +23,7 @@ public static class ImageLoader
 
     internal static void Init()
     {
-        GetTexture(0, IconFlags.HiRes, out _);
+        GetTexture(new GameIconLookup(0, false, true), out _);
         GetTextureRaw("ui/uld/image2.tex", out _);
     }
 
@@ -72,31 +71,23 @@ public static class ImageLoader
     /// <param name="default"></param>
     /// <returns></returns>
     public static bool GetTexture(uint icon, out IDalamudTextureWrap texture, uint @default = 0)
-        => GetTexture(icon, IconFlags.HiRes, out texture)
-        || GetTexture(icon, IconFlags.None, out texture)
-        || GetTexture(@default, IconFlags.HiRes, out texture)
-        || GetTexture(@default, IconFlags.None, out texture)
-        || GetTexture(0, IconFlags.HiRes, out texture);
+        => GetTexture(new GameIconLookup(icon, false, true), out texture)
+        || GetTexture(new GameIconLookup(icon, false, false), out texture)
+        || GetTexture(new GameIconLookup(@default, false, true), out texture)
+        || GetTexture(new GameIconLookup(@default, false, false), out texture)
+        || GetTexture(new GameIconLookup(0, false, true), out texture);
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="icon"></param>
+    /// <param name="lookup"></param>
     /// <param name="hq"></param>
     /// <param name="texture"></param>
     /// <returns></returns>
-    public static bool GetTexture(uint icon, IconFlags hq, out IDalamudTextureWrap texture)
+    public static bool GetTexture(GameIconLookup lookup, out IDalamudTextureWrap texture)
     {
-        if (!_cachedIcons.TryGetValue((icon, hq), out texture!))
-        {
-            _cachedIcons[(icon, hq)] = null;
-            Task.Run(() =>
-            {
-                _cachedIcons[(icon, hq)] = Service.Texture.GetIcon(icon, hq);
-                Service.Log.Verbose($"Logged the image id {icon} with {hq}!");
-            });
-        }
-        return texture is not null;
+        texture = Service.Texture.GetFromGameIcon(lookup).GetWrapOrEmpty();
+        return true;
     }
 
     /// <summary>
@@ -108,29 +99,26 @@ public static class ImageLoader
     public static bool GetTexture(string path, out IDalamudTextureWrap texture)
         => GetTextureRaw(path, out texture)
         || IsUrl(path) && GetTextureRaw("ui/uld/image2.tex", out texture)
-        || GetTexture(0, IconFlags.HiRes, out texture); // loading pics.
+        || GetTexture(new GameIconLookup(0, false, true), out texture); // loading pics.
 
     private static bool GetTextureRaw(string url, out IDalamudTextureWrap texture)
     {
-        if (!_cachedTextures.TryGetValue(url, out texture!))
+        if (_cachedTextures.TryGetValue(url, out texture!)) return true;
+        if (_cachedSharedTextures.TryGetValue(url, out var share) && share != null)
         {
-            _cachedTextures[url] = null;
-            Task.Run(() =>
-            {
-                _cachedTextures[url] = LoadTexture(url);
-                Service.Log.Verbose($"Logged the image at {url}!");
-            });
+            return share.TryGetWrap(out texture!, out _);
         }
-        return texture is not null;
+        LoadTexture(url);
+        return false;
     }
 
     private static bool IsUrl(string url) => url.StartsWith("http:", StringComparison.OrdinalIgnoreCase) || url.StartsWith("https:", StringComparison.OrdinalIgnoreCase);
 
-    private static IDalamudTextureWrap? LoadTexture(string url)
+    private static void LoadTexture(string url)
     {
         if (string.IsNullOrEmpty(url))
         {
-            return null;
+            return;
         }
         else if (IsUrl(url)) //On the web.
         {
@@ -142,15 +130,23 @@ public static class ImageLoader
             result.EnsureSuccessStatusCode();
             var content = result.Content.ReadAsByteArrayAsync().Result;
 
-            return LoadTexture(content);
+            var i = LoadTexture(content);
+            if (i != null)
+            {
+                _cachedTextures[url] = i;
+            }
         }
         else if (File.Exists(url))
         {
-            return LoadTexture(File.ReadAllBytes(url));
+            var i = LoadTexture(File.ReadAllBytes(url));
+            if (i != null)
+            {
+                _cachedTextures[url] = i;
+            }
         }
         else
         {
-            return Service.Texture.GetTextureFromGame(url);
+            _cachedSharedTextures[url] = Service.Texture.GetFromGame(url);
         }
     }
 
@@ -160,7 +156,7 @@ public static class ImageLoader
         {
             try
             {
-                return Service.PluginInterface.UiBuilder.LoadImage(convert(array));
+                return Service.Texture.CreateFromImageAsync(convert(array)).Result;
             }
 #if DEBUG
             catch (Exception ex) 
