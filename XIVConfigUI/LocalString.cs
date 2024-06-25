@@ -47,4 +47,7 @@ public enum LocalString
 
     [Description("List")]
     List,
+
+    [Description("No items in Combo")]
+    Nothing,
 }

@@ -60,7 +60,7 @@ public static class LocalManager
     public static string Local(this MemberInfo member, string suffix = "", string value = "")
     {
         var key = GetTypeName(member.DeclaringType) + suffix + "." + member.Name;
-        value = string.IsNullOrEmpty(value) ? member.GetCustomAttribute<DescriptionAttribute>()?.Description ?? member.ToString()!
+        value = string.IsNullOrEmpty(value) ? member.GetCustomAttribute<DescriptionAttribute>()?.Description ?? member.Name!
             : value;
         return key.Local(value);
     }

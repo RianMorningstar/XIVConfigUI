@@ -573,6 +573,13 @@ public static class ImGuiHelper
     public static unsafe bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
     {
         var count = items.Length;
+
+        if (count == 0)
+        {
+            ImGui.TextWrapped(LocalString.Nothing.Local());
+            return false;
+        }
+
         var originIndex = index;
         index = Math.Max(0, index) % count;
         var name = items[index] + "##" + popUp;
