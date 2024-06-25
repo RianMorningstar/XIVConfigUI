@@ -3,9 +3,8 @@ using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
-using Newtonsoft.Json;
+using System;
 using System.Collections;
-using System.Reflection;
 using XIVConfigUI.Attributes;
 
 namespace XIVConfigUI.ConditionConfigs;
@@ -353,6 +352,10 @@ public static class ConditionDrawer
         {
             DrawEnum(obj, property);
         }
+        else if (propertyType == typeof(int))
+        {
+            DrawInt(obj, property);
+        }
         else if (propertyType == typeof(string))
         {
             DrawString(obj, property);
@@ -364,10 +367,6 @@ public static class ConditionDrawer
         else if (propertyType == typeof(float))
         {
             DrawFloat(obj, property);
-        }
-        else if(propertyType == typeof(int))
-        {
-            DrawInt(obj, property);
         }
         else if(propertyType == typeof(Vector2))
         {
@@ -503,14 +502,27 @@ public static class ConditionDrawer
     private static void DrawInt(object obj, PropertyInfo property)
     {
         var range = property.GetCustomAttribute<RangeAttribute>() ?? new();
-
         var value = (property.GetValue(obj) as int?)!.Value;
 
-        if (ImGuiHelper.DragInt("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+        if (property.GetCustomAttribute<IntegerChoicesAttribute>() is IntegerChoicesAttribute attr
+            && attr.GetEnumType(obj) is Type type && type.IsEnum)
         {
-            property.SetValue(obj, value);
+            var values = Enum.GetValues(type).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+            var names = values.Select(v => v.Local()).ToArray();
+            if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref value, description: property.LocalUINameDesc()))
+            {
+                property.SetValue(obj, value);
+            }
         }
-        ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
+        else
+        {
+            if (ImGuiHelper.DragInt("##" + property.Name + obj.GetHashCode(), 50, ref value, range))
+            {
+                property.SetValue(obj, value);
+            }
+
+            ImGuiHelper.HoveredTooltip(property.LocalUINameDesc());
+        }
     }
 
     private static void DrawFloat(object obj, PropertyInfo property)
