@@ -507,7 +507,7 @@ public static class ConditionDrawer
         if (property.GetCustomAttribute<IntegerChoicesAttribute>() is IntegerChoicesAttribute attr
             && attr.GetEnumType(obj) is Type type && type.IsEnum)
         {
-            var values = Enum.GetValues(type).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+            var values = type.GetCleanedEnumValues();
             var names = values.Select(v => v.Local()).ToArray();
             if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref value, description: property.LocalUINameDesc()))
             {
@@ -600,7 +600,8 @@ public static class ConditionDrawer
     private static void DrawEnum(object obj, PropertyInfo property)
     {
         var value = property.GetValue(obj);
-        var values = Enum.GetValues(property.PropertyType).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+        
+        var values = property.PropertyType.GetCleanedEnumValues();
         var index = Array.IndexOf(values, value);
         var names = values.Select(v => v.Local()).ToArray();
 

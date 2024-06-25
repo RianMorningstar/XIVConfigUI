@@ -23,12 +23,7 @@ public class EnumSearch(PropertyInfo property, object obj) : Searchable(property
     /// <inheritdoc/>
     protected override void DrawMain()
     {
-        var names = new List<string>();
-        foreach (Enum v in Enum.GetValues(_property.PropertyType))
-        {
-            names.Add(v.Local());
-        }
-        var strs = names.ToArray();
+        var strs = _property.PropertyType.GetCleanedEnumValues().Select(v => v.Local()).ToArray();
 
         if (strs.Length > 0)
         {

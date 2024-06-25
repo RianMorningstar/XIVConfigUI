@@ -829,4 +829,15 @@ public static class ImGuiHelper
     {
         ImGui.SetNextItemWidth(Math.Max(80 * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(name).X + 30 * ImGuiHelpers.GlobalScale));
     }
+
+    /// <summary>
+    /// Get cleaned named enu.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static Enum[] GetCleanedEnumValues(this Type type)
+    {
+        if (!type.IsEnum) return [];
+        return Enum.GetValues(type).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+    }
 }
