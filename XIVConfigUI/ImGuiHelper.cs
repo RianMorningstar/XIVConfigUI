@@ -3,6 +3,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.GameFonts;
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
@@ -80,6 +81,7 @@ public static class ImGuiHelper
     public static unsafe ImFontPtr GetFont(float size, GameFontFamily fontFamily = GameFontFamily.Axis)
     {
         var style = new GameFontStyle(GameFontStyle.GetRecommendedFamilyAndSize(fontFamily, size));
+
         var handle = Service.PluginInterface.UiBuilder.FontAtlas.NewGameFontHandle(style);
 
         try

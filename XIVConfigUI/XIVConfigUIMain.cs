@@ -55,7 +55,7 @@ public static class XIVConfigUIMain
     /// <param name="descriptionAboutCommand"></param>
     /// <param name="onCommand"></param>
     /// <param name="intiTypes">the types for init the local.</param>
-    public static void Init(DalamudPluginInterface pluginInterface, string command,
+    public static void Init(IDalamudPluginInterface pluginInterface, string command,
         string? descriptionAboutCommand = null, Action<string>? onCommand = null, params Type[] intiTypes)
     {
         if (_inited) return;
