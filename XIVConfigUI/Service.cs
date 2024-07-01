@@ -6,7 +6,7 @@ namespace XIVConfigUI;
 
 internal class Service
 {
-    [PluginService] internal static DalamudPluginInterface PluginInterface { get; private set; } = null!;
+    [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
     [PluginService] internal static IDataManager Data { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
     [PluginService] public static ICommandManager Commands { get; private set; } = null!;

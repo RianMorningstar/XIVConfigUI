@@ -5,6 +5,7 @@ using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using XIVConfigUI.SearchableConfigs;
 using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures.TextureWraps;
 
 namespace XIVConfigUI;
 
