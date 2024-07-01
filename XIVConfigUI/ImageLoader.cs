@@ -27,6 +27,20 @@ public static class ImageLoader
         GetTextureRaw("ui/uld/image2.tex", out _);
     }
 
+    internal static void Dispose()
+    {
+        foreach (var item in _cachedTextures.Values)
+        {
+            item?.Dispose();
+        }
+        _cachedTextures.Clear();
+        foreach (var item in _cachedIcons.Values)
+        {
+            item?.Dispose();
+        }
+        _cachedIcons.Clear();
+    }
+
     private static byte[] SvgToPng(byte[] data)
     {
         using var stream = new MemoryStream(data);
@@ -178,8 +192,13 @@ public static class ImageLoader
     }
 }
 
-internal readonly record struct ImageResult(ISharedImmediateTexture? Shared, IDalamudTextureWrap? Texture)
+internal readonly record struct ImageResult(ISharedImmediateTexture? Shared, IDalamudTextureWrap? Texture) : IDisposable
 {
+    public void Dispose()
+    {
+        Texture?.Dispose();
+    }
+
     public bool HasTexture(out IDalamudTextureWrap? texture)
     {
         if (Shared != null)

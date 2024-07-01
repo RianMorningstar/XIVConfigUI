@@ -11,7 +11,7 @@ public static class XIVConfigUIMain
 {
     private static Action<string>? _onCommand;
     private static bool _inited = false;
-    private static string _punchline = string.Empty, _descirption = string.Empty;
+    private static string _punchline = string.Empty, _description = string.Empty;
 
     internal static readonly List<SearchableCollection> _searchableCollections = [];
 
@@ -30,7 +30,7 @@ public static class XIVConfigUIMain
     /// <summary>
     /// The description of this plugin.
     /// </summary>
-    public static string Description => (Service.PluginInterface.InternalName + "." + nameof(Description)).Local(_descirption);
+    public static string Description => (Service.PluginInterface.InternalName + "." + nameof(Description)).Local(_description);
 
     /// <summary>
     /// The icon of this plugin.
@@ -74,7 +74,7 @@ public static class XIVConfigUIMain
         items[^1] = "json";
         var path = string.Join('.', items);
         var obj = JObject.Parse(File.ReadAllText(path));
-        _descirption = obj[nameof(Description)]?.ToString() ?? string.Empty;
+        _description = obj[nameof(Description)]?.ToString() ?? string.Empty;
         _punchline = obj[nameof(Punchline)]?.ToString() ?? string.Empty;
         IconUrl = obj[nameof(IconUrl)]?.ToString() ?? string.Empty;
 
@@ -115,6 +115,7 @@ public static class XIVConfigUIMain
         _searchableCollections.Clear();
         DisableCommand();
         LocalManager.Dispose();
+        ImageLoader.Dispose();
     }
 
     private static void OnCommand(string command, string arguments)
