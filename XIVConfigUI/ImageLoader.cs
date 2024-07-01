@@ -1,4 +1,3 @@
-using Dalamud.Interface.Internal;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Svg;
@@ -12,11 +11,11 @@ namespace XIVConfigUI;
 /// </summary>
 public static class ImageLoader
 {
-    private static readonly ConcurrentDictionary<string, ISharedImmediateTexture> _cachedSharedTextures = [];
-    private static readonly ConcurrentDictionary<string, IDalamudTextureWrap> _cachedTextures = [];
+    private static readonly ConcurrentDictionary<string, ImageResult?> _cachedTextures = [];
+    private static readonly ConcurrentDictionary<GameIconLookup, ImageResult?> _cachedIcons = [];
     private static readonly Dictionary<uint, uint> _actionIcons = [];
 
-    private static readonly List<Func<byte[], byte[]>> _conversionsToBitmap = 
+    private static readonly List<Func<byte[], byte[]>> _conversionsToBitmap =
     [
         b => b,
         SvgToPng,
@@ -81,14 +80,23 @@ public static class ImageLoader
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="lookup"></param>
+    /// <param name="icon"></param>
     /// <param name="hq"></param>
     /// <param name="texture"></param>
     /// <returns></returns>
-    public static bool GetTexture(GameIconLookup lookup, out IDalamudTextureWrap texture)
+    public static bool GetTexture(GameIconLookup icon, out IDalamudTextureWrap texture)
     {
-        texture = Service.Texture.GetFromGameIcon(lookup).GetWrapOrEmpty();
-        return true;
+        texture = null!;
+        if (!_cachedIcons.TryGetValue(icon, out var result))
+        {
+            _cachedIcons[icon] = null;
+            Task.Run(() =>
+            {
+                _cachedIcons[icon] = new(Service.Texture.GetFromGameIcon(icon), null);
+                Service.Log.Verbose($"Logged the image {icon}!");
+            });
+        }
+        return result?.HasTexture(out texture!) ?? false;
     }
 
     /// <summary>
@@ -104,22 +112,26 @@ public static class ImageLoader
 
     private static bool GetTextureRaw(string url, out IDalamudTextureWrap texture)
     {
-        if (_cachedTextures.TryGetValue(url, out texture!)) return true;
-        if (_cachedSharedTextures.TryGetValue(url, out var share) && share != null)
+        texture = null!;
+        if (!_cachedTextures.TryGetValue(url, out var result))
         {
-            return share.TryGetWrap(out texture!, out _);
+            _cachedTextures[url] = null;
+            Task.Run(async () =>
+            {
+                _cachedTextures[url] = await LoadTexture(url);
+                Service.Log.Verbose($"Logged the image at {url}!");
+            });
         }
-        LoadTexture(url);
-        return false;
+        return result?.HasTexture(out texture!) ?? false;
     }
 
     private static bool IsUrl(string url) => url.StartsWith("http:", StringComparison.OrdinalIgnoreCase) || url.StartsWith("https:", StringComparison.OrdinalIgnoreCase);
 
-    private static void LoadTexture(string url)
+    private static async Task<ImageResult?> LoadTexture(string url)
     {
         if (string.IsNullOrEmpty(url))
         {
-            return;
+            return null;
         }
         else if (IsUrl(url)) //On the web.
         {
@@ -131,36 +143,28 @@ public static class ImageLoader
             result.EnsureSuccessStatusCode();
             var content = result.Content.ReadAsByteArrayAsync().Result;
 
-            var i = LoadTexture(content);
-            if (i != null)
-            {
-                _cachedTextures[url] = i;
-            }
+            return new(null, await LoadTexture(content));
         }
         else if (File.Exists(url))
         {
-            var i = LoadTexture(File.ReadAllBytes(url));
-            if (i != null)
-            {
-                _cachedTextures[url] = i;
-            }
+            return new(null, await LoadTexture(File.ReadAllBytes(url)));
         }
         else
         {
-            _cachedSharedTextures[url] = Service.Texture.GetFromGame(url);
+            return new(Service.Texture.GetFromGame(url), null);
         }
     }
 
-    private static IDalamudTextureWrap? LoadTexture(byte[] array)
+    private static async Task<IDalamudTextureWrap?> LoadTexture(byte[] array)
     {
         foreach (var convert in _conversionsToBitmap)
         {
             try
             {
-                return Service.Texture.CreateFromImageAsync(convert(array)).Result;
+                return await Service.Texture.CreateFromImageAsync(convert(array));
             }
 #if DEBUG
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Service.Log.Error(ex, "Failed to load the image");
 #else
@@ -168,8 +172,24 @@ public static class ImageLoader
             {
 #endif
             }
-    }
+        }
         Service.Log.Verbose($"Failed to convert the data to an image!");
         return null;
+    }
+}
+
+internal readonly record struct ImageResult(ISharedImmediateTexture? Shared, IDalamudTextureWrap? Texture)
+{
+    public bool HasTexture(out IDalamudTextureWrap? texture)
+    {
+        if (Shared != null)
+        {
+            texture = Shared.GetWrapOrDefault();
+        }
+        else
+        {
+            texture = Texture;
+        }
+        return texture != null;
     }
 }
