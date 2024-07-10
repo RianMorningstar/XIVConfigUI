@@ -385,7 +385,7 @@ public static class ImGuiHelper
     /// <param name="position"></param>
     /// <param name="size"></param>
     /// <param name="lightCol"></param>
-    public static void DrawSlotHighlight(this ImDrawListPtr drawList, Vector2 position, float size, uint lightCol)
+    public static void DrawSlotHighlight(this ImDrawListPtr drawList, Vector2 position, float size, uint lightCol = 0xfff8cbff)
     {
         if (_roundTex == null)
         {

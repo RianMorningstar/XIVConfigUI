@@ -297,7 +297,7 @@ public abstract class ConfigWindow : Window
                         ImGuiHelper.DrawActionOverlay(cursor, iconSize, 1);
                         if (_activeTabIndex == i)
                         {
-                            ImGui.GetWindowDrawList().DrawSlotHighlight(ImGui.GetWindowPos() + cursor, iconSize, 0xfff8cbff);
+                            ImGui.GetWindowDrawList().DrawSlotHighlight(ImGui.GetWindowPos() + cursor, iconSize);
                         }
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
 
