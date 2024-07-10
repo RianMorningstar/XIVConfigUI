@@ -385,7 +385,7 @@ public static class ImGuiHelper
     /// <param name="position"></param>
     /// <param name="size"></param>
     /// <param name="lightCol"></param>
-    public static void DrawSlotHighlight(this ImDrawListPtr drawList, Vector2 position, float size, uint lightCol = 0xfff8cbff)
+    public static void DrawSlotHighlight(this ImDrawListPtr drawList, Vector2 position, float size, uint lightCol = 0xFFCCF8FF)
     {
         if (_roundTex == null)
         {
@@ -400,7 +400,7 @@ public static class ImGuiHelper
                 array[i + 3] = imageData[i + 3];
             }
 
-            _roundTex = Service.Texture.CreateFromRaw(RawImageSpecification.Rgba32(tex!.Header.Width, tex!.Header.Height), array);
+            _roundTex = Service.Texture.CreateFromRaw(RawImageSpecification.Rgba32(tex.Header.Width, tex.Header.Height), array);
         }
         if (_roundTex == null) return;
 

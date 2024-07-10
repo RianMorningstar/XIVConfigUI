@@ -254,6 +254,14 @@ public abstract class ConfigWindow : Window
                 {
                     ImGuiHelper.DrawItemMiddle(() =>
                     {
+                        var cursor = ImGui.GetCursorPos();
+                        if (ImGuiHelper.NoPaddingNoColorImageButton(icon.ImGuiHandle, Vector2.One * iconSize))
+                        {
+                            ImGui.OpenPopup("Searching Popup");
+                        }
+                        ImGuiHelper.DrawActionOverlay(cursor, iconSize, -1);
+                        ImGuiHelper.HoveredTooltip(LocalString.Search.Local());
+
                         using var popup = ImRaii.Popup("Searching Popup");
                         if (popup)
                         {
@@ -265,13 +273,6 @@ public abstract class ConfigWindow : Window
                             }
                         }
 
-                        var cursor = ImGui.GetCursorPos();
-                        if (ImGuiHelper.NoPaddingNoColorImageButton(icon.ImGuiHandle, Vector2.One * iconSize))
-                        {
-                            ImGui.OpenPopup("Searching Popup");
-                        }
-                        ImGuiHelper.DrawActionOverlay(cursor, iconSize, -1);
-                        ImGuiHelper.HoveredTooltip(LocalString.Search.Local());
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
                 }
             }
