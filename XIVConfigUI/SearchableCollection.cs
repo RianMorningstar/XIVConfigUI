@@ -134,7 +134,7 @@ public class SearchableCollection : IDisposable, IEnumerable<Searchable>
             }
             else if (type == typeof(string))
             {
-                return new InputTextSearch(property, config);
+                return new StringSearch(property, config);
             }
 
 
