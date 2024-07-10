@@ -294,7 +294,11 @@ public abstract class ConfigWindow : Window
                         {
                             Invoke();
                         }
-                        ImGuiHelper.DrawActionOverlay(cursor, iconSize, _activeTabIndex == i ? 1 : 0);
+                        ImGuiHelper.DrawActionOverlay(cursor, iconSize, 1);
+                        if (_activeTabIndex == i)
+                        {
+                            ImGui.GetWindowDrawList().DrawSlotHighlight(ImGui.GetWindowPos() + cursor, iconSize, 0xfff8cbff);
+                        }
                     }, Math.Max(MinColumnWidth, wholeWidth), iconSize);
 
                     var desc = item.Name;

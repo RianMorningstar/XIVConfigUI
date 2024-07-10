@@ -2,10 +2,12 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.GameFonts;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
+using Lumina.Data.Files;
 using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 
@@ -371,6 +373,42 @@ public static class ImGuiHelper
 
         ImGui.GetStyle().FramePadding = padding;
         return result;
+    }
+
+    private static readonly Vector2 _uv1 = new(96 * 5 / 852f, 0), _uv2 = new((96 * 5 + 144) / 852f, 0.5f);
+    private static IDalamudTextureWrap? _roundTex;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="drawList"></param>
+    /// <param name="position"></param>
+    /// <param name="size"></param>
+    /// <param name="lightCol"></param>
+    public static void DrawSlotHighlight(this ImDrawListPtr drawList, Vector2 position, float size, uint lightCol)
+    {
+        if (_roundTex == null)
+        {
+            var tex = Service.Data.GetFile<TexFile>("ui/uld/icona_frame_hr1.tex");
+            if (tex == null) return;
+            byte[] imageData = tex.ImageData;
+            byte[] array = new byte[imageData.Length];
+
+            for (int i = 0; i < imageData.Length; i += 4)
+            {
+                array[i] = array[i + 1] = array[i + 2] = byte.MaxValue;
+                array[i + 3] = imageData[i + 3];
+            }
+
+            _roundTex = Service.Texture.CreateFromRaw(RawImageSpecification.Rgba32(tex!.Header.Width, tex!.Header.Height), array);
+        }
+        if (_roundTex == null) return;
+
+        var pixPerUnit = size / 82;
+
+        var outPos = position - new Vector2(pixPerUnit * 31, pixPerUnit * 31);
+        drawList.AddImage(_roundTex.ImGuiHandle, outPos, outPos + new Vector2(pixPerUnit * 144, pixPerUnit * 144),
+        _uv1, _uv2, lightCol);
     }
 
     /// <summary>
