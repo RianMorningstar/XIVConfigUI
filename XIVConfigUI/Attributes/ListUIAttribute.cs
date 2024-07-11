@@ -8,11 +8,6 @@
 public class ListUIAttribute(uint icon) : Attribute
 {
     /// <summary>
-    /// The icon.
-    /// </summary>
-    public uint Icon => icon;
-
-    /// <summary>
     /// Description about this item.
     /// </summary>
     public string Description { get; set; } = string.Empty;
@@ -32,4 +27,11 @@ public class ListUIAttribute(uint icon) : Attribute
     /// </summary>
     /// <param name="obj">the instance of the class.</param>
     public virtual void OnClick(object obj) { }
+
+    /// <summary>
+    /// Get the icon
+    /// </summary>
+    /// <param name="obj">the instance of the class.</param>
+    /// <returns></returns>
+    public virtual uint GetIcon(object obj) { return icon; }
 }

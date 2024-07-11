@@ -223,9 +223,9 @@ public static class ConditionDrawer
             {
                 DrawCondition(condition.State, $"Icon :{item.GetHashCode()}", () => attr.OnClick(item));
             }
-            else if(attr.Icon != 0)
+            else if(attr.GetIcon(item) is uint icon && icon != 0)
             {
-                if (ImageLoader.GetTexture(attr.Icon, out var texture))
+                if (ImageLoader.GetTexture(icon, out var texture))
                 {
                     if (ImGuiHelper.SilenceImageButton(texture.ImGuiHandle, Vector2.One * IconSize, false, $"Icon :{item.GetHashCode()}"))
                     {
