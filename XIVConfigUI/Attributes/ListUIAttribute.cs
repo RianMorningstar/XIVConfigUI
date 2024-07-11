@@ -33,5 +33,5 @@ public class ListUIAttribute(uint icon) : Attribute
     /// </summary>
     /// <param name="obj">the instance of the class.</param>
     /// <returns></returns>
-    public virtual uint GetIcon(object obj) { return icon; }
+    public virtual uint GetIcon(object obj) => icon;
 }

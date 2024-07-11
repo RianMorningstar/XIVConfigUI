@@ -75,7 +75,7 @@ public static class ConditionDrawer
                     if (addSameLine) ImGui.SameLine();
                     addSameLine = true;
 
-                    DrawProperty(obj, prop, uiAttribute, out var act);
+                    DrawProperty(obj, prop, out var act);
                     actions.Add(act);
                 }
 
@@ -329,7 +329,7 @@ public static class ConditionDrawer
 
     private static readonly Dictionary<Type, Type[]> _creatableItems = [];
 
-    private static void DrawProperty(object obj, PropertyInfo property, UIAttribute ui, out Action? drawSub)
+    private static void DrawProperty(object obj, PropertyInfo property, out Action? drawSub)
     {
         drawSub = null;
         var propertyType = property.PropertyType;
@@ -554,6 +554,12 @@ public static class ConditionDrawer
     private static void DrawString(object obj, PropertyInfo property)
     {
         var str = (property.GetValue(obj) as string)!;
+
+        if (property.SetMethod?.IsPrivate ?? true)
+        {
+            ImGui.Text(str);
+            return;
+        }
 
         if (property.GetCustomAttribute<ChoicesAttribute>() is ChoicesAttribute choiceAttr)
         {
