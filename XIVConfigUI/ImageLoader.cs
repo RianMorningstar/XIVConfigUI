@@ -63,18 +63,30 @@ public static class ImageLoader
         {
             return GetTexture(0, out texture, 0);
         }
-        if (id == 3)
-        {
-            return GetTexture(104, out texture, 0);
-        }
 
         if (!_actionIcons.TryGetValue(id, out var iconId))
         {
-            iconId = Service.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()?
-                .GetRow(id)?.Icon ?? 0;
-            _actionIcons[id] = iconId;
+            var action = Service.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()?
+                .GetRow(id);
+            _actionIcons[id] = action?.GetActionIcon() ?? 0;
         }
         return GetTexture(iconId, out texture);
+    }
+
+    /// <summary>
+    /// Get Action Icon.
+    /// </summary>
+    /// <param name="action"></param>
+    /// <returns></returns>
+    public static uint GetActionIcon(this Lumina.Excel.GeneratedSheets.Action action)
+    {
+        var isGAction = action.ActionCategory.Row is 10 or 11;
+        if (!isGAction) return action.Icon;
+
+        var gAct = Service.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.GeneralAction>()?.FirstOrDefault(g => g.Action.Row == action.RowId);
+
+        if (gAct == null) return action.Icon;
+        return (uint)gAct.Icon;
     }
 
     /// <summary>

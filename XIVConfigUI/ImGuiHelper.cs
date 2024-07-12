@@ -730,7 +730,7 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
     {
-        var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"{value:F2}{range.UnitType.ToSymbol()}";
+        var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
 
@@ -763,7 +763,7 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool DragInt(string name, float width, ref int value, RangeAttribute range)
     {
-        var show = $"{value}{range.UnitType.ToSymbol()}";
+        var show = $"%d{range.UnitType.ToSymbol()}";
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
 
         if (ImGui.DragInt(name, ref value, range.Speed, (int)range.MinValue, (int)range.MaxValue, show))
@@ -784,8 +784,8 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
     {
-        var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.X:F2}{range.UnitType.ToSymbol()}";
-        var showMax = range.UnitType == ConfigUnitType.Percent ? $"{value.Y * 100:F1}{range.UnitType.ToSymbol()}" : $"{value.Y:F2}{range.UnitType.ToSymbol()}";
+        var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
+        var showMax = range.UnitType == ConfigUnitType.Percent ? $"{value.Y * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, 
             Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2 
