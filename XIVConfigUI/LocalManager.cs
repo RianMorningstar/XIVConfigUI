@@ -27,7 +27,7 @@ public static class LocalManager
     /// <returns></returns>
     public static string Local(this Enum @enum, string suffix = "", string value = "")
     {
-        if (@enum.GetAttribute<FlagsAttribute>() == null) return @enum.LocalRaw(suffix, value);
+        if (@enum.GetType().GetCustomAttribute<FlagsAttribute>() == null) return @enum.LocalRaw(suffix, value);
 
         var definedValues = Enum.GetValues(@enum.GetType());
 
