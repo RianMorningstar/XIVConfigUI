@@ -730,17 +730,21 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool DragFloat(string name, float width, ref float value, RangeAttribute range)
     {
-        var show = range.UnitType == ConfigUnitType.Percent ? $"{value * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
+        var isPercent = range.UnitType == ConfigUnitType.Percent;
+
+        var show = isPercent ? $"%.1f{range.UnitType.ToSymbol()}" : $"%.3f{range.UnitType.ToSymbol()}";
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, ImGui.CalcTextSize(show).X + 10 * ImGuiHelpers.GlobalScale));
 
-        if (range.UnitType == ConfigUnitType.Percent)
+        if (isPercent)
         {
-            if (ImGui.SliderFloat(name, ref value, range.MinValue, range.MaxValue, show))
+            value *= 100;
+            if (ImGui.DragFloat(name, ref value, range.Speed, range.MinValue * 100, range.MaxValue * 100, show))
             {
-                value = float.Round(value, 3);
+                value = float.Round(value / 100, 3);
                 return true;
             }
+            value /= 100;
         }
         else
         {
@@ -784,19 +788,36 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool DragFloat2(string name, float width, ref Vector2 value, RangeAttribute range)
     {
-        var showMin = range.UnitType == ConfigUnitType.Percent ? $"{value.X * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
-        var showMax = range.UnitType == ConfigUnitType.Percent ? $"{value.Y * 100:F1}{range.UnitType.ToSymbol()}" : $"%d{range.UnitType.ToSymbol()}";
+        var isPercent = range.UnitType == ConfigUnitType.Percent;
+
+        var show = isPercent ? $"%.1f{range.UnitType.ToSymbol()}" : $"%.3f{range.UnitType.ToSymbol()}";
 
         ImGui.SetNextItemWidth(Math.Max(width * ImGuiHelpers.GlobalScale, 
-            Math.Max(ImGui.CalcTextSize(showMin).X, ImGui.CalcTextSize(showMax).X) * 2 
+            ImGui.CalcTextSize(show).X * 2 
             + 20 * ImGuiHelpers.GlobalScale + ImGui.GetStyle().ItemSpacing.X));
 
-        if (ImGui.DragFloatRange2(name, ref value.X, ref value.Y, range.Speed, range.MinValue, range.MaxValue, showMin, showMax))
+        if (isPercent)
         {
-            value.X = Math.Min(value.X, value.Y);
-            value.Y = Math.Max(value.X, value.Y);
-            return true;
+            value *= 100;
+            if (ImGui.DragFloatRange2(name, ref value.X, ref value.Y, range.Speed, range.MinValue * 100, range.MaxValue * 100, show, show))
+            {
+                value.X = Math.Min(value.X, value.Y);
+                value.Y = Math.Max(value.X, value.Y);
+                value /= 100;
+                return true;
+            }
+            value /= 100;
         }
+        else
+        {
+            if (ImGui.DragFloatRange2(name, ref value.X, ref value.Y, range.Speed, range.MinValue, range.MaxValue, show, show))
+            {
+                value.X = Math.Min(value.X, value.Y);
+                value.Y = Math.Max(value.X, value.Y);
+                return true;
+            }
+        }
+
 
         return false;
     }
