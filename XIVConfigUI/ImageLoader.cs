@@ -95,7 +95,6 @@ public static class ImageLoader
     /// 
     /// </summary>
     /// <param name="icon"></param>
-    /// <param name="hq"></param>
     /// <param name="texture"></param>
     /// <returns></returns>
     public static bool GetTexture(GameIconLookup icon, out IDalamudTextureWrap texture)
