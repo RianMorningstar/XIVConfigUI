@@ -2,8 +2,6 @@
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
-using Dalamud.Utility;
-using System;
 using System.Collections;
 using XIVConfigUI.Attributes;
 
@@ -239,9 +237,10 @@ public static class ConditionDrawer
             }
 
             string desc = item.GetType().Local();
-            if (!string.IsNullOrEmpty(attr.Description))
+            var description = attr.GetDescription(item);
+            if (!string.IsNullOrEmpty(description))
             {
-                desc += "\n" + innerType.Local("Description", attr.Description);
+                desc += "\n" + innerType.Local("Description", description);
             }
 
             ImGuiHelper.ExecuteHotKeysPopup(key, string.Empty, desc, true,
