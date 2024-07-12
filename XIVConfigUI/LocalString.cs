@@ -50,4 +50,7 @@ public enum LocalString
 
     [Description("No items in Combo")]
     Nothing,
+
+    [Description("None")]
+    None,
 }

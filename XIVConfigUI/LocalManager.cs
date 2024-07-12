@@ -34,12 +34,13 @@ public static class LocalManager
         List<string> values = [];
         foreach (Enum definedValue in definedValues)
         {
+            if (Convert.ToInt32(definedValue) == 0) continue;
             if (!@enum.HasFlag(definedValue)) continue;
 
             values.Add(definedValue.LocalRaw(suffix, value));
         }
 
-        return string.Join(", ", values);
+        return values.Count == 0 ? LocalString.None.Local() : string.Join(", ", values);
     }
 
     private static string LocalRaw(this Enum @enum, string suffix, string value)
