@@ -73,7 +73,11 @@ public abstract class ConfigWindow : Window
     protected virtual string Crowdin => string.Empty;
 
     private ConfigWindowItem[]? _items = null;
-    private ConfigWindowItem[] Items => _items ??= GetItems();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public ConfigWindowItem[] Items => _items ??= GetItems();
 
     /// <summary>
     /// The active item.
