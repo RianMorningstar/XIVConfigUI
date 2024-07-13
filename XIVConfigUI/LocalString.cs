@@ -53,7 +53,4 @@ public enum LocalString
 
     [Description("None")]
     None,
-
-    [Description("Add")]
-    Add,
 }

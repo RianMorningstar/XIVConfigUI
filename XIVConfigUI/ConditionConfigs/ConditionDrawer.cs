@@ -176,7 +176,7 @@ public static class ConditionDrawer
 
         attrBase ??= new();
 
-        AddButton(-1);
+        AddButton();
 
         for (int i = 0; i < list.Count; i++)
         {
@@ -211,7 +211,19 @@ public static class ConditionDrawer
 
             void Add()
             {
-                AddButton(i);
+                var str = ImGui.GetClipboardText();
+                try
+                {
+                    var instance = JsonHelper.DeserializeObject(str, innerType)!;
+                    if (instance != null)
+                    {
+                        list.Insert(i, instance);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Service.Log.Warning(ex, "Failed to load the condition.");
+                }
             }
 
             var key = $"Item Edit Pop Up: {item.GetHashCode()}";
@@ -220,8 +232,8 @@ public static class ConditionDrawer
                 (LocalString.Remove.Local(), Delete, ["Delete"]),
                 (LocalString.MoveUp.Local(), Up, ["↑"]),
                 (LocalString.MoveDown.Local(), Down, ["↓"]),
-                (LocalString.Add.Local(), Add, ["+"]),
-                (LocalString.CopyToClipboard.Local(), Copy, ["Ctrl"]));
+                (LocalString.CopyToClipboard.Local(), Copy, ["Ctrl"]),
+                (LocalString.FromClipboard.Local(), Add, ["Shift"]));
 
             if (item is ICondition condition)
             {
@@ -253,8 +265,8 @@ public static class ConditionDrawer
                 (Delete, [VirtualKey.DELETE]),
                 (Up, [VirtualKey.UP]),
                 (Down, [VirtualKey.DOWN]),
-                (Add, [VirtualKey.ADD]),
-                (Copy, [VirtualKey.CONTROL]));
+                (Copy, [VirtualKey.CONTROL]),
+                (Add, [VirtualKey.SHIFT]));
 
             ImGui.SameLine();
 
@@ -263,7 +275,7 @@ public static class ConditionDrawer
             Draw(item);
         }
 
-        void AddButton(int index)
+        void AddButton()
         {
             var hash = list.GetHashCode();
             if (!_creatableItems.TryGetValue(innerType, out var types))
@@ -311,15 +323,8 @@ public static class ConditionDrawer
                     if (ImGui.Selectable(type.Local()))
                     {
                         var instance = Activator.CreateInstance(type);
-                        if (index == -1)
-                        {
-                            list.Add(instance);
-                        }
-                        else
-                        {
-                            list.Insert(index, instance);
-                        }
-                        
+                        list.Add(instance);
+
                         ImGui.CloseCurrentPopup();
                     }
                 }
@@ -330,14 +335,7 @@ public static class ConditionDrawer
                     try
                     {
                         var instance = JsonHelper.DeserializeObject(str, innerType)!;
-                        if (index == -1)
-                        {
-                            list.Add(instance);
-                        }
-                        else
-                        {
-                            list.Insert(index, instance);
-                        }
+                        list.Add(instance);
                     }
                     catch (Exception ex)
                     {
