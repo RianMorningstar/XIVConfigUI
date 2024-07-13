@@ -176,7 +176,7 @@ public static class ConditionDrawer
 
         attrBase ??= new();
 
-        AddButton();
+        AddButton(-1);
 
         for (int i = 0; i < list.Count; i++)
         {
@@ -209,12 +209,18 @@ public static class ConditionDrawer
                 ImGui.SetClipboardText(str);
             }
 
+            void Add()
+            {
+                AddButton(i);
+            }
+
             var key = $"Item Edit Pop Up: {item.GetHashCode()}";
 
             ImGuiHelper.DrawHotKeysPopup(key, string.Empty,
                 (LocalString.Remove.Local(), Delete, ["Delete"]),
                 (LocalString.MoveUp.Local(), Up, ["↑"]),
                 (LocalString.MoveDown.Local(), Down, ["↓"]),
+                (LocalString.Add.Local(), Add, ["+"]),
                 (LocalString.CopyToClipboard.Local(), Copy, ["Ctrl"]));
 
             if (item is ICondition condition)
@@ -247,6 +253,7 @@ public static class ConditionDrawer
                 (Delete, [VirtualKey.DELETE]),
                 (Up, [VirtualKey.UP]),
                 (Down, [VirtualKey.DOWN]),
+                (Add, [VirtualKey.ADD]),
                 (Copy, [VirtualKey.CONTROL]));
 
             ImGui.SameLine();
@@ -256,7 +263,7 @@ public static class ConditionDrawer
             Draw(item);
         }
 
-        void AddButton()
+        void AddButton(int index)
         {
             var hash = list.GetHashCode();
             if (!_creatableItems.TryGetValue(innerType, out var types))
@@ -303,7 +310,16 @@ public static class ConditionDrawer
                 {
                     if (ImGui.Selectable(type.Local()))
                     {
-                        list.Add(Activator.CreateInstance(type));
+                        var instance = Activator.CreateInstance(type);
+                        if (index == -1)
+                        {
+                            list.Add(instance);
+                        }
+                        else
+                        {
+                            list.Insert(index, instance);
+                        }
+                        
                         ImGui.CloseCurrentPopup();
                     }
                 }
@@ -313,8 +329,15 @@ public static class ConditionDrawer
                     var str = ImGui.GetClipboardText();
                     try
                     {
-                        var s = JsonHelper.DeserializeObject(str, innerType)!;
-                        list.Add(s);
+                        var instance = JsonHelper.DeserializeObject(str, innerType)!;
+                        if (index == -1)
+                        {
+                            list.Add(instance);
+                        }
+                        else
+                        {
+                            list.Insert(index, instance);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -508,7 +531,8 @@ public static class ConditionDrawer
         {
             var values = type.GetCleanedEnumValues();
             var names = values.Select(v => v.Local()).ToArray();
-            if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref value, description: property.LocalUINameDesc()))
+            if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ((Enum)Enum.ToObject(type, value)).Local(), names, ref value, type.GetCustomAttribute<FlagsAttribute>() != null,
+                description: property.LocalUINameDesc()))
             {
                 property.SetValue(obj, value);
             }
@@ -568,7 +592,8 @@ public static class ConditionDrawer
             var shows = choices.Select(i => i.Show).ToArray();
             var index = Array.IndexOf(values, str);
 
-            if (ImGuiHelper.SelectableCombo($"##{property.Name}{obj.GetHashCode()}Selector", shows, ref index, description: property.LocalUINameDesc()))
+            if (ImGuiHelper.SelectableCombo($"##{property.Name}{obj.GetHashCode()}Selector", shows,
+                ref index, description: property.LocalUINameDesc()))
             {
                 property.SetValue(obj, values[index]);
             }
@@ -604,13 +629,14 @@ public static class ConditionDrawer
 
     private static void DrawEnum(object obj, PropertyInfo property)
     {
-        var value = property.GetValue(obj);
+        var value = property.GetValue(obj)!;
         
         var values = property.PropertyType.GetCleanedEnumValues();
         var index = Array.IndexOf(values, value);
         var names = values.Select(v => v.Local()).ToArray();
 
-        if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), names, ref index, description: property.LocalUINameDesc()))
+        if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ((Enum)value).Local(), names, ref index, 
+            value.GetType().GetCustomAttribute<FlagsAttribute>() != null ,description: property.LocalUINameDesc()))
         {
             property.SetValue(obj, values[index]);
         }

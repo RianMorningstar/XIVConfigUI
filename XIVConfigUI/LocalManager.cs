@@ -29,7 +29,7 @@ public static class LocalManager
     {
         if (@enum.GetType().GetCustomAttribute<FlagsAttribute>() == null) return @enum.LocalRaw(suffix, value);
 
-        var definedValues = Enum.GetValues(@enum.GetType());
+        var definedValues = @enum.GetType().GetCleanedEnumValues();
 
         List<string> values = [];
         foreach (Enum definedValue in definedValues)

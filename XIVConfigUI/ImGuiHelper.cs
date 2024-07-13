@@ -7,7 +7,9 @@ using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Files;
+using System;
 using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 
@@ -599,8 +601,9 @@ public static class ImGuiHelper
     };
 
     private static string _searchKey = string.Empty;
+
     /// <summary>
-    /// Selectable combo.
+    /// 
     /// </summary>
     /// <param name="popUp"></param>
     /// <param name="items"></param>
@@ -609,7 +612,23 @@ public static class ImGuiHelper
     /// <param name="color"></param>
     /// <param name="description"></param>
     /// <returns></returns>
-    public static unsafe bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
+    public static bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
+    {
+        return SelectableCombo(popUp, items[index], items, ref index, false, font, color, description);
+    }
+    /// <summary>
+    /// Selectable combo.
+    /// </summary>
+    /// <param name="popUp"></param>
+    /// <param name="name"></param>
+    /// <param name="items"></param>
+    /// <param name="index"></param>
+    /// <param name="isFlag"></param>
+    /// <param name="font"></param>
+    /// <param name="color"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    public static unsafe bool SelectableCombo(string popUp, string name, string[] items, ref int index, bool isFlag, ImFontPtr? font = null, Vector4? color = null, string description = "")
     {
         var count = items.Length;
 
@@ -619,11 +638,17 @@ public static class ImGuiHelper
             return false;
         }
 
-        var originIndex = index;
-        index = Math.Max(0, index) % count;
-        var name = items[index] + "##" + popUp;
+        name += "##" + popUp;
 
-        var result = originIndex != index;
+
+        bool result = false;
+
+        if (!isFlag) //Refine Index
+        {
+            var originIndex = index;
+            index = Math.Max(0, index) % count;
+            result = originIndex != index;
+        }
 
         if (SelectableButton(name, font, color))
         {
@@ -647,44 +672,71 @@ public static class ImGuiHelper
             }
         }
 
+        SelectablePopup(popUp, count, items, ref index, false);
+
+        return result;
+    }
+
+    private static bool SelectablePopup(string popUp, int count, string[] items, ref int index, bool isFlag)
+    {
         ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 500 * ImGuiHelpers.GlobalScale);
 
-        if (ImGui.BeginPopup(popUp))
+        bool result = false;
+
+        using var pop = ImRaii.Popup(popUp);
+        if (!pop) return result;
+
+        List<(int, string)> pairs = [];
+        for (int i = 0; i < count; i++)
         {
-            List<(int, string)> pairs = [];
-            for (int i = 0; i < count; i++)
+            pairs.Add((i, items[i]));
+        }
+        var members = pairs.OrderByDescending(s => Searchable.Similarity(s.Item2, _searchKey));
+
+        ImGui.SetNextItemWidth(Math.Max(ImGuiHelpers.GetButtonSize(LocalString.Searching.Local()).X,
+            members.Max(i => ImGuiHelpers.GetButtonSize(i.Item2).X) + ImGui.GetStyle().ScrollbarSize));
+        ImGui.InputTextWithHint("##Searching the member", LocalString.Searching.Local(), ref _searchKey, 128);
+
+        ImGui.Spacing();
+
+        ImRaii.IEndObject? child = null;
+        if (members.Count() >= 15)
+        {
+            ImGui.SetNextWindowSizeConstraints(new Vector2(0, 300) * ImGuiHelpers.GlobalScale, new Vector2(500, 300) * ImGuiHelpers.GlobalScale);
+            child = ImRaii.Child(popUp + "Child");
+            if (!child) return result;
+        }
+
+        foreach (var member in members)
+        {
+            bool selected;
+            if (isFlag)
             {
-                pairs.Add((i, items[i]));
+                selected = (index & member.Item1) == member.Item1;
             }
-            var members = pairs.OrderByDescending(s => Searchable.Similarity(s.Item2, _searchKey));
-
-            ImGui.SetNextItemWidth(Math.Max(ImGuiHelpers.GetButtonSize(LocalString.Searching.Local()).X, 
-                members.Max(i => ImGuiHelpers.GetButtonSize(i.Item2).X) + ImGui.GetStyle().ScrollbarSize));
-            ImGui.InputTextWithHint("##Searching the member", LocalString.Searching.Local(), ref _searchKey, 128);
-
-            ImGui.Spacing();
-
-            ImRaii.IEndObject? child = null;
-            if (members.Count() >= 15)
+            else
             {
-                ImGui.SetNextWindowSizeConstraints(new Vector2(0, 300) * ImGuiHelpers.GlobalScale, new Vector2(500, 300) * ImGuiHelpers.GlobalScale);
-                child = ImRaii.Child(popUp + "Child");
-                if (!child) return result;
+                selected = index == member.Item1;
             }
 
-            foreach (var member in members)
+            if (ImGui.Selectable(member.Item2, selected))
             {
-                if (ImGui.Selectable(member.Item2))
+                result = true;
+
+                if (isFlag)
+                {
+                    index ^= member.Item1;
+                }
+                else
                 {
                     index = member.Item1;
-                    result = true;
                     ImGui.CloseCurrentPopup();
                 }
             }
-
-            child?.Dispose();
-            ImGui.EndPopup();
         }
+
+        child?.Dispose();
+
 
         return result;
     }
@@ -905,6 +957,8 @@ public static class ImGuiHelper
     public static Enum[] GetCleanedEnumValues(this Type type)
     {
         if (!type.IsEnum) return [];
-        return Enum.GetValues(type).Cast<Enum>().Where(i => i.GetAttribute<ObsoleteAttribute>() == null).ToHashSet().ToArray();
+        return Enum.GetValues(type).Cast<Enum>()
+            .Where(i => i.GetAttribute<ObsoleteAttribute>() == null)
+            .ToHashSet().ToArray();
     }
 }
