@@ -39,10 +39,26 @@ public class DragIntSearch : Searchable
     protected override void DrawMain()
     {
         var value = Value;
-        if (ImGuiHelper.DragInt($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
+
+        if (_property.GetCustomAttribute<ChoicesAttribute>() is ChoicesAttribute choiceAttr)
         {
-            Value = value;
+            var choices = choiceAttr.Choices;
+
+            var shows = choices.Select(i => i.Show).ToArray();
+
+            if (ImGuiHelper.SelectableCombo($"##Config_{ID}{GetHashCode()}", shows, ref value))
+            {
+                Value = value;
+            }
         }
+        else
+        {
+            if (ImGuiHelper.DragInt($"##Config_{ID}{GetHashCode()}", DRAG_WIDTH, ref value, Range))
+            {
+                Value = value;
+            }
+        }
+
         if (ImGui.IsItemHovered()) ShowTooltip();
 
         DrawName();
