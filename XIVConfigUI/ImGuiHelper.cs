@@ -7,10 +7,7 @@ using Dalamud.Interface.Textures.TextureWraps;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
-using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Files;
-using System;
-using System.Xml.Linq;
 using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 

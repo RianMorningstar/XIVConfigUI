@@ -335,7 +335,10 @@ public static class ConditionDrawer
                     try
                     {
                         var instance = JsonHelper.DeserializeObject(str, innerType)!;
-                        list.Add(instance);
+                        if (instance != null)
+                        {
+                            list.Add(instance);
+                        }
                     }
                     catch (Exception ex)
                     {
