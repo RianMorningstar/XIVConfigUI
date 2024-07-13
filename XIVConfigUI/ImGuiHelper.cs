@@ -10,6 +10,7 @@ using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Common.Lua;
 using Lumina.Data.Files;
 using System;
+using System.Xml.Linq;
 using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 
@@ -614,22 +615,6 @@ public static class ImGuiHelper
     /// <returns></returns>
     public static bool SelectableCombo(string popUp, string[] items, ref int index, ImFontPtr? font = null, Vector4? color = null, string description = "")
     {
-        return SelectableCombo(popUp, items[index], items, ref index, false, font, color, description);
-    }
-    /// <summary>
-    /// Selectable combo.
-    /// </summary>
-    /// <param name="popUp"></param>
-    /// <param name="name"></param>
-    /// <param name="items"></param>
-    /// <param name="index"></param>
-    /// <param name="isFlag"></param>
-    /// <param name="font"></param>
-    /// <param name="color"></param>
-    /// <param name="description"></param>
-    /// <returns></returns>
-    public static unsafe bool SelectableCombo(string popUp, string name, string[] items, ref int index, bool isFlag, ImFontPtr? font = null, Vector4? color = null, string description = "")
-    {
         var count = items.Length;
 
         if (count == 0)
@@ -638,19 +623,11 @@ public static class ImGuiHelper
             return false;
         }
 
-        name += "##" + popUp;
+        var originIndex = index;
+        index = Math.Max(0, index) % count;
+        var result = originIndex != index;
 
-
-        bool result = false;
-
-        if (!isFlag) //Refine Index
-        {
-            var originIndex = index;
-            index = Math.Max(0, index) % count;
-            result = originIndex != index;
-        }
-
-        if (SelectableButton(name, font, color))
+        if (SelectableButton(items[index] + "##" + popUp, font, color))
         {
             if (count < 3)
             {
@@ -672,12 +649,119 @@ public static class ImGuiHelper
             }
         }
 
-        SelectablePopup(popUp, count, items, ref index, false);
+        var indexes = new List<int>() { index};
+        if (SelectablePopup(popUp, count, items, ref indexes, false))
+        {
+            index = indexes.FirstOrDefault();
+            result = true;
+        }
 
         return result;
     }
 
-    private static bool SelectablePopup(string popUp, int count, string[] items, ref int index, bool isFlag)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="popUp"></param>
+    /// <param name="enum"></param>
+    /// <param name="font"></param>
+    /// <param name="color"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    public static unsafe bool SelectableCombo(string popUp, ref Enum @enum, ImFontPtr? font = null, Vector4? color = null, string description = "")
+    {
+        var type = @enum.GetType();
+
+        var isFlag = type.GetCustomAttribute<FlagsAttribute>() != null;
+        var values = type.GetCleanedEnumValues();
+        var names = values.Select(v => v.Local()).ToArray();
+
+        if (isFlag)
+        {
+            List<int> indexes = [];
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (@enum.HasFlag(values[i]))
+                {
+                    indexes.Add(i); 
+                }
+            }
+            var result = SelectableCombo(popUp, @enum.Local(), names, ref indexes, font, color, description);
+            if (result)
+            {
+                long value = 0;
+                foreach (var index in indexes)
+                {
+                    value |= Convert.ToInt64(values[index]);
+                }
+                @enum = (Enum)Enum.ToObject(type, value);
+            }
+            return result;
+        }
+        else
+        {
+            var index = Array.IndexOf(values, @enum);
+
+            var result = SelectableCombo(popUp, names, ref index, font, color, description);
+            if (result)
+            {
+                @enum = values[index];
+            }
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Selectable combo.
+    /// </summary>
+    /// <param name="popUp"></param>
+    /// <param name="name"></param>
+    /// <param name="items"></param>
+    /// <param name="indexes"></param>
+    /// <param name="font"></param>
+    /// <param name="color"></param>
+    /// <param name="description"></param>
+    /// <returns></returns>
+    public static unsafe bool SelectableCombo(string popUp, string name, string[] items, ref List<int> indexes, ImFontPtr? font = null, Vector4? color = null, string description = "")
+    {
+        name += "##" + popUp;
+
+        var count = items.Length;
+
+        if (count == 0)
+        {
+            ImGui.TextWrapped(LocalString.Nothing.Local());
+            return false;
+        }
+
+        bool result = false;
+
+        for (int i = 0; i < indexes.Count; i++)
+        {
+            var index = indexes[i];
+            var originIndex = index;
+            indexes[i] = index = Math.Max(0, index) % count;
+            result = originIndex != index;
+        }
+
+        if (SelectableButton(name, font, color))
+        {
+            if (!ImGui.IsPopupOpen(popUp)) ImGui.OpenPopup(popUp);
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+            if (!string.IsNullOrEmpty(description))
+            {
+                ShowTooltip(description);
+            }
+        }
+
+        return SelectablePopup(popUp, count, items, ref indexes, true) || result;
+    }
+
+    private static bool SelectablePopup(string popUp, int count, string[] items, ref List<int> indexes, bool isFlag)
     {
         ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 500 * ImGuiHelpers.GlobalScale);
 
@@ -709,15 +793,7 @@ public static class ImGuiHelper
 
         foreach (var member in members)
         {
-            bool selected;
-            if (isFlag)
-            {
-                selected = (index & member.Item1) == member.Item1;
-            }
-            else
-            {
-                selected = index == member.Item1;
-            }
+            bool selected = indexes.Contains(member.Item1);
 
             if (ImGui.Selectable(member.Item2, selected))
             {
@@ -725,11 +801,14 @@ public static class ImGuiHelper
 
                 if (isFlag)
                 {
-                    index ^= member.Item1;
+                    if (!indexes.Remove(member.Item1))
+                    {
+                        indexes.Add(member.Item1);
+                    }
                 }
                 else
                 {
-                    index = member.Item1;
+                    indexes = [member.Item1];
                     ImGui.CloseCurrentPopup();
                 }
             }
@@ -958,7 +1037,7 @@ public static class ImGuiHelper
     {
         if (!type.IsEnum) return [];
         return Enum.GetValues(type).Cast<Enum>()
-            .Where(i => i.GetAttribute<ObsoleteAttribute>() == null)
+            .Where(i => !i.IsObsolete())
             .ToHashSet().ToArray();
     }
 }

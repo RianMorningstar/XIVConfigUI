@@ -529,12 +529,10 @@ public static class ConditionDrawer
         if (property.GetCustomAttribute<IntegerChoicesAttribute>() is IntegerChoicesAttribute attr
             && attr.GetEnumType(obj) is Type type && type.IsEnum)
         {
-            var values = type.GetCleanedEnumValues();
-            var names = values.Select(v => v.Local()).ToArray();
-            if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ((Enum)Enum.ToObject(type, value)).Local(), names, ref value, type.GetCustomAttribute<FlagsAttribute>() != null,
-                description: property.LocalUINameDesc()))
+            var @enum = (Enum) Enum.ToObject(type, value);
+            if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ref @enum, description: property.LocalUINameDesc()))
             {
-                property.SetValue(obj, value);
+                property.SetValue(obj, Convert.ToInt32(@enum));
             }
         }
         else
@@ -629,16 +627,11 @@ public static class ConditionDrawer
 
     private static void DrawEnum(object obj, PropertyInfo property)
     {
-        var value = property.GetValue(obj)!;
+        var value = (Enum)property.GetValue(obj)!;
         
-        var values = property.PropertyType.GetCleanedEnumValues();
-        var index = Array.IndexOf(values, value);
-        var names = values.Select(v => v.Local()).ToArray();
-
-        if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ((Enum)value).Local(), names, ref index, 
-            value.GetType().GetCustomAttribute<FlagsAttribute>() != null ,description: property.LocalUINameDesc()))
+        if (ImGuiHelper.SelectableCombo(property.Name + obj.GetHashCode(), ref value, description: property.LocalUINameDesc()))
         {
-            property.SetValue(obj, values[index]);
+            property.SetValue(obj, value);
         }
     }
 
