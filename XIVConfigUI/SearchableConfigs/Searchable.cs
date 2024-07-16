@@ -108,7 +108,7 @@ public abstract class Searchable
         _config = SearchableCollection._searchableConfig;
         _property = property;
         _obj = obj;
-        if (_config?.GeneralDefault ?? false)
+        if (_config?.GeneralDefault ?? true)
         {
             _default = property.GetValue(Activator.CreateInstance(obj.GetType()))!;
         }
