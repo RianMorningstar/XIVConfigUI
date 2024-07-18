@@ -408,7 +408,7 @@ public static class ImGuiHelper
         var pixPerUnit = size / 82;
 
         var outPos = position - new Vector2(pixPerUnit * 31, pixPerUnit * 31);
-        drawList.AddImage(_roundTex.ImGuiHandle, outPos, outPos + new Vector2(pixPerUnit * 144, pixPerUnit * 144),
+        drawList.AddImage(_roundTex.ImGuiHandle, outPos, outPos + new Vector2(pixPerUnit * 144, pixPerUnit * 154),
         _uv1, _uv2, lightCol);
     }
 

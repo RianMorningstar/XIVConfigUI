@@ -29,6 +29,12 @@ public class ListUIAttribute(uint icon) : Attribute
     public virtual void OnClick(object obj) { }
 
     /// <summary>
+    /// On the <see cref="ImGui"/> ticks.
+    /// </summary>
+    /// <param name="obj"></param>
+    public virtual void OnTick(object obj) { }
+
+    /// <summary>
     /// Get the icon
     /// </summary>
     /// <param name="obj">the instance of the class.</param>
