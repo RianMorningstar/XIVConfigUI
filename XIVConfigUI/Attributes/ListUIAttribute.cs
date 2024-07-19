@@ -23,6 +23,14 @@ public class ListUIAttribute(uint icon) : Attribute
     }
 
     /// <summary>
+    /// Draw the index.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public virtual string DrawIndex(object obj, int index) => string.Empty;
+
+    /// <summary>
     /// When it clicked.
     /// </summary>
     /// <param name="obj">the instance of the class.</param>

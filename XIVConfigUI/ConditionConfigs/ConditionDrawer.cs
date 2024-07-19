@@ -226,6 +226,14 @@ public static class ConditionDrawer
                 }
             }
 
+            var indexString = attr.DrawIndex(item, i);
+
+            if (!string.IsNullOrEmpty(indexString))
+            {
+                ImGui.Text(indexString);
+                ImGui.SameLine();
+            }
+
             var key = $"Item Edit Pop Up: {item.GetHashCode()}";
 
             ImGuiHelper.DrawHotKeysPopup(key, string.Empty,
