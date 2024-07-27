@@ -268,7 +268,14 @@ public static class ConditionDrawer
             var description = attr.GetDescription(item);
             if (!string.IsNullOrEmpty(description))
             {
-                desc += "\n" + innerType.Local("Description", description);
+                if (description == attr.Description)
+                {
+                    desc += "\n" + innerType.Local("Description", description);
+                }
+                else
+                {
+                    desc += "\n" + description;
+                }
             }
 
             ImGuiHelper.ExecuteHotKeysPopup(key, string.Empty, desc, true,
