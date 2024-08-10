@@ -1,6 +1,8 @@
 using Dalamud.Game.Command;
+using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Newtonsoft.Json.Linq;
+using XIVConfigUI.Overlay;
 
 namespace XIVConfigUI;
 
@@ -14,6 +16,9 @@ public static class XIVConfigUIMain
     private static string _punchline = string.Empty, _description = string.Empty;
 
     internal static readonly List<SearchableCollection> _searchableCollections = [];
+
+    internal static readonly List<BaseDraw> _drawingElements = [];
+    private static WindowSystem? windowSystem;
 
     /// <summary>
     /// Control if show tooltips.
@@ -46,6 +51,11 @@ public static class XIVConfigUIMain
     /// The repo name in github.
     /// </summary>
     public static string RepoName { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Shoud I use the overlay
+    /// </summary>
+    public static bool UseOverlay { get; set; } = true;
 
     /// <summary>
     /// 
@@ -89,7 +99,19 @@ public static class XIVConfigUIMain
 
         UserName = items[^2];
         RepoName = items[^1];
+
+        windowSystem = new WindowSystem(Command);
+        windowSystem.AddWindow(new OverlayWindow());
+        Service.PluginInterface.UiBuilder.Draw += OnDraw;
     }
+
+    private static void OnDraw()
+    {
+        if (!UseOverlay) return;
+        if (Service.GameGui.GameUiHidden) return;
+        windowSystem?.Draw();
+    }
+
     internal static void EnableCommand()
     {
         Service.Commands.AddHandler(Command, new CommandInfo(OnCommand)
@@ -112,10 +134,13 @@ public static class XIVConfigUIMain
         if (!_inited) return;
         _inited = false;
 
+        _drawingElements.Clear();
         _searchableCollections.Clear();
         DisableCommand();
         LocalManager.Dispose();
         ImageLoader.Dispose();
+
+        Service.PluginInterface.UiBuilder.Draw -= OnDraw;
     }
 
     private static void OnCommand(string command, string arguments)

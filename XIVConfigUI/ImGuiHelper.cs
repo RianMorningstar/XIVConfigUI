@@ -8,7 +8,6 @@ using Dalamud.Interface.Utility;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Utility;
 using Lumina.Data.Files;
-using Svg;
 using XIVConfigUI.Attributes;
 using XIVConfigUI.SearchableConfigs;
 
