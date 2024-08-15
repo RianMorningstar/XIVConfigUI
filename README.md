@@ -7,7 +7,7 @@ XIVConfigUI is a ui, localization, config library in Imgui designed to work with
 Add XIVConfigUI as a submodule to your project:
 
 ```shell
-git submodule add https://github.com/ArchiDog1998/XIVConfigUI
+git submodule add https://github.com/RianMorningstar/XIVConfigUI
 ```
 
 Add it to your plugin's CSProj file:
